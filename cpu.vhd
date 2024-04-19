@@ -383,7 +383,7 @@ begin
 				M4 := REG(RY);
 				M1 <= M4;
 				Rw <= '0';
-				SelM2 = sMEM;
+				SelM2 := sMEM;
 				LoadReg(RX) := '1';
 				state := fetch;
 				
@@ -415,12 +415,12 @@ begin
 --========================================================================		
 			IF(IR(15 DOWNTO 10) = MOV) THEN 
 				IF(IR(0) = 0) THEN
-					M4 := RY;
+					M4 := REG(RY);
 					selm2 := sm4;
-					LoadRegisters(RX) = '1';
+					LoadReg(RX) = '1';
 				ELSIF(IR(1) = 0) THEN
 					selM2 := sSp;
-					LoadRegisters(RX) = '1';
+					LoadReg(RX) = '1';
 				ELSE
 					selM4 := RX;
 					LoadSp := '1';
@@ -616,7 +616,7 @@ begin
 			IF(IR(15 DOWNTO 10) = LOAD) THEN
 				M1<= MAR;
 				Rw<= '0';
-				SelM2 = sMEM;
+				SelM2 := sMEM;
 				LoadReg(RX) := '1'
 				state := fetch;
 				state := fetch;
@@ -627,7 +627,7 @@ begin
 --========================================================================
 			IF(IR(15 DOWNTO 10) = STORE) THEN 
 				RW <= '1';
-				M3 := RX;
+				M3 := REG(RX);
 				M1 <= MAR;
 				M5 <= M3;
 				state := fetch;
