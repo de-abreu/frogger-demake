@@ -440,7 +440,17 @@ begin
 -- INC/DEC			RX <- RX (+ or -) 1
 --========================================================================			
 			IF(IR(15 DOWNTO 14) = ARITH AND (IR(13 DOWNTO 10) = INC))	THEN
-				
+				M3 := REG(RX);
+				M4 := x"01";
+				selM2 := sULA;
+				LoadReg(RX) := '1';
+				IF(IR(6) = 0) THEN
+					OP <= ADD;
+				else
+					OP <= SUB;
+				END IF;
+				selM6 := sULA;
+				LoadFr := '1'
 				state := fetch;
 			END IF;
 			
