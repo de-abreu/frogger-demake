@@ -364,7 +364,10 @@ begin
 -- STORE   DIReto			M[END] <- RX
 --========================================================================			
 			IF(IR(15 DOWNTO 10) = STORE) THEN  -- Busca o endereco
-		
+				M1 <= PC;
+				RW <= '0';
+				IncPc := '1';
+				LoadMar  := '1';
 				state := exec;  -- Vai para o estado de Executa para gravar Registrador no endereco
 			END IF;					
 
@@ -396,8 +399,17 @@ begin
 
 --========================================================================		
 			IF(IR(15 DOWNTO 10) = MOV) THEN 
-			
-			  
+				IF(IR(0) = 0) THEN
+					M4 := RY;
+					selm2 := sm4;
+					LoadRegisters(RX) = '1';
+				ELSIF(IR(1) = 0) THEN
+					selM2 := sSp;
+					LoadRegisters(RX) = '1';
+				ELSE
+					selM4 := RX;
+					LoadSp := '1';
+				END IF;
 				state := fetch;
 			END IF;
 
@@ -585,7 +597,10 @@ begin
 -- EXEC STORE DIReto 			M[END] <- RX
 --========================================================================
 			IF(IR(15 DOWNTO 10) = STORE) THEN 
-				
+				RW <= '1';
+				M3 := RX;
+				M1 <= MAR;
+				M5 <= M3;
 				state := fetch;
 			END IF;
 						
