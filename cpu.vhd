@@ -354,6 +354,11 @@ begin
 -- LOAD Direto  			RX <- M[End]
 --========================================================================		
 			IF(IR(15 DOWNTO 10) = LOAD) THEN -- Busca o endereco
+				M1 <= PC;				-- M1 <- PC
+				Rw <= '0';				-- Rw <= '0'	
+				LoadMAR := '1';	-- LRx <- 1	
+				IncPC := '1';  	-- IncPC <- 1	
+
 
 				state := exec;  -- Vai para o estado de Executa para buscar o dado do endereco
 			END IF;			
@@ -375,6 +380,12 @@ begin
 -- LOAD Indexado por registrador 			RX <- M(RY)
 --========================================================================		
 			IF(IR(15 DOWNTO 10) = LOADINDEX) THEN
+				M4 := REG(RY);
+				M1 <= M4;
+				Rw <= '0';
+				SelM2 = sMEM;
+				LoadReg(RX) := '1';
+				state := fetch;
 				
 				state := fetch;
 			END IF;					
@@ -383,7 +394,11 @@ begin
 -- STORE indexado por registrador 			M[RX] <- RY
 --========================================================================		
 			IF(IR(15 DOWNTO 10) = STOREINDEX) THEN 
-				
+				M4:= REG(RX);
+				M1<= M4;
+				RW<= '1';
+				M3:= REG(RY);
+				M5<= M3;
 				state := fetch;
 			END IF;					
 		
@@ -589,7 +604,11 @@ begin
 -- EXEC LOAD DIReto  			RX <- M[END]
 --========================================================================
 			IF(IR(15 DOWNTO 10) = LOAD) THEN
-				
+				M1<= MAR;
+				Rw<= '0';
+				SelM2 = sMEM;
+				LoadReg(RX) := '1'
+				state := fetch;
 				state := fetch;
 			END IF;
 							
