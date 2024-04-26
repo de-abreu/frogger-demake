@@ -550,14 +550,23 @@ begin
 -- JMP Condition: (UNconditional, EQual, Not Equal, Zero, Not Zero, CarRY, Not CarRY, GReater, LEsser, Equal or Greater, Equal or Lesser, OVerflow, Not OVerflow, Negative, DIVbyZero, NOT USED)	
 --========================================================================
 			IF(IR(15 DOWNTO 10) = CALL) THEN 
-				
+				IF(IR(9 DOWNTO 6) = "0000") THEN
+					M1 <= SP;
+					RW = 1;
+					M5 <= PC;
+					DecSP := '1';
+					state := exec;
+				ELSE
+					IncPC := '1';
+					state := fetch;	
+				END IF;
 			END IF;
 
 --========================================================================
 -- RTS 			PC <- Mem[SP]
 --========================================================================				
 			IF(IR(15 DOWNTO 10) = RTS) THEN
-
+				IncSP := '1';
 				state := exec;
 			END IF;
 
@@ -657,7 +666,9 @@ begin
 -- EXEC CALL    Pilha <- PC e PC <- 16bit END :
 --========================================================================
 			IF(IR(15 DOWNTO 10) = CALL) THEN
-				
+				M1 <= PC;
+				RW <= '0';
+				LoadPc := '1';
 				state := fetch;
 			END IF;
 
@@ -665,7 +676,9 @@ begin
 -- EXEC RTS 			PC <- Mem[SP]
 --========================================================================
 			IF(IR(15 DOWNTO 10) = RTS) THEN
-				
+				M1 <= SP;
+				RW <= '0';
+				LoadPC := '1';
 				state := exec2;
 			END IF;
 			
@@ -689,7 +702,7 @@ begin
 -- EXEC2 RTS 			PC <- Mem[SP]
 --========================================================================
 			IF(IR(15 DOWNTO 10) = RTS) THEN
-				
+				IncPC := '1';
 				state := fetch;
 			END IF;				
 
