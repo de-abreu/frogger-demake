@@ -489,7 +489,10 @@ begin
 -- CMP		RX, RY
 --========================================================================		
 			IF(IR(15 DOWNTO 14) = LOGIC AND IR(13 DOWNTO 10) = CMP) THEN 
-				
+				M3 := REG(RX);
+				M4 := REG(RY);
+				OP (3 downto 0) <= CMP
+				selM6 := sULA
 				state := fetch;
 			END IF;
 		
