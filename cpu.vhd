@@ -432,27 +432,18 @@ begin
 -- ARITH OPERATION ('INC' NOT INCLUDED) 			RX <- RY (?) RZ
 --========================================================================
 			IF(IR(15 DOWNTO 14) = ARITH AND IR(13 DOWNTO 10) /= INC) THEN
-			M3 := REG(RY);
+				M3 := REG(RY);
 				M4 := REG(RZ);
+				X <= M3;
+				y <= M4;
+				op(6)<=IR(0);
+				op(5 downto 0) <= IR(15 downto 10);
 				selM2 := sULA;
 				LoadReg(RX) := '1';
 				selM6 := sULA;
 				LoadFR := '1';
-				op(6)<=IR(0);
-				X <= M3;
-				y <= M4;
-				IF(IR(13 DOWNTO 10) = ADD) THEN
-					OP (3 DOWNTO 0) <= ADD;
-				ELSIF(IR(13 DOWNTO 10) = SUB) THEN
-					OP (3 DOWNTO 0) <= SUB;
-				ELSIF(IR(13 DOWNTO 10) = MULT) THEN
-					OP (3 DOWNTO 0) <= SUB;
-				ELSIF(IR(13 DOWNTO 10) = DIV) THEN
-					OP (3 DOWNTO 0) <= DIV;
-				ELSIF(IR(13 DOWNTO 10) = LMOD) THEN
-					OP (3 DOWNTO 0) <= LMOD;
-				END IF;
-				state := fetch;
+				
+				
 			
 				state := fetch;
 			END IF;
@@ -463,8 +454,11 @@ begin
 			IF(IR(15 DOWNTO 14) = ARITH AND (IR(13 DOWNTO 10) = INC))	THEN
 				M3 := REG(RX);
 				M4 := x"0001";
+				X <= M3;
+				y <= M4;
 				selM2 := sULA;
 				LoadReg(RX) := '1';
+				OP(5 downto 4) <= ARITH;
 				IF(IR(6) = '0') THEN
 					OP (3 downto 0) <= ADD;
 				else
@@ -481,24 +475,16 @@ begin
 			IF(IR(15 DOWNTO 14) = LOGIC AND IR(13 DOWNTO 10) /= SHIFT AND IR(13 DOWNTO 10) /= CMP) THEN 
 				M3 := REG(RY);
 				M4 := REG(RZ);
-				selM2 := sULA;
-				LoadReg(RX) := '1';
-				LoadFR := '1';
-				op(6)<=IR(0);
 				X <= M3;
 				y <= M4;
-				case IR(13 DOWNTO 10) is
-				when LAND =>
-					OP (3 DOWNTO 0) <= LAND;
-				when LOR =>
-					OP (3 DOWNTO 0) <= LOR;
-				when LXOR =>
-					OP (3 DOWNTO 0) <= LXOR;
-				when LNOT =>
-					OP (3 DOWNTO 0) <= LNOT;
-				when others =>
-					
-				end case;
+				op(6)<=IR(0);
+				op(5 downto 0) <= IR(15 downto 10);
+				selM2 := sULA;
+				LoadReg(RX) := '1';
+				selM6 := sULA;
+				LoadFR := '1';
+				
+
 				state := fetch;
 			END IF;			
 		
@@ -533,7 +519,7 @@ begin
 				M4 := REG(RY);
 				X <= M3;
 				y <= M4;
-				OP (3 downto 0) <= CMP;
+				OP (5 downto 0) <= IR(15 DOWNTO 10);
 				selM6 := sULA;
 				state := fetch;
 			END IF;
@@ -578,7 +564,7 @@ begin
 			IF(IR(15 DOWNTO 10) = CALL) THEN 
 				IF(IR(9 DOWNTO 6) = "0000") THEN
 					M1 <= SP;
-					RW = 1;
+					RW <= '1';
 					M5 <= PC;
 					DecSP := '1';
 					state := exec;
