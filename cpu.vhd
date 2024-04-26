@@ -432,12 +432,15 @@ begin
 -- ARITH OPERATION ('INC' NOT INCLUDED) 			RX <- RY (?) RZ
 --========================================================================
 			IF(IR(15 DOWNTO 14) = ARITH AND IR(13 DOWNTO 10) /= INC) THEN
-				M3 := REG(RY);
+			M3 := REG(RY);
 				M4 := REG(RZ);
 				selM2 := sULA;
 				LoadReg(RX) := '1';
 				selM6 := sULA;
 				LoadFR := '1';
+				op(6)<=IR(0);
+				X <= M3;
+				y <= M4;
 				IF(IR(13 DOWNTO 10) = ADD) THEN
 					OP (3 DOWNTO 0) <= ADD;
 				ELSIF(IR(13 DOWNTO 10) = SUB) THEN
@@ -449,6 +452,8 @@ begin
 				ELSIF(IR(13 DOWNTO 10) = LMOD) THEN
 					OP (3 DOWNTO 0) <= LMOD;
 				END IF;
+				state := fetch;
+			
 				state := fetch;
 			END IF;
 			
@@ -474,7 +479,26 @@ begin
 -- LOGIC OPERATION ('SHIFT', and 'CMP'  NOT INCLUDED)  			RX <- RY (?) RZ
 --========================================================================		
 			IF(IR(15 DOWNTO 14) = LOGIC AND IR(13 DOWNTO 10) /= SHIFT AND IR(13 DOWNTO 10) /= CMP) THEN 
-				
+				M3 := REG(RY);
+				M4 := REG(RZ);
+				selM2 := sULA;
+				LoadReg(RX) := '1';
+				LoadFR := '1';
+				op(6)<=IR(0);
+				X <= M3;
+				y <= M4;
+				case IR(13 DOWNTO 10) is
+				when LAND =>
+					OP (3 DOWNTO 0) <= LAND;
+				when LOR =>
+					OP (3 DOWNTO 0) <= LOR;
+				when LXOR =>
+					OP (3 DOWNTO 0) <= LXOR;
+				when LNOT =>
+					OP (3 DOWNTO 0) <= LNOT;
+				when others =>
+					
+				end case;
 				state := fetch;
 			END IF;			
 		
@@ -507,8 +531,10 @@ begin
 			IF(IR(15 DOWNTO 14) = LOGIC AND IR(13 DOWNTO 10) = CMP) THEN 
 				M3 := REG(RX);
 				M4 := REG(RY);
-				OP (3 downto 0) <= CMP
-				selM6 := sULA
+				X <= M3;
+				y <= M4;
+				OP (3 downto 0) <= CMP;
+				selM6 := sULA;
 				state := fetch;
 			END IF;
 		
