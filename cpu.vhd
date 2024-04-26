@@ -432,7 +432,23 @@ begin
 -- ARITH OPERATION ('INC' NOT INCLUDED) 			RX <- RY (?) RZ
 --========================================================================
 			IF(IR(15 DOWNTO 14) = ARITH AND IR(13 DOWNTO 10) /= INC) THEN
-				
+				M3 := REG(RY);
+				M4 := REG(RZ);
+				selM2 := sULA;
+				LoadReg(RX) := '1';
+				selM6 := sULA;
+				LoadFR := '1';
+				IF(IR(13 DOWNTO 10) = ADD) THEN
+					OP (3 DOWNTO 0) <= ADD;
+				ELSIF(IR(13 DOWNTO 10) = SUB) THEN
+					OP (3 DOWNTO 0) <= SUB;
+				ELSIF(IR(13 DOWNTO 10) = MULT) THEN
+					OP (3 DOWNTO 0) <= SUB;
+				ELSIF(IR(13 DOWNTO 10) = DIV) THEN
+					OP (3 DOWNTO 0) <= DIV;
+				ELSIF(IR(13 DOWNTO 10) = LMOD) THEN
+					OP (3 DOWNTO 0) <= LMOD;
+				END IF;
 				state := fetch;
 			END IF;
 			
