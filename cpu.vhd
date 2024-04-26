@@ -414,15 +414,15 @@ begin
 
 --========================================================================		
 			IF(IR(15 DOWNTO 10) = MOV) THEN 
-				IF(IR(0) = 0) THEN
+				IF(IR(0) = '0') THEN
 					M4 := REG(RY);
 					selm2 := sm4;
-					LoadReg(RX) = '1';
-				ELSIF(IR(1) = 0) THEN
+					LoadReg(RX) := '1';
+				ELSIF(IR(1) = '0') THEN
 					selM2 := sSp;
-					LoadReg(RX) = '1';
+					LoadReg(RX) := '1';
 				ELSE
-					selM4 := RX;
+					M4 := REG(RX);
 					LoadSp := '1';
 				END IF;
 				state := fetch;
@@ -441,16 +441,16 @@ begin
 --========================================================================			
 			IF(IR(15 DOWNTO 14) = ARITH AND (IR(13 DOWNTO 10) = INC))	THEN
 				M3 := REG(RX);
-				M4 := x"01";
+				M4 := x"0001";
 				selM2 := sULA;
 				LoadReg(RX) := '1';
-				IF(IR(6) = 0) THEN
-					OP <= ADD;
+				IF(IR(6) = '0') THEN
+					OP (3 downto 0) <= ADD;
 				else
-					OP <= SUB;
+					OP (3 downto 0) <= SUB;
 				END IF;
 				selM6 := sULA;
-				LoadFr := '1'
+				LoadFr := '1';
 				state := fetch;
 			END IF;
 			
@@ -617,7 +617,7 @@ begin
 				M1<= MAR;
 				Rw<= '0';
 				SelM2 := sMEM;
-				LoadReg(RX) := '1'
+				LoadReg(RX) := '1';
 				state := fetch;
 				state := fetch;
 			END IF;
