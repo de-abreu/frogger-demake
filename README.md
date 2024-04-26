@@ -1,4 +1,4 @@
-# frogger-demake
+# Frogger demake
 
 ![Captura de tela](/graphics/screens/screencapture.png)
 
