@@ -521,6 +521,7 @@ begin
 				y <= M4;
 				OP (5 downto 0) <= IR(15 DOWNTO 10);
 				selM6 := sULA;
+				LoadFR := '1';
 				state := fetch;
 			END IF;
 		
