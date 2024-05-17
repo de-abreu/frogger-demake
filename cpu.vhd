@@ -519,6 +519,7 @@ begin
 				M4 := REG(RY);
 				X <= M3;
 				y <= M4;
+				op(6)<=IR(0);
 				OP (5 downto 0) <= IR(15 DOWNTO 10);
 				selM6 := sULA;
 				LoadFR := '1';
@@ -563,7 +564,21 @@ begin
 -- JMP Condition: (UNconditional, EQual, Not Equal, Zero, Not Zero, CarRY, Not CarRY, GReater, LEsser, Equal or Greater, Equal or Lesser, OVerflow, Not OVerflow, Negative, DIVbyZero, NOT USED)	
 --========================================================================
 			IF(IR(15 DOWNTO 10) = CALL) THEN 
-				IF(IR(9 DOWNTO 6) = "0000") THEN
+				IF((IR(9 DOWNTO 6) = "0000") OR
+				((IR(9 DOWNTO 6) = "0111") AND FR(0) = '1') OR
+				((IR(9 DOWNTO 6) = "1001") AND (FR(2) = '1' OR FR(0) = '1')) OR
+				((IR(9 DOWNTO 6) = "1000") AND FR(1) = '1') OR
+				((IR(9 DOWNTO 6) = "1010") AND (FR(2) = '1' OR FR(1) = '1')) OR
+				((IR(9 DOWNTO 6) = "0001") AND FR(2) = '1') OR
+				((IR(9 DOWNTO 6) = "0010") AND FR(2) = '0') OR
+				((IR(9 DOWNTO 6) = "0011") AND FR(3) = '1') OR
+				((IR(9 DOWNTO 6) = "0100") AND FR(3) = '0') OR
+				((IR(9 DOWNTO 6) = "0101") AND FR(4) = '1') OR
+				((IR(9 DOWNTO 6) = "0110") AND FR(4) = '0') OR
+				((IR(9 DOWNTO 6) = "1011") AND FR(5) = '1') OR
+				((IR(9 DOWNTO 6) = "1100") AND FR(5) = '0') OR
+				((IR(9 DOWNTO 6) = "1101") AND FR(6) = '1') OR
+				((IR(9 DOWNTO 6) = "1110") AND FR(9) = '1')) THEN
 					M1 <= SP;
 					RW <= '1';
 					M5 <= PC;
@@ -587,6 +602,15 @@ begin
 -- PUSH RX
 --========================================================================		
 			IF(IR(15 DOWNTO 10) = PUSH) THEN
+				M1 <= SP;
+				RW <= '1';
+				IF(IR(6)='0') THEN
+					M3 := REG(RX);
+				ELSE
+					M3 := FR;
+				END IF;
+				M5 <= M3;
+				DecSP := '1';
 				
 				state := fetch;
 			END IF;
@@ -595,7 +619,7 @@ begin
 -- POP RX
 --========================================================================
 			IF(IR(15 DOWNTO 10) = POP) THEN
-				
+				IncSP :='1';
 				state := exec;
 			END IF;						
 				
@@ -699,9 +723,18 @@ begin
 -- EXEC POP RX/FR
 --========================================================================
 			IF(IR(15 DOWNTO 10) = POP) THEN
-				
+				M1 <= SP;
+				RW <= '1';
+				IF(IR(6)='0') THEN
+					SelM2 := sMEM;
+					LoadReg(RX) := '1';
+				ELSE
+					SelM6 := sMEM;
+					LoadFR := '1';
+				END IF;	
 				state := fetch;
-			END IF;		
+			END IF;
+					
 		
 -- XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 				
