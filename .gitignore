@@ -1,2 +1,9 @@
 __pycache__/
 *.o
+simuladorGO
+simuladorGO/*
+simulador_Linux
+simulador_Linux/*
+ProcessadorICMC2.pdf
+*.mif
+test.asm
