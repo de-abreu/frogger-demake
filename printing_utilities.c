@@ -1,4 +1,5 @@
 #include "frogger_demake.h"
+#include <wchar.h>
 
 int alignCentered(wchar_t *string) { return (WIDTH - wcslen(string)) / 2; }
 
@@ -6,8 +7,8 @@ int alignLeft(wchar_t *string) { return 2; }
 
 int alignJustified(wchar_t *string) { return 0; }
 
-void printChar(wchar_t c, int i, int j) {
-    wprintf(L"\033[%d;%dH%lc", i + 2, j + 2, c);
+void printChar(wchar_t c, int row, int col) {
+    wprintf(L"\033[%d;%dH%lc", row + 2, col + 2, c);
     fflush(stdout);
 }
 
@@ -49,16 +50,13 @@ bool printLine(MAP, int line, wchar_t *string, int (*align)(wchar_t *string),
     return true;
 }
 
-bool printTextBox(MAP, wchar_t *strings[], int height, int lines,
+bool printTextBox(MAP, wchar_t **strings, int height, int lines,
                   int (*align)(wchar_t *)) {
-    int i;
-
-    for (i = 0; i < lines; i++) {
-        if (!printLine(map, height, strings[i], align, true))
-            return false;
-        height += 2;
-    }
-    return true;
+    if (!lines)
+        return true;
+    if (!printLine(map, height, *strings, align, true))
+        return false;
+    return printTextBox(map, strings + 1, height + 2, lines - 1, align);
 }
 
 bool printInstructions(MAP, wchar_t *header, wchar_t *text[]) {
@@ -68,8 +66,9 @@ bool printInstructions(MAP, wchar_t *header, wchar_t *text[]) {
                : false;
 }
 
-void printString(MAP, wchar_t *string, int row, int col, int size) {
-    wmemcpy(map[row] + col, string, size);
-    for (size += col; col < size; col++)
-        printChar(map[row][col], row, col);
+void printString(MAP, wchar_t *string, int row, int col) {
+    if (!(*string))
+        return;
+    printChar(map[row][col] = *string, row, col % WIDTH);
+    printString(map, string + 1, row, col + 1);
 }
