@@ -21,11 +21,11 @@ TitleScreen : var #1200
   static TitleScreen + #18, #82
   static TitleScreen + #19, #69
   static TitleScreen + #20, #0
-  static TitleScreen + #21, #0
-  static TitleScreen + #22, #0
-  static TitleScreen + #23, #0
-  static TitleScreen + #24, #0
-  static TitleScreen + #25, #0
+  static TitleScreen + #21, #2353
+  static TitleScreen + #22, #2353
+  static TitleScreen + #23, #2353
+  static TitleScreen + #24, #2353
+  static TitleScreen + #25, #2353
   static TitleScreen + #26, #0
   static TitleScreen + #27, #0
   static TitleScreen + #28, #0
