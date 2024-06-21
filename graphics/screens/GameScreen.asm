@@ -5,11 +5,11 @@ GameScreen : var #1200
   static GameScreen + #2, #85
   static GameScreen + #3, #80
   static GameScreen + #4, #3917
-  static GameScreen + #5, #3917
-  static GameScreen + #6, #3917
-  static GameScreen + #7, #3917
-  static GameScreen + #8, #3917
-  static GameScreen + #9, #3917
+  static GameScreen + #5, #2353
+  static GameScreen + #6, #2353
+  static GameScreen + #7, #2353
+  static GameScreen + #8, #2353
+  static GameScreen + #9, #2353
   static GameScreen + #10, #3917
   static GameScreen + #11, #3917
   static GameScreen + #12, #3917
@@ -21,11 +21,11 @@ GameScreen : var #1200
   static GameScreen + #18, #82
   static GameScreen + #19, #69
   static GameScreen + #20, #3917
-  static GameScreen + #21, #3906
-  static GameScreen + #22, #3906
-  static GameScreen + #23, #3906
-  static GameScreen + #24, #3906
-  static GameScreen + #25, #3906
+  static GameScreen + #21, #2353
+  static GameScreen + #22, #2353
+  static GameScreen + #23, #2353
+  static GameScreen + #24, #2353
+  static GameScreen + #25, #2353
   static GameScreen + #26, #3917
   static GameScreen + #27, #3917
   static GameScreen + #28, #3917
@@ -35,11 +35,11 @@ GameScreen : var #1200
   static GameScreen + #32, #82
   static GameScreen + #33, #69
   static GameScreen + #34, #3917
-  static GameScreen + #35, #3906
-  static GameScreen + #36, #3906
-  static GameScreen + #37, #3906
-  static GameScreen + #38, #3906
-  static GameScreen + #39, #3906
+  static GameScreen + #35, #2353
+  static GameScreen + #36, #2353
+  static GameScreen + #37, #2353
+  static GameScreen + #38, #2353
+  static GameScreen + #39, #2353
 
   ;Linha 1
   static GameScreen + #40, #3917

@@ -10,7 +10,8 @@ void drawGameObject(MAP, Object *o) {
         printString(map, o->charmap[i], o->pos[0] + i, o->pos[1]);
 }
 
-void eraseGameObject(MAP, wchar_t **charmap, float *pos) {
+void eraseGameObject(wchar_t (*obstacles)[WIDTH], MAP, wchar_t **charmap,
+                     float *pos) {
     int i, j;
     wchar_t *tile, *sprite;
 
@@ -152,7 +153,7 @@ void updateHUD(MAP, Stats *prev, Stats *current, time_t timer) {
     printChar(map[29][col] = L'░', 29, col);
 }
 
-void updateLanes(MAP, Lane *level) {
+void updateLanes(wchar_t (*obstacles)[WIDTH], MAP, Lane *level) {
     int i, prev;
     Object *o;
 
@@ -161,8 +162,15 @@ void updateLanes(MAP, Lane *level) {
         prev = o->pos[1];
         o->pos[1] += level[i].speed;
         if (prev != (int)o->pos[1])
-            moveObstacle(map, o, prev);
+            moveObstacle(obstacles, map, o, prev);
     }
+}
+
+void moveObstacle(wchar_t (*obstacles)[WIDTH], MAP, Object *o, int prev) {
+    float pos[] = {o->pos[0], prev};
+    eraseGameObject(obstacles, map, o->charmap, pos);
+    printString(obstacles, o->charmap[0], o->pos[0], o->pos[1]);
+    printString(obstacles, o->charmap[1], o->pos[0] + 1, o->pos[1]);
 }
 
 void wipeScreen(MAP) {

@@ -21,11 +21,11 @@ TitleScreen : var #1200
   static TitleScreen + #18, #82
   static TitleScreen + #19, #69
   static TitleScreen + #20, #0
-  static TitleScreen + #21, #2353
-  static TitleScreen + #22, #2353
-  static TitleScreen + #23, #2353
-  static TitleScreen + #24, #2353
-  static TitleScreen + #25, #2353
+  static TitleScreen + #21, #0
+  static TitleScreen + #22, #0
+  static TitleScreen + #23, #0
+  static TitleScreen + #24, #0
+  static TitleScreen + #25, #0
   static TitleScreen + #26, #0
   static TitleScreen + #27, #0
   static TitleScreen + #28, #0
@@ -717,43 +717,43 @@ TitleScreen : var #1200
   static TitleScreen + #680, #0
   static TitleScreen + #681, #0
   static TitleScreen + #682, #0
-  static TitleScreen + #683, #3906
+  static TitleScreen + #683, #0
   static TitleScreen + #684, #0
   static TitleScreen + #685, #0
   static TitleScreen + #686, #0
-  static TitleScreen + #687, #3906
+  static TitleScreen + #687, #0
   static TitleScreen + #688, #0
   static TitleScreen + #689, #0
-  static TitleScreen + #690, #3906
-  static TitleScreen + #691, #3906
+  static TitleScreen + #690, #0
+  static TitleScreen + #691, #0
   static TitleScreen + #692, #0
   static TitleScreen + #693, #0
   static TitleScreen + #694, #0
-  static TitleScreen + #695, #3906
-  static TitleScreen + #696, #3906
-  static TitleScreen + #697, #3906
-  static TitleScreen + #698, #3906
-  static TitleScreen + #699, #3906
-  static TitleScreen + #700, #3906
-  static TitleScreen + #701, #3906
-  static TitleScreen + #702, #3906
-  static TitleScreen + #703, #3906
-  static TitleScreen + #704, #3906
-  static TitleScreen + #705, #3906
-  static TitleScreen + #706, #3906
-  static TitleScreen + #707, #3906
-  static TitleScreen + #708, #3906
-  static TitleScreen + #709, #3906
-  static TitleScreen + #710, #3906
-  static TitleScreen + #711, #3906
-  static TitleScreen + #712, #3906
-  static TitleScreen + #713, #3917
-  static TitleScreen + #714, #3917
+  static TitleScreen + #695, #0
+  static TitleScreen + #696, #0
+  static TitleScreen + #697, #0
+  static TitleScreen + #698, #0
+  static TitleScreen + #699, #0
+  static TitleScreen + #700, #0
+  static TitleScreen + #701, #0
+  static TitleScreen + #702, #0
+  static TitleScreen + #703, #0
+  static TitleScreen + #704, #0
+  static TitleScreen + #705, #0
+  static TitleScreen + #706, #0
+  static TitleScreen + #707, #0
+  static TitleScreen + #708, #0
+  static TitleScreen + #709, #0
+  static TitleScreen + #710, #0
+  static TitleScreen + #711, #0
+  static TitleScreen + #712, #0
+  static TitleScreen + #713, #0
+  static TitleScreen + #714, #0
   static TitleScreen + #715, #0
   static TitleScreen + #716, #0
   static TitleScreen + #717, #0
   static TitleScreen + #718, #0
-  static TitleScreen + #719, #3967
+  static TitleScreen + #719, #0
 
   ;Linha 18
   static TitleScreen + #720, #0
@@ -764,107 +764,107 @@ TitleScreen : var #1200
   static TitleScreen + #725, #0
   static TitleScreen + #726, #0
   static TitleScreen + #727, #0
-  static TitleScreen + #728, #3917
+  static TitleScreen + #728, #0
   static TitleScreen + #729, #0
-  static TitleScreen + #730, #3917
-  static TitleScreen + #731, #3917
-  static TitleScreen + #732, #3917
-  static TitleScreen + #733, #3917
-  static TitleScreen + #734, #3917
-  static TitleScreen + #735, #3906
-  static TitleScreen + #736, #3906
-  static TitleScreen + #737, #3906
-  static TitleScreen + #738, #3906
-  static TitleScreen + #739, #3917
-  static TitleScreen + #740, #3917
-  static TitleScreen + #741, #3917
-  static TitleScreen + #742, #3917
-  static TitleScreen + #743, #3917
-  static TitleScreen + #744, #3917
-  static TitleScreen + #745, #3917
-  static TitleScreen + #746, #3917
-  static TitleScreen + #747, #3917
-  static TitleScreen + #748, #3917
-  static TitleScreen + #749, #3917
-  static TitleScreen + #750, #3917
-  static TitleScreen + #751, #3917
+  static TitleScreen + #730, #0
+  static TitleScreen + #731, #0
+  static TitleScreen + #732, #0
+  static TitleScreen + #733, #0
+  static TitleScreen + #734, #0
+  static TitleScreen + #735, #0
+  static TitleScreen + #736, #0
+  static TitleScreen + #737, #0
+  static TitleScreen + #738, #0
+  static TitleScreen + #739, #0
+  static TitleScreen + #740, #0
+  static TitleScreen + #741, #0
+  static TitleScreen + #742, #0
+  static TitleScreen + #743, #0
+  static TitleScreen + #744, #0
+  static TitleScreen + #745, #0
+  static TitleScreen + #746, #0
+  static TitleScreen + #747, #0
+  static TitleScreen + #748, #0
+  static TitleScreen + #749, #0
+  static TitleScreen + #750, #0
+  static TitleScreen + #751, #0
   static TitleScreen + #752, #0
   static TitleScreen + #753, #0
   static TitleScreen + #754, #0
   static TitleScreen + #755, #0
   static TitleScreen + #756, #0
   static TitleScreen + #757, #0
-  static TitleScreen + #758, #3917
-  static TitleScreen + #759, #3917
+  static TitleScreen + #758, #0
+  static TitleScreen + #759, #0
 
   ;Linha 19
   static TitleScreen + #760, #0
   static TitleScreen + #761, #0
   static TitleScreen + #762, #0
   static TitleScreen + #763, #0
-  static TitleScreen + #764, #3906
-  static TitleScreen + #765, #3906
+  static TitleScreen + #764, #0
+  static TitleScreen + #765, #0
   static TitleScreen + #766, #0
   static TitleScreen + #767, #0
   static TitleScreen + #768, #0
-  static TitleScreen + #769, #3906
+  static TitleScreen + #769, #0
   static TitleScreen + #770, #0
-  static TitleScreen + #771, #3906
-  static TitleScreen + #772, #3906
-  static TitleScreen + #773, #3906
-  static TitleScreen + #774, #3906
+  static TitleScreen + #771, #0
+  static TitleScreen + #772, #0
+  static TitleScreen + #773, #0
+  static TitleScreen + #774, #0
   static TitleScreen + #775, #0
-  static TitleScreen + #776, #3906
-  static TitleScreen + #777, #3906
-  static TitleScreen + #778, #3906
-  static TitleScreen + #779, #3906
-  static TitleScreen + #780, #3906
-  static TitleScreen + #781, #3906
-  static TitleScreen + #782, #3906
-  static TitleScreen + #783, #3906
-  static TitleScreen + #784, #3906
-  static TitleScreen + #785, #3906
-  static TitleScreen + #786, #3906
-  static TitleScreen + #787, #3906
-  static TitleScreen + #788, #3906
-  static TitleScreen + #789, #3906
-  static TitleScreen + #790, #3906
+  static TitleScreen + #776, #0
+  static TitleScreen + #777, #0
+  static TitleScreen + #778, #0
+  static TitleScreen + #779, #0
+  static TitleScreen + #780, #0
+  static TitleScreen + #781, #0
+  static TitleScreen + #782, #0
+  static TitleScreen + #783, #0
+  static TitleScreen + #784, #0
+  static TitleScreen + #785, #0
+  static TitleScreen + #786, #0
+  static TitleScreen + #787, #0
+  static TitleScreen + #788, #0
+  static TitleScreen + #789, #0
+  static TitleScreen + #790, #0
   static TitleScreen + #791, #0
   static TitleScreen + #792, #0
   static TitleScreen + #793, #0
   static TitleScreen + #794, #0
-  static TitleScreen + #795, #3906
-  static TitleScreen + #796, #3906
+  static TitleScreen + #795, #0
+  static TitleScreen + #796, #0
   static TitleScreen + #797, #0
   static TitleScreen + #798, #0
   static TitleScreen + #799, #0
 
   ;Linha 20
-  static TitleScreen + #800, #3967
-  static TitleScreen + #801, #3917
+  static TitleScreen + #800, #0
+  static TitleScreen + #801, #0
   static TitleScreen + #802, #0
   static TitleScreen + #803, #0
   static TitleScreen + #804, #0
   static TitleScreen + #805, #0
   static TitleScreen + #806, #0
-  static TitleScreen + #807, #3917
+  static TitleScreen + #807, #0
   static TitleScreen + #808, #0
-  static TitleScreen + #809, #3917
-  static TitleScreen + #810, #3917
-  static TitleScreen + #811, #3917
+  static TitleScreen + #809, #0
+  static TitleScreen + #810, #0
+  static TitleScreen + #811, #0
   static TitleScreen + #812, #0
   static TitleScreen + #813, #0
   static TitleScreen + #814, #0
-  static TitleScreen + #815, #3917
+  static TitleScreen + #815, #0
   static TitleScreen + #816, #0
   static TitleScreen + #817, #0
   static TitleScreen + #818, #0
-  static TitleScreen + #819, #3917
+  static TitleScreen + #819, #0
   static TitleScreen + #820, #0
   static TitleScreen + #821, #0
-  static TitleScreen + #822, #3917
+  static TitleScreen + #822, #0
   static TitleScreen + #823, #0
-  static TitleScreen + #824, #3917
+  static TitleScreen + #824, #0
   static TitleScreen + #825, #0
   static TitleScreen + #826, #0
   static TitleScreen + #827, #0
@@ -1107,16 +1107,16 @@ TitleScreen : var #1200
   static TitleScreen + #1052, #69
   static TitleScreen + #1053, #83
   static TitleScreen + #1054, #83
-  static TitleScreen + #1055, #0
+  static TitleScreen + #1055, #32
   static TitleScreen + #1056, #2885
   static TitleScreen + #1057, #2894
   static TitleScreen + #1058, #2900
   static TitleScreen + #1059, #2885
   static TitleScreen + #1060, #2898
-  static TitleScreen + #1061, #0
+  static TitleScreen + #1061, #32
   static TitleScreen + #1062, #84
   static TitleScreen + #1063, #79
-  static TitleScreen + #1064, #0
+  static TitleScreen + #1064, #32
   static TitleScreen + #1065, #80
   static TitleScreen + #1066, #76
   static TitleScreen + #1067, #65
@@ -1166,11 +1166,11 @@ TitleScreen : var #1200
   static TitleScreen + #1109, #0
   static TitleScreen + #1110, #0
   static TitleScreen + #1111, #0
-  static TitleScreen + #1112, #3917
-  static TitleScreen + #1113, #3917
-  static TitleScreen + #1114, #3917
-  static TitleScreen + #1115, #3917
-  static TitleScreen + #1116, #3917
+  static TitleScreen + #1112, #0
+  static TitleScreen + #1113, #0
+  static TitleScreen + #1114, #0
+  static TitleScreen + #1115, #0
+  static TitleScreen + #1116, #0
   static TitleScreen + #1117, #0
   static TitleScreen + #1118, #0
   static TitleScreen + #1119, #0
@@ -1189,7 +1189,7 @@ TitleScreen : var #1200
   static TitleScreen + #1130, #0
   static TitleScreen + #1131, #0
   static TitleScreen + #1132, #0
-  static TitleScreen + #1133, #3967
+  static TitleScreen + #1133, #0
   static TitleScreen + #1134, #0
   static TitleScreen + #1135, #0
   static TitleScreen + #1136, #0

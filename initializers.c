@@ -83,47 +83,47 @@ void initSetup(Lane *setup, int level) {
         setup[0].speed = -1.0 / 5;
         setup[0].obstacle.pos[1] = 16;
 
-        setup[1].interval = 13;
+        setup[1].interval = 3 + 13;
         setup[1].quantity = 3;
         setup[1].speed = 1.0 / 10;
         setup[1].obstacle.pos[1] = 22;
 
-        setup[2].interval = 13;
+        setup[2].interval = 3 + 13;
         setup[2].quantity = 3;
         setup[2].speed = -1.0 / 3;
         setup[2].obstacle.pos[1] = 15;
 
-        setup[3].interval = 40;
+        setup[3].interval = 3 + 40;
         setup[3].quantity = 1;
         setup[3].speed = 1.0 / 3;
         setup[3].obstacle.pos[1] = 0;
 
-        setup[4].interval = 12;
+        setup[4].interval = 6 + 12;
         setup[4].quantity = 2;
         setup[4].speed = -1.0 / 3;
         setup[4].obstacle.pos[1] = 25;
 
-        setup[5].interval = 2;
+        setup[5].interval = 3 * 2 + 2;
         setup[5].quantity = 5;
         setup[5].speed = -1.0;
         setup[5].obstacle.pos[1] = 3;
 
-        setup[6].interval = 9;
+        setup[6].interval = 6 + 9;
         setup[6].quantity = 3;
         setup[6].speed = 1.0 / 2;
         setup[6].obstacle.pos[1] = 6;
 
-        setup[7].interval = 6;
+        setup[7].interval = 16 + 6;
         setup[7].quantity = 2;
         setup[7].speed = 1.0;
         setup[7].obstacle.pos[1] = 16;
 
-        setup[8].interval = 4;
+        setup[8].interval = 2 * 2 + 4;
         setup[8].quantity = 6;
         setup[8].speed = -1.0;
         setup[8].obstacle.pos[1] = 20;
 
-        setup[9].interval = 4;
+        setup[9].interval = 16 + 4;
         setup[9].quantity = 4;
         setup[9].speed = 1.0 / 5;
         setup[9].obstacle.pos[1] = 8;

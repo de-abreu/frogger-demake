@@ -59,13 +59,6 @@ int moveFrog(MAP, Stats *s, Object *frog) {
     return pond;
 }
 
-void moveObstacle(MAP, Object *o, int prev) {
-    float pos[] = {o->pos[0], prev};
-    eraseGameObject(map, o->charmap, pos);
-    printString(map, o->charmap[0], o->pos[0], o->pos[1]);
-    printString(map, o->charmap[1], o->pos[0] + 1, o->pos[1]);
-}
-
 bool obstacleHit(wchar_t (*obstacles)[WIDTH], Object *frog) {
     int pos[2] = {frog->pos[0], frog->pos[1]};
     return (obstacles[pos[0]][pos[1]] > L' ' ||
@@ -127,7 +120,7 @@ void gameScreen(MAP, unsigned int hiscore) {
             }
         }
         usleep(FRAMERATE);
-        updateLanes(obstacles, setup);
+        updateLanes(obstacles, map, setup);
         updateHUD(map, &prev, &current, timer);
     }
 }

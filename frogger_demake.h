@@ -80,9 +80,10 @@ void drawHUD(MAP, Stats *s);
 void drawMap(MAP);
 void drawObstacles(MAP, Lane *level);
 void drawSaved(MAP, Object *frog, int pond);
-void eraseGameObject(MAP, wchar_t **charmap, float *pos);
+void eraseGameObject(wchar_t(*obstacles)[WIDTH], MAP, wchar_t **charmap, float *pos);
+void moveObstacle(wchar_t(*obstacles)[WIDTH], MAP, Object *o, int prev);
 void updateHUD(MAP, Stats *prev, Stats *current, time_t timer);
-void updateLanes(MAP, Lane *level);
+void updateLanes(wchar_t(*obstacles)[WIDTH], MAP, Lane *level);
 void wipeScreen(MAP);
 
 // NOTE: Functions to manipulate game objects
@@ -90,7 +91,6 @@ bool obstacleHit(MAP, Object *o);
 int arrived(bool *ponds, Object *frog);
 int moveFrog(MAP, Stats *s, Object *frog);
 void gameScreen(MAP, unsigned int hiscore);
-void moveObstacle(MAP, Object *o, int prev);
 void resetTimer(MAP, Stats *s, time_t *timer);
 void retry(MAP, Object *frog, Stats *s, time_t *timer);
 void titleScreen(MAP, unsigned int hiscore);
