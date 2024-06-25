@@ -320,7 +320,7 @@ livesLabel : string "LIVES "
 timeLabel  : string " TIME"
 
 ; Data relating to the frog
-frog_pos : var #2
+frogPosition : var #1
 frog_charmap : var #6
     static frog_charmap + #0, #769
     static frog_charmap + #1, #770
