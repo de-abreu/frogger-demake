@@ -921,6 +921,55 @@ titleScreen:
         call restoreRegisters
         rts
 
+fn_checkDeath:
+    ;Checks if the frog hit an enemy
+    ;Args : None
+    ;Returns : Arg0 = if dead then 0, else 1
+    call initRegisters
+    load r1, frogPosition
+    loadn r2, #foreground
+    add r3, r1, r2 ;Frogs position on the foreground
+    ;Top left
+    loadi r4, r3
+    cmp r4, r0
+    ;Top Right
+    jne case_Hit
+    inc r3
+    loadi r4, r3
+    cmp r4, r0
+    jne case_Hit
+    ;Bottom left
+    loadn r2 , #39
+    add r3, r3, r2
+    loadi r4, r3
+    cmp r4, r0
+    jne case_Hit
+    ;Bottom Right
+    inc r3
+    loadi r4, r3
+    cmp r4, r0
+    jne case_Hit
+    ;If not Hit
+    loadn r1, #1
+    store arg0, r1
+    call restoreRegisters
+    rts
+
+
+
+
+    case_Hit:
+        loadn r1, #0
+        store arg0, r1
+        call restoreRegisters
+        rts
+
+
+
+
+
+
+
 fn_checkBorders:
     ;Checks if the current move of the frog is valid due to map constraints
     ;Args : arg1 = new position
@@ -928,15 +977,19 @@ fn_checkBorders:
     call initRegisters
     load r1, frogPosition
     load r2 arg1
-    loadn r3, #1200
+    loadn r3, #1158 ; Compares to max position of the map
     cmp r2, r3
-    jle case_invalidMove
+    jle case_invalidMove ;Out of map
     loadn r3, #40
+    loadn r5, #39
+    mod r4, r2, r3 ;Cehcks if is the last column
+    cmp r4, r5
+    jeq case_invalidMove
     div r1, r1, r3
     div r2, r2, r3
-    cmp r2, r3
+    cmp r1, r2 ;Checks if two positions arent on different lines (stepped over the edge)
     jne case_invalidMove
-    loadn r1, #0
+    loadn r1, #1
     store arg0, r1
     rts    
     case_invalidMove:
@@ -1028,6 +1081,11 @@ case_noMove:
     store arg0, r1
     call restoreRegisters
     rts
+
+
+
+
+
 
 main:
     loadn R0, #0 ; Set R0 to 0, this register should hold this value always
