@@ -4,35 +4,31 @@ jmp main
 
 ; Constants
 
-WIDTH : var #1
-    static WIDTH, #40
-
 HEIGHT : var #1
     static HEIGHT, #30
 
 SCREENSIZE : var #1
     static SCREENSIZE, #1200
 
-FILL : var #1
-    static FILL, #66
+MAXLIVES : var #1
+    static MAXLIVES, #7
 
-; Loop count to make a 20 frames per second interval
+LANES : var #1
+    static LANES, #10
 
-INTERVAL_A : var #1
-    static INTERVAL_A, #20
 
-INTERVAL_B : var #1
-    static INTERVAL_B, #7500
+; Base interval: 1 microsecond, multiplied by itself yields a full second.
 
-; Loop count to make a 3 second interval (approximately)
+MICROSECOND: var #1
+    static MICROSECOND, #1000
 
-INTERVAL_C : var #1
-    static INTERVAL_C, #1730
+; Multiplier for the interval for 1/20 of a second, i.e. the framerate
 
-INTERVAL_D : var #1
-    static INTERVAL_D, #1734
+FRAMERATE: var #1
+    static FRAMERATE, #150
 
-; Color definitions, remember white = 0
+
+; Color offsets. Remember, white = 0
 
 brown  : var #1
     static brown, #256
@@ -54,10 +50,10 @@ pink   : var #1
     static pink, #3328
 
 ; Title screen's variables
-hiscore        : string "HISCORE "
-press          : string "PRESS "
-enter          : string "ENTER "
-to_play        : string "TO PLAY"
+hiscoreLabel : string "HISCORE "
+press        : string "PRESS "
+enter        : string "ENTER "
+to_play      : string "TO PLAY"
 
 title_length : var #1
     static title_length, #200
@@ -73,7 +69,6 @@ title : var #200
   static title + #6  , #3138
   static title + #7  , #2626
   static title + #8  , #2626
-  static title + #9  , #2626
   static title + #10  , #3138
   static title + #11  , #3138
   static title + #12  , #3138
@@ -273,35 +268,185 @@ title : var #200
   static title + #198  , #3138
   static title + #199  , #3138
 
+; How to play
+how_to_play0  : string "HOW TO PLAY"
+how_to_play1  : string "W - "
+how_to_play2  : string "MOVE UP"
+how_to_play3  : string "A - "
+how_to_play4  : string "MOVE LEFT"
+how_to_play5  : string "S - "
+how_to_play6  : string "MOVE DOWN"
+how_to_play7  : string "D - "
+how_to_play8  : string "MOVE RIGHT"
 
 ; How to Score
-how_to_score0  : string "HOW TO SCORE"
-how_to_score1  : string "10 PTS "
-how_to_score2  : string "FOR EVERY LEAP FORWARD"
-how_to_score3  : string "50 PTS "
-how_to_score4  : string "FOR EVERY FROG THAT CROSSED"
-how_to_score5  : string "1000 PTS "
-how_to_score6  : string "FOR CROSSING ALL FROGS"
-how_to_score7  : string "10 PTS "
-how_to_score8  : string "FOR EVERY REMAINING SECOND"
-
-; How to play
-how_to_play0   : string "HOW TO PLAY"
-how_to_play1   : string "W - "
-how_to_play2   : string "MOVE UP"
-how_to_play3   : string "A - "
-how_to_play4   : string "MOVE LEFT"
-how_to_play5   : string "S - "
-how_to_play6   : string "MOVE DOWN"
-how_to_play7   : string "D - "
-how_to_play8   : string "MOVE RIGHT"
+how_to_score0 : string "HOW TO SCORE"
+how_to_score1 : string "10 PTS "
+how_to_score2 : string "FOR EVERY LEAP FORWARD"
+how_to_score3 : string "50 PTS "
+how_to_score4 : string "FOR EVERY FROG THAT CROSSED"
+how_to_score5 : string "1000 PTS "
+how_to_score6 : string "FOR CROSSING ALL FROGS"
+how_to_score7 : string "10 PTS "
+how_to_score8 : string "FOR EVERY REMAINING SECOND"
 
 ; Matrices to store background and foreground info, respectively
-background     : var #1200
-foreground     : var #1200
+background    : var #1200
+foreground    : var #1200
 
-;Variable to store the frog position
-frogPosition   : var #1
+; Data segment to store in game status information
+
+distance : var #1
+elapsed  : var #1
+hiscore  : var #1
+    static hiscore, #0
+level    : var #1
+lives    : var #1
+oneUp    : var #1
+saved    : var #1
+score    : var #1
+
+
+; HUD variables
+lowerBoundary : var #1
+    static lowerBoundary, #28
+
+upperBoundary : var #1
+    static upperBoundary, #1
+
+scoreLabel : string "SCORE "
+oneUpLabel : string "1-UP "
+livesLabel : string "LIVES "
+timeLabel  : string " TIME"
+
+; Data relating to the frog
+frog_pos : var #2
+frog_charmap : var #6
+    static frog_charmap + #0, #769
+    static frog_charmap + #1, #770
+    static frog_charmap + #2, #0
+    static frog_charmap + #3, #801
+    static frog_charmap + #4, #802
+    static frog_charmap + #5, #0
+
+roadkill_charmap : var #6
+    static roadkill_charmap + #0, #106
+    static roadkill_charmap + #1, #107
+    static roadkill_charmap + #2, #0
+    static roadkill_charmap + #3, #120
+    static roadkill_charmap + #4, #121
+    static roadkill_charmap + #5, #0
+
+drowned_charmap : var #6
+    static drowned_charmap + #0, #108
+    static drowned_charmap + #1, #109
+    static drowned_charmap + #2, #0
+    static drowned_charmap + #3, #122
+    static drowned_charmap + #4, #123
+    static drowned_charmap + #5, #0
+
+saved_charmap : var #6
+    static saved_charmap + #0, #3176
+    static saved_charmap + #1, #3177
+    static saved_charmap + #2, #0
+    static saved_charmap + #3, #3190
+    static saved_charmap + #4, #3191
+    static saved_charmap + #5, #0
+
+; Lanes of obstacles in the frog's path, comprised of five words:
+; 0: y position of the top left corner of the obstacle charmap
+; 1: x position of the top left corner of the obstacle charmap
+; 2: quantity of copies of the object to be displayed
+; 3: spacing between such copies
+; 4: speed at which the object traverses the screen
+lane_0 : var #5
+lane_1 : var #5
+lane_2 : var #5
+lane_3 : var #5
+lane_4 : var #5
+lane_5 : var #5
+lane_6 : var #5
+lane_7 : var #5
+lane_8 : var #5
+lane_9 : var #5
+lanes : var #10
+    static lanes + #0, #lane_0
+    static lanes + #1, #lane_1
+    static lanes + #2, #lane_2
+    static lanes + #3, #lane_3
+    static lanes + #4, #lane_4
+    static lanes + #5, #lane_5
+    static lanes + #6, #lane_6
+    static lanes + #7, #lane_7
+    static lanes + #8, #lane_8
+    static lanes + #9, #lane_9
+
+yellow_charmap : var #8
+    static yellow_charmap  + #0   , #2836
+    static yellow_charmap  + #1   , #2937
+    static yellow_charmap  + #2   , #2938
+    static yellow_charmap  + #3   , #0
+    static yellow_charmap  + #4   , #2878
+    static yellow_charmap  + #5   , #2879
+    static yellow_charmap  + #6   , #2916
+    static yellow_charmap  + #7   , #0
+
+tractor_charmap : var #8
+    static tractor_charmap + #0   , #1559
+    static tractor_charmap + #1   , #1560
+    static tractor_charmap + #2   , #1561
+    static tractor_charmap + #3   , #0
+    static tractor_charmap + #4   , #1600
+    static tractor_charmap + #5   , #1626
+    static tractor_charmap + #6   , #1626
+    static tractor_charmap + #7   , #0
+
+pink_charmap : var #8
+    static pink_charmap    + #0   , #3345
+    static pink_charmap    + #1   , #3350
+    static pink_charmap    + #2   , #3351
+    static pink_charmap    + #3   , #0
+    static pink_charmap    + #4   , #3387
+    static pink_charmap    + #5   , #3388
+    static pink_charmap    + #6   , #3389
+    static pink_charmap    + #7   , #0
+
+red_charmap : var #8
+    static red_charmap     + #0   , #2330
+    static red_charmap     + #1   , #2331
+    static red_charmap     + #2   , #2332
+    static red_charmap     + #3   , #0
+    static red_charmap     + #4   , #2396
+    static red_charmap     + #5   , #2397
+    static red_charmap     + #6   , #2398
+    static red_charmap     + #7   , #0
+
+truck_charmap : var #14
+    static truck_charmap   + #0   , #2077
+    static truck_charmap   + #1   , #2078
+    static truck_charmap   + #2   , #2079
+    static truck_charmap   + #3   , #2147
+    static truck_charmap   + #4   , #2147
+    static truck_charmap   + #5   , #2079
+    static truck_charmap   + #6   , #0
+    static truck_charmap   + #7   , #2143
+    static truck_charmap   + #8   , #2144
+    static truck_charmap   + #9   , #2145
+    static truck_charmap   + #10  , #2146
+    static truck_charmap   + #11  , #2146
+    static truck_charmap   + #12  , #2145
+    static truck_charmap   + #13  , #0
+
+turtle_charmap : var #6
+    static turtle_charmap  + #0   , #3173
+    static turtle_charmap  + #1   , #3174
+    static turtle_charmap  + #2   , #0
+    static turtle_charmap  + #3   , #3184
+    static turtle_charmap  + #4   , #3185
+    static turtle_charmap  + #5   , #0
+
+log_charmap : var #1
+    static log_charmap, #322
 
 ; NOTE: Code segment
 
@@ -310,6 +455,7 @@ frogPosition   : var #1
 initRegisters:
     ; Boilerplate code to, at the start of every function, save the contents of the registers into the stack for later retrieval, and load the arguments of the current function to the registers. This function takes no arguments and returns nothing.
 
+    pop R0        ; take the return address to this function from the top of the stack
     push R1
     push R2
     push R3
@@ -324,11 +470,14 @@ initRegisters:
     load R5, Arg5
     load R6, Arg6
     load R7, Arg7
-    rts
+    push R0       ; place the return address of this function back to the top of the stack
+    loadn R0, #0  ; restore R0 to zero
+    rts           ; pop the return address from the top of the stack and return
 
 restoreRegisters:
     ; Retrieves from the stack the stored register contents. This function complements the functionality of the previous "initRegisters" function, takes no arguments and returns nothing as well.
 
+    pop R0
     pop R7
     pop R6
     pop R5
@@ -336,45 +485,53 @@ restoreRegisters:
     pop R3
     pop R2
     pop R1
+    push R0
+    loadn R0, #0
     rts
 
 initTitleScreen:
     ; Prints the background of the title screen.
     ; Arguments:
-    ; Arg0 = pointer to background map where to store printed characters
+    ; Arg1 = pointer to background map where to store printed characters
 
     ; Print Highscore indicator
     call initRegisters
-    load R1, Arg0
     store Arg3, R1
-    loadn R1, #hiscore
-    loadn R2, #13
-    store Arg0, R1
-    store Arg1, R2
+    loadn R1, #hiscoreLabel
+    store Arg1, R1
+    loadn R1, #13
+    store Arg2, R1
+    store Arg4, R0
+    store Arg5, R0
     call printString
 
-    loadn R1, #'0'
     load R2, Arg0
-    load R3, red
-    loadn R4, #5
-    store Arg0, R1
-    store Arg1, R2
-    store Arg3, R0
-    store Arg4, R4
-    call printPadding
+    add R1, R1, R2
+    store Arg2, R1
+    loadn R1, #'0'
+    load R2, red
+    add R1, R1, R2
+    store Arg1, R1
+    loadn R1, #5
+    store Arg4, R1
+    call printChar
 
     ; Print "Frogger!"
-    load R1, FILL
-    loadn R2, #80
-    load R3, WIDTH
-    loadn R4, #4
-    mul R3, R3, R4
-    load R4, blue
-    store Arg0, R1
-    store Arg1, R2
-    store Arg4, R3
-    call printPadding
+    breakp
+    loadn R1, #66         ; Fill character
+    load R2, blue
+    add R1, R1, R2
+    store Arg1, R1
+    loadn R1, #80
+    store Arg2, R1
+    loadn R2, #2
+    mul R1, R1, R2
+    store Arg4, R1
+    call printChar
 
+    ; TODO: Tested up to this point. Global variables are not working as expected, and the next function is all over the place.
+
+    breakp
     loadn R1, #title
     load R2, Arg0
     load R3, title_length
@@ -383,15 +540,15 @@ initTitleScreen:
     store Arg2, R3
     call printVector
 
-    load R1, FILL
+    loadn R1, #66
     load R2, Arg0
     load R3, blue
-    load R4, WIDTH
+    loadn R4, #40
     store Arg0, R1
     store Arg1, R2
     store Arg2, R3
     store Arg4, R4
-    call printPadding
+    call printChar
 
     ; Print "Press enter to play"
     loadn R1, #press
@@ -416,81 +573,57 @@ initTitleScreen:
     store Arg2, R0
     call printString
 
-; NOTE: Functions to delay game and read input
 
-delay:
-    ; A delay function set to take approximately 3 seconds. When the user presses ENTER the delay is interrupted.
-    ; Arguments: None
+takeInput:
+    ; A function that delays the game's execution for a given period to take an input from the player. If the input is one that was expected, the delay is canceled.
+    ; Arguments:
+    ; Arg1 = Delay multiplier. 1 implies a microsecond at 1MHz
+    ; Arg2 = Expected input
     ; Returns:
-    ; Arg0: 0, if ENTER was not pressed, '\n' otherwise
+    ; Arg0 = 0, if no key was pressed, otherwise the ASCII value of key pressed
 
     call initRegisters
-    load R1, INTERVAL_C
-    loadn R3, #'\n'
+    load R3, MICROSECOND
+    loadn R4, #255
     store Arg0, R0
 
     delay_A:
-        load R2, INTERVAL_D
+        load R5, Arg1
         delay_B:
-            inchar R4
-            cmp R3, R4
+            inchar R6
+            cmp R4, R6
             jeq delayContinue
-            store Arg0, R4
-            jmp delayEnd
+            store Arg0, R6
+            cmp R2, R6
+            jeq delayEnd
     delayContinue:
-        dec R2
+        dec R5
         jnz delay_B
-        dec R1
+        dec R3
         jnz delay_A
     delayEnd:
     call restoreRegisters
     rts
 
-takeInput:
-    ; A function that gives the player an interval to make an input. The last input made during this interval is returned by the end of the function. The duration of the interval is given solely by the product of INTERVAL_A * INTERVAL_B * ClockSpeed.
-    ; Arguments: None
-    ; Returns:
-    ; Arg0 = 255, if no key was pressed, ASCII value of the key pressed otherwise
-
-    call initRegisters
-    load R1, INTERVAL_A
-    loadn R3, #255 ; Default value returned by inchar when no key was pressed
-    store Arg0, R3
-
-    loop_A:
-        load R2, INTERVAL_B
-        loop_B:
-            inchar R4
-            cmp R3, R4
-            jeq takeInput_continue
-            store Arg0, R4
-    takeInput_continue:
-        dec R2
-        jnz loop_B
-        dec R1
-        jnz loop_A
-    call restoreRegisters
-    rts
-
 ; NOTE: Functions for printing on screen
 
-printPadding:
-    ; Prints the same character repetitively
+printChar:
+    ; Prints a character, one or more times.
     ; Arguments:
-    ; Arg1 = character to be printed
+    ; Arg1 = character to be printed, with color value already added
     ; Arg2 = position to start printing
-    ; Arg3 = color value to print character
-    ; Arg4 = map to save printed characters
-    ; Arg5 = Whether printing is animated and can be interrupted by the user's input. 0 implies false
-    ; Arg6 = number of characters to print
+    ; Arg3 = map to save printed characters
+    ; Arg4 = number of characters to print
+    ; Arg5 = Whether printing is animated and can be interrupted by the user's input. 0 implies false any other value is the ASCII value of the key that interrupts the animation
     ; Returns:
-    ; Arg0 = position immediately after last character printed
+    ; Arg0 = 0 if printing was interrupted, otherwise the printed string length
 
     call initRegisters
-    add R6, R6, R2  ; position where to stop printing
-    add R4, R4, R2  ; position where to start storing
-    add R1, R1, R3  ; character to print added to its color value
-    loadn R3, #'\n'
+    add R6, R4, R2  ; position where to stop printing
+    add R3, R3, R2  ; position where to start storing
+    load R7, FRAMERATE
+    store Arg1, R7
+    store Arg2, R5
 
     cmp R5, R0
     jne ppInterruptable
@@ -499,9 +632,9 @@ printPadding:
         cmp R2, R6
         jeq ppUninterrupted
         outchar R1, R2
-        storei R4, R1
+        storei R3, R1
         inc R2
-        inc R4
+        inc R3
         jmp ppUniterruptable
 
     ppInterruptable:
@@ -509,16 +642,16 @@ printPadding:
         jeq ppUninterrupted
         call takeInput
         load R7, Arg0
-        cmp R3, R7
+        cmp R5, R7
         jeq ppInterrupted
         outchar R1, R2
-        storei R4, R1
+        storei R3, R1
         inc R2
-        inc R4
+        inc R3
         jmp ppInterruptable
 
     ppUninterrupted:
-        store Arg0, R2
+        store Arg0, R4
         jmp ppEnd
 
     ppInterrupted:
@@ -534,12 +667,12 @@ printInt:
     ; Arguments:
     ; Arg1 = integer value to be printed
     ; Arg2 = right-aligned position in the screen from where to start printing
-    ; Arg3 = color value to print number
-    ; Arg4 = pointer to map where  to save printed characters
+    ; Arg3 = pointer to map where to save printed characters
+    ; Arg4 = color value to print number
     ; Returns: Nothing
 
     call initRegisters
-    add R4, R4, R2 ; Get location in map where to start storing
+    add R3, R3, R2 ; Get location in map where to start storing
     loadn R5, #10  ; load the value 10 to apply the mod operation
 
     printIntLoop:
@@ -548,11 +681,11 @@ printInt:
         loadn R6, #'0' ; load index value of the character 0
         mod R7, R1, R5 ; get least significant digit from R1
         add R6, R6, R7 ; apply it as an offset to the character map
-        add R6, R6, R3 ; apply color value
+        add R6, R6, R4 ; apply color value
         outchar R6, R2
-        storei R4, R6
+        storei R3, R6
         dec R2
-        dec R4
+        dec R3
         div R1, R1, R5
         jmp printIntLoop
 
@@ -566,22 +699,21 @@ printVector:
     ; Arguments:
     ; Arg1 = pointer to the start of the vector
     ; Arg2 = index of the position at the screen where to start printing
-    ; Arg3 = vector length
-    ; Arg4 = map to save printed characters
-    ; Returns:
-    ; Arg0 = position immediately after last character printed
-
-    add R2, R2, R3
+    ; Arg3 = map to save printed characters
+    ; Arg4 = vector length
+    ; Returns: Nothing
 
     pvLoop:
-        cmp R1, R2
+        cmp R4, R0
         jeq pvEnd
+        outchar R2, R1
         loadi R3, R1
-        outchar R3, R1
         inc R1
+        inc R2
+        inc R3
+        dec R4
         jmp pvLoop
     pvEnd:
-        store Arg0, R2
         call restoreRegisters
         rts
 
@@ -591,14 +723,13 @@ printString:
     ; Arguments:
     ; Arg1 = pointer to the string to be printed
     ; Arg2 = index of the position at the screen where to start printing
-    ; Arg3 = color to be assigned to printed characters
+    ; Arg3 = color to be assigned to printed characters. If color values are already applied, pass 0 so as to not alter these.
     ; Arg4 = map to save printed characters
-    ; Arg5 = Whether printing is animated and can be interrupted by the user's input. 0 implies false.
+    ; Arg5 = Whether printing is animated and can be interrupted by the user's input. 0 implies false any other value is the ASCII value of the key that interrupts the animation
     ; Returns:
-    ; Arg0 = 0 if printing was interrupted by the user, otherwise the position immediately after last character printed.
+    ; Arg0 = 0 if printing was interrupted by the user, otherwise the printed string length.
 
     call initRegisters
-    loadn R6, #'\n'               ; ENTER
 
     cmp R5, R0
     jne psInterruptable
@@ -618,7 +749,7 @@ printString:
     psInterruptable:
         call takeInput
         load R7, Arg0
-        cmp R7, R6
+        cmp R7, R5
         jeq psInterrupted
         loadi R7, R1
         cmp R7, R0
@@ -632,7 +763,9 @@ printString:
         jmp psInterruptable
 
     psUninterrupted:
-        store Arg0, R2
+        load R7, Arg1
+        sub R1, R1, R7
+        store Arg0, R1
         jmp psEnd
 
     psInterrupted:
@@ -666,14 +799,13 @@ printInstructions:
     load R1, Arg0
     cmp R1, R0
     jeq piEnd
-    mov R4, R1
-    inc R1
+    add R4, R4, R1
 
     ; Pad right
     store Arg1, R0
     store Arg2, R4
     store Arg6, R6
-    call printPadding
+    call printChar
     load R4, Arg0
     cmp R4, R0
     jeq piEnd
@@ -681,7 +813,7 @@ printInstructions:
 
     ; Set initial values
     loadn R4, #693
-    load R5, WIDTH
+    loadn R5, #40 ; Screen width
     loadn R6, #4
     sub R5, R5, R6
 
@@ -691,45 +823,43 @@ printInstructions:
 
         ; Print with emphasis (red)
         load R6, red
-        load Arg1, R1
-        load Arg2, R3
-        load Arg3, R6
+        store Arg1, R1
+        store Arg2, R4
+        store Arg3, R6
         call printString
-        load R6, Arg0
-        cmp R6, R0
+        load R7, Arg0
+        cmp R7, R0
         jne piEnd
 
-        ; Offset string pointer enough that the next string is reached.
+        ; Offset string and screen pointer
         add R1, R1, R6
-        inc R1
-        store Arg0, R1
-
-        ; Offset screen pointer
-        add R6, R6, R3
-        inc R6
-        store Arg1, R6
+        add R6, R4, R7
 
         ; Print description (yellow)
-        load R6, yellow
+        store Arg1, R1
         store Arg2, R6
+        load R6, yellow
+        store Arg3, R6
         call printString
-        load R6, Arg0
-        cmp R6, R0
+        load R7, Arg0
+        cmp R7, R0
         jne piEnd
 
+        ; Offset string and screen pointer
+        add R1, R1, R7
+        add R6, R6, R7
+
         ; Pad right
-        store Arg3, R0
-        sub R6, R5, R6 ; Set R6 as the difference between the message and line lengths
-        store Arg2, R6 ; That's the padding value.
-        sub R6, R5, R6 ; Switch back to message length
-        add R6, R6, R3 ; Add that to the line pointer value
-        store Arg1, R6 ; That's from where to start padding
-        loadn R6, #0   ; Load the character to pad with
-        store Arg0, R6
-        call printPadding
+        store Arg1, R0
+        store Arg2, R6
+        sub R7, R5, R7 ; Set R7 as the difference between the message and line lengths
+        store Arg6, R7 ; That's the padding value.
+        load R7, yellow
+        store Arg3, R7
+        call printChar
 
         ; Move towards printing next line and decrement line count
-        add R3, R3, R4
+        add R4, R4, R5
         dec R2
         jmp piBody
 
@@ -746,40 +876,45 @@ printInstructions:
 titleScreen:
     ; Prints the title screen, displaying game instructions.
     ; Arguments:
-    ; Arg0 = pointer to background map
     ; Arg1 = current Highscore
+    ; Arg2 = pointer to background vector
 
     call initRegisters
     call initTitleScreen
+    mov R3, R0         ; variable to toggle between instructions to be displayed
+    loadn R4, #'\n'    ; variable to compare if ENTER was pressed
+    load R5, MICROSECOND
+    loadn R6, #3
+    mul R5, R5, R6     ; Set delay interval to 3 seconds
+    loadn R6, #5       ; Set number of lines of instructions to be printed
 
-    ; Print Highscore
-    store Arg0, R2
     loadn R1, #25
-    store Arg1, R1
-    load R1, red
     store Arg2, R1
-    call printInt
-
-    loadn R1, #5       ; Set number of lines of instructions to be printed
-    store Arg1, R1
+    store Arg3, R2
+    load R1, red
+    store Arg4, R1
+    call printInt      ; Print Highscore
 
     titleScreenLoop:
-        cmp R1, R0     ; Either print instructions for scoring or playing
+        cmp R3, R0     ; Either print instructions for scoring or playing
         jeq selectPlay ; Selection logic
         load R2, how_to_score0
         jmp instructionSelected
         selectPlay:
             load R2, how_to_play0
         instructionSelected:
-            store Arg0, R2
+            store Arg1, R2
+        store Arg2, R6
         call printInstructions
         load R2, Arg0
         cmp R2, R0
         jnz titleScreenEnd
-        call delay
+        store Arg1, R5
+        store Arg2, R4
+        call takeInput
         load R2, Arg0
-        cmp R2, R0
-        jnz titleScreenEnd
+        cmp R2, R4
+        jeq titleScreenEnd
         not R1, R1
         jmp titleScreenLoop
     titleScreenEnd:
@@ -895,19 +1030,16 @@ case_noMove:
     rts
 
 main:
-    breakp
     loadn R0, #0 ; Set R0 to 0, this register should hold this value always
+    load R1, hiscore
+    store Arg1, R1
     loadn R1, #background
-    loadn R2, #foreground
-    mov R3, R0   ; Initialize highscore
+    store Arg2, R1
+    loadn R1, #foreground
+    store Arg3, R1
+
     gameLoop:
-        store Arg0, R1
-        store Arg1, R1
         call titleScreen
-        store Arg1, R2
-        mov R2, R1
-        store Arg2, R2
-        call gameScreen
     halt
 
 
