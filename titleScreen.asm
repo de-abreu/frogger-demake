@@ -461,6 +461,7 @@ log_charmap : var #1
 initRegisters:
     ; Boilerplate code to, at the start of every function, save the contents of the registers into the stack for later retrieval, and load the arguments of the current function to the registers. This function takes no arguments and returns nothing.
 
+    pop R0        ; take the return address to this function from the top of the stack
     push R1
     push R2
     push R3
@@ -475,11 +476,14 @@ initRegisters:
     load R5, Arg5
     load R6, Arg6
     load R7, Arg7
-    rts
+    push R0       ; place the return address of this function back to the top of the stack
+    loadn R0, #0  ; restore R0 to zero
+    rts           ; pop the return address from the top of the stack and return
 
 restoreRegisters:
     ; Retrieves from the stack the stored register contents. This function complements the functionality of the previous "initRegisters" function, takes no arguments and returns nothing as well.
 
+    pop R0
     pop R7
     pop R6
     pop R5
@@ -487,6 +491,8 @@ restoreRegisters:
     pop R3
     pop R2
     pop R1
+    push R0
+    loadn R0, #0
     rts
 
 initTitleScreen:

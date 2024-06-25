@@ -1,10 +1,12 @@
-__pycache__/
 *.o
+ProcessadorICMC2.pdf
+__pycache__/
+server exited unexpectedly
+sim
 simuladorGO
 simuladorGO/*
 simulador_Linux
 simulador_Linux/*
-ProcessadorICMC2.pdf
+*.mif
+!charmap.mif
 test.asm
-server exited unexpectedly
-
