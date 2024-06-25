@@ -4,17 +4,11 @@ jmp main
 
 ; Constants
 
-WIDTH : var #1
-    static WIDTH, #40
-
 HEIGHT : var #1
     static HEIGHT, #30
 
 SCREENSIZE : var #1
     static SCREENSIZE, #1200
-
-FILL : var #1
-    static FILL, #66
 
 MAXLIVES : var #1
     static MAXLIVES, #7
@@ -511,29 +505,33 @@ initTitleScreen:
     store Arg5, R0
     call printString
 
+    load R2, Arg0
+    add R1, R1, R2
+    store Arg2, R1
     loadn R1, #'0'
     load R2, red
     add R1, R1, R2
     store Arg1, R1
-    load R1, Arg0
-    store Arg2, R1
     loadn R1, #5
     store Arg4, R1
     call printChar
 
     ; Print "Frogger!"
-    load R1, FILL
+    breakp
+    loadn R1, #66         ; Fill character
     load R2, blue
     add R1, R1, R2
     store Arg1, R1
     loadn R1, #80
     store Arg2, R1
-    load R1, WIDTH
-    loadn R2, #4
+    loadn R2, #2
     mul R1, R1, R2
     store Arg4, R1
     call printChar
 
+    ; TODO: Tested up to this point. Global variables are not working as expected, and the next function is all over the place.
+
+    breakp
     loadn R1, #title
     load R2, Arg0
     load R3, title_length
@@ -542,10 +540,10 @@ initTitleScreen:
     store Arg2, R3
     call printVector
 
-    load R1, FILL
+    loadn R1, #66
     load R2, Arg0
     load R3, blue
-    load R4, WIDTH
+    loadn R4, #40
     store Arg0, R1
     store Arg1, R2
     store Arg2, R3
@@ -815,7 +813,7 @@ printInstructions:
 
     ; Set initial values
     loadn R4, #693
-    load R5, WIDTH
+    loadn R5, #40 ; Screen width
     loadn R6, #4
     sub R5, R5, R6
 
@@ -924,7 +922,6 @@ titleScreen:
         rts
 
 main:
-    breakp
     loadn R0, #0 ; Set R0 to 0, this register should hold this value always
     load R1, hiscore
     store Arg1, R1
