@@ -4,6 +4,9 @@ jmp main
 
 ; Constants
 
+WIDTH : var #1
+    static WIDTH, #40
+
 HEIGHT : var #1
     static HEIGHT, #30
 
@@ -16,38 +19,41 @@ MAXLIVES : var #1
 LANES : var #1
     static LANES, #10
 
+FILL : var #1
+    static FILL, #66
+
 
 ; Base interval: 1 microsecond, multiplied by itself yields a full second.
 
-MICROSECOND: var #1
+MICROSECOND : var #1
     static MICROSECOND, #1000
 
 ; Multiplier for the interval for 1/20 of a second, i.e. the framerate
 
-FRAMERATE: var #1
+FRAMERATE : var #1
     static FRAMERATE, #150
 
 
 ; Color offsets. Remember, white = 0
 
 brown  : var #1
-    static brown, #256
+    static brown  , #256
 grass  : var #1
-    static grass, #512
+    static grass  , #512
 musk   : var #1
-    static musk, #768
+    static musk   , #768
 teal   : var #1
-    static teal, #1536
+    static teal   , #1536
 gray   : var #1
-    static gray, #1792
+    static gray   , #1792
 red    : var #1
-    static red, #2304
+    static red    , #2304
 yellow : var #1
-    static yellow, #2816
+    static yellow , #2816
 blue   : var #1
-    static blue, #3072
+    static blue   , #3072
 pink   : var #1
-    static pink, #3328
+    static pink   , #3328
 
 ; Title screen's variables
 hiscoreLabel : string "HISCORE "
@@ -60,15 +66,15 @@ title_length : var #1
 
 title : var #200
 ; Linha 6
-  static title + #0  , #3138
-  static title + #1  , #3138
-  static title + #2  , #2626
-  static title + #3  , #2626
-  static title + #4  , #2626
-  static title + #5  , #2626
-  static title + #6  , #3138
-  static title + #7  , #2626
-  static title + #8  , #2626
+  static title + #0   , #3138
+  static title + #1   , #3138
+  static title + #2   , #2626
+  static title + #3   , #2626
+  static title + #4   , #2626
+  static title + #5   , #2626
+  static title + #6   , #3138
+  static title + #7   , #2626
+  static title + #8   , #2626
   static title + #10  , #3138
   static title + #11  , #3138
   static title + #12  , #3138
@@ -163,110 +169,110 @@ title : var #200
   static title + #97  , #2626
   static title + #98  , #3138
   static title + #99  , #2626
-  static title + #100  , #2626
-  static title + #101  , #3138
-  static title + #102  , #2626
-  static title + #103  , #3138
-  static title + #104  , #2626
-  static title + #105  , #2626
-  static title + #106  , #3138
-  static title + #107  , #2626
-  static title + #108  , #2626
-  static title + #109  , #2626
-  static title + #110  , #3138
-  static title + #111  , #3138
-  static title + #112  , #2626
-  static title + #113  , #2626
-  static title + #114  , #2626
-  static title + #115  , #2626
-  static title + #116  , #3138
-  static title + #117  , #2626
-  static title + #118  , #3138
-  static title + #119  , #3138
+  static title + #100 , #2626
+  static title + #101 , #3138
+  static title + #102 , #2626
+  static title + #103 , #3138
+  static title + #104 , #2626
+  static title + #105 , #2626
+  static title + #106 , #3138
+  static title + #107 , #2626
+  static title + #108 , #2626
+  static title + #109 , #2626
+  static title + #110 , #3138
+  static title + #111 , #3138
+  static title + #112 , #2626
+  static title + #113 , #2626
+  static title + #114 , #2626
+  static title + #115 , #2626
+  static title + #116 , #3138
+  static title + #117 , #2626
+  static title + #118 , #3138
+  static title + #119 , #3138
 
   ;Linha 9
-  static title + #120  , #3138
-  static title + #121  , #3138
-  static title + #122  , #2626
-  static title + #123  , #3138
-  static title + #124  , #3138
-  static title + #125  , #3138
-  static title + #126  , #3138
-  static title + #127  , #2626
-  static title + #128  , #3138
-  static title + #129  , #2626
-  static title + #130  , #3138
-  static title + #131  , #3138
-  static title + #132  , #2626
-  static title + #133  , #3138
-  static title + #134  , #3138
-  static title + #135  , #2626
-  static title + #136  , #3138
-  static title + #137  , #2626
-  static title + #138  , #3138
-  static title + #139  , #3138
-  static title + #140  , #2626
-  static title + #141  , #3138
-  static title + #142  , #2626
-  static title + #143  , #3138
-  static title + #144  , #3138
-  static title + #145  , #2626
-  static title + #146  , #3138
-  static title + #147  , #2626
-  static title + #148  , #3138
-  static title + #149  , #3138
-  static title + #150  , #3138
-  static title + #151  , #3138
-  static title + #152  , #2626
-  static title + #153  , #3138
-  static title + #154  , #2626
-  static title + #155  , #3138
-  static title + #156  , #3138
-  static title + #157  , #3138
-  static title + #158  , #3138
-  static title + #159  , #3138
+  static title + #120 , #3138
+  static title + #121 , #3138
+  static title + #122 , #2626
+  static title + #123 , #3138
+  static title + #124 , #3138
+  static title + #125 , #3138
+  static title + #126 , #3138
+  static title + #127 , #2626
+  static title + #128 , #3138
+  static title + #129 , #2626
+  static title + #130 , #3138
+  static title + #131 , #3138
+  static title + #132 , #2626
+  static title + #133 , #3138
+  static title + #134 , #3138
+  static title + #135 , #2626
+  static title + #136 , #3138
+  static title + #137 , #2626
+  static title + #138 , #3138
+  static title + #139 , #3138
+  static title + #140 , #2626
+  static title + #141 , #3138
+  static title + #142 , #2626
+  static title + #143 , #3138
+  static title + #144 , #3138
+  static title + #145 , #2626
+  static title + #146 , #3138
+  static title + #147 , #2626
+  static title + #148 , #3138
+  static title + #149 , #3138
+  static title + #150 , #3138
+  static title + #151 , #3138
+  static title + #152 , #2626
+  static title + #153 , #3138
+  static title + #154 , #2626
+  static title + #155 , #3138
+  static title + #156 , #3138
+  static title + #157 , #3138
+  static title + #158 , #3138
+  static title + #159 , #3138
 
   ;Linha 10
-  static title + #160  , #3138
-  static title + #161  , #3138
-  static title + #162  , #2626
-  static title + #163  , #3138
-  static title + #164  , #3138
-  static title + #165  , #3138
-  static title + #166  , #3138
-  static title + #167  , #2626
-  static title + #168  , #3138
-  static title + #169  , #3138
-  static title + #170  , #2626
-  static title + #171  , #3138
-  static title + #172  , #3138
-  static title + #173  , #2626
-  static title + #174  , #2626
-  static title + #175  , #3138
-  static title + #176  , #3138
-  static title + #177  , #2626
-  static title + #178  , #2626
-  static title + #179  , #2626
-  static title + #180  , #2626
-  static title + #181  , #3138
-  static title + #182  , #2626
-  static title + #183  , #2626
-  static title + #184  , #2626
-  static title + #185  , #2626
-  static title + #186  , #3138
-  static title + #187  , #2626
-  static title + #188  , #2626
-  static title + #189  , #2626
-  static title + #190  , #2626
-  static title + #191  , #3138
-  static title + #192  , #2626
-  static title + #193  , #3138
-  static title + #194  , #3138
-  static title + #195  , #2626
-  static title + #196  , #3138
-  static title + #197  , #2626
-  static title + #198  , #3138
-  static title + #199  , #3138
+  static title + #160 , #3138
+  static title + #161 , #3138
+  static title + #162 , #2626
+  static title + #163 , #3138
+  static title + #164 , #3138
+  static title + #165 , #3138
+  static title + #166 , #3138
+  static title + #167 , #2626
+  static title + #168 , #3138
+  static title + #169 , #3138
+  static title + #170 , #2626
+  static title + #171 , #3138
+  static title + #172 , #3138
+  static title + #173 , #2626
+  static title + #174 , #2626
+  static title + #175 , #3138
+  static title + #176 , #3138
+  static title + #177 , #2626
+  static title + #178 , #2626
+  static title + #179 , #2626
+  static title + #180 , #2626
+  static title + #181 , #3138
+  static title + #182 , #2626
+  static title + #183 , #2626
+  static title + #184 , #2626
+  static title + #185 , #2626
+  static title + #186 , #3138
+  static title + #187 , #2626
+  static title + #188 , #2626
+  static title + #189 , #2626
+  static title + #190 , #2626
+  static title + #191 , #3138
+  static title + #192 , #2626
+  static title + #193 , #3138
+  static title + #194 , #3138
+  static title + #195 , #2626
+  static title + #196 , #3138
+  static title + #197 , #2626
+  static title + #198 , #3138
+  static title + #199 , #3138
 
 ; How to play
 how_to_play0  : string "HOW TO PLAY"
@@ -322,12 +328,12 @@ timeLabel  : string " TIME"
 ; Data relating to the frog
 frogPosition : var #1
 frog_charmap : var #6
-    static frog_charmap + #0, #769
-    static frog_charmap + #1, #770
-    static frog_charmap + #2, #0
-    static frog_charmap + #3, #801
-    static frog_charmap + #4, #802
-    static frog_charmap + #5, #0
+    static frog_charmap     + #0, #769
+    static frog_charmap     + #1, #770
+    static frog_charmap     + #2, #0
+    static frog_charmap     + #3, #801
+    static frog_charmap     + #4, #802
+    static frog_charmap     + #5, #0
 
 roadkill_charmap : var #6
     static roadkill_charmap + #0, #106
@@ -338,20 +344,20 @@ roadkill_charmap : var #6
     static roadkill_charmap + #5, #0
 
 drowned_charmap : var #6
-    static drowned_charmap + #0, #108
-    static drowned_charmap + #1, #109
-    static drowned_charmap + #2, #0
-    static drowned_charmap + #3, #122
-    static drowned_charmap + #4, #123
-    static drowned_charmap + #5, #0
+    static drowned_charmap  + #0, #108
+    static drowned_charmap  + #1, #109
+    static drowned_charmap  + #2, #0
+    static drowned_charmap  + #3, #122
+    static drowned_charmap  + #4, #123
+    static drowned_charmap  + #5, #0
 
 saved_charmap : var #6
-    static saved_charmap + #0, #3176
-    static saved_charmap + #1, #3177
-    static saved_charmap + #2, #0
-    static saved_charmap + #3, #3190
-    static saved_charmap + #4, #3191
-    static saved_charmap + #5, #0
+    static saved_charmap    + #0, #3176
+    static saved_charmap    + #1, #3177
+    static saved_charmap    + #2, #0
+    static saved_charmap    + #3, #3190
+    static saved_charmap    + #4, #3191
+    static saved_charmap    + #5, #0
 
 ; Lanes of obstacles in the frog's path, comprised of five words:
 ; 0: y position of the top left corner of the obstacle charmap
@@ -494,17 +500,31 @@ initTitleScreen:
     ; Arguments:
     ; Arg1 = pointer to background map where to store printed characters
 
-    ; Print Highscore indicator
     call initRegisters
+
+
+    ; TODO: Resume from here. The insertion of the Wipe Map segment is causing statically stored data to be erased
+
+    ; Wipe Map
+    breakp
+    store Arg1, R0
+    store Arg2, R0
     store Arg3, R1
+    load R1, SCREENSIZE
+    store Arg4, R1
+    store Arg5, R0
+    call printChar
+
+    ; Print Highscore indicator
+    breakp
     loadn R1, #hiscoreLabel
     store Arg1, R1
     loadn R1, #13
     store Arg2, R1
     store Arg4, R0
-    store Arg5, R0
     call printString
 
+    breakp
     load R2, Arg0
     add R1, R1, R2
     store Arg2, R1
@@ -518,32 +538,31 @@ initTitleScreen:
 
     ; Print "Frogger!"
     breakp
-    loadn R1, #66         ; Fill character
+    load R1, FILL         ; Fill character
     load R2, blue
     add R1, R1, R2
     store Arg1, R1
-    loadn R1, #80
-    store Arg2, R1
+    loadn R3, #80
+    store Arg2, R3
     loadn R2, #2
-    mul R1, R1, R2
+    mul R1, R3, R2
     store Arg4, R1
     call printChar
 
-    ; TODO: Tested up to this point. Global variables are not working as expected, and the next function is all over the place.
-
-    breakp
     loadn R1, #title
-    load R2, Arg0
-    load R3, title_length
-    store Arg0, R1
-    store Arg1, R2
-    store Arg2, R3
+    store Arg1, R1
+    load R1, Arg0
+    add R1, R1, R3
+    store Arg2, R1
+    load R1, title_length
+    store Arg4, R1
     call printVector
+    breakp
 
     loadn R1, #66
     load R2, Arg0
     load R3, blue
-    loadn R4, #40
+    load R4, WIDTH
     store Arg0, R1
     store Arg1, R2
     store Arg2, R3
@@ -723,14 +742,15 @@ printString:
     ; Arguments:
     ; Arg1 = pointer to the string to be printed
     ; Arg2 = index of the position at the screen where to start printing
-    ; Arg3 = color to be assigned to printed characters. If color values are already applied, pass 0 so as to not alter these.
-    ; Arg4 = map to save printed characters
+    ; Arg3 = map to save printed characters
+    ; Arg4 = color to be assigned to printed characters. If color values are already applied, pass 0 so as to not alter these.
     ; Arg5 = Whether printing is animated and can be interrupted by the user's input. 0 implies false any other value is the ASCII value of the key that interrupts the animation
     ; Returns:
     ; Arg0 = 0 if printing was interrupted by the user, otherwise the printed string length.
 
     call initRegisters
 
+    add R3, R3, R2
     cmp R5, R0
     jne psInterruptable
 
@@ -738,12 +758,12 @@ printString:
         loadi R7, R1        ; retrieve character to be printed
         cmp R7, R0          ; check if it is the terminator character
         jeq psUninterrupted ; Escape if it is
-        add R7, R7, R3      ; Add color value to character
+        add R7, R7, R4      ; Add color value to character
         outchar R7, R2      ; Print character
-        storei R4, R7
+        storei R3, R7
         inc R1              ; Increment string pointer
         inc R2              ; Increment screen position
-        inc R4              ; Increment map pointer
+        inc R3              ; Increment map pointer
         jmp psUninterruptable
 
     psInterruptable:
@@ -754,12 +774,12 @@ printString:
         loadi R7, R1
         cmp R7, R0
         jeq psUninterrupted
-        add R7, R7, R3
+        add R7, R7, R4
         outchar R7, R2
-        storei R4, R7
+        storei R3, R7
         inc R1
         inc R2
-        inc R4
+        inc R3
         jmp psInterruptable
 
     psUninterrupted:
@@ -792,8 +812,7 @@ printInstructions:
 
     ; Print Header
     store Arg2, R4
-    store Arg3, R0
-    store Arg4, R3
+    store Arg4, R0
     store Arg5, R4
     call printString
     load R1, Arg0
@@ -813,7 +832,7 @@ printInstructions:
 
     ; Set initial values
     loadn R4, #693
-    loadn R5, #40 ; Screen width
+    load R5, WIDTH ; Screen width
     loadn R6, #4
     sub R5, R5, R6
 
@@ -951,7 +970,7 @@ fn_checkDeath:
     jne case_Hit
     ;If not Hit
     loadn r1, #1
-    store arg0, r1
+    store Arg0, r1
     call restoreRegisters
     rts
 
@@ -960,7 +979,7 @@ fn_checkDeath:
 
     case_Hit:
         loadn r1, #0
-        store arg0, r1
+        store Arg0, r1
         call restoreRegisters
         rts
 
@@ -972,11 +991,11 @@ fn_checkDeath:
 
 fn_checkBorders:
     ;Checks if the current move of the frog is valid due to map constraints
-    ;Args : arg1 = new position
-    ;Returns: arg0 = 0 if not valid, 1 if valid
+    ;Args : Arg1 = new position
+    ;Returns: Arg0 = 0 if not valid, 1 if valid
     call initRegisters
     load r1, frogPosition
-    load r2 arg1
+    load r2, Arg1
     loadn r3, #1158 ; Compares to max position of the map
     cmp r2, r3
     jle case_invalidMove ;Out of map
@@ -990,14 +1009,14 @@ fn_checkBorders:
     cmp r1, r2 ;Checks if two positions arent on different lines (stepped over the edge)
     jne case_invalidMove
     loadn r1, #1
-    store arg0, r1
-    rts    
+    store Arg0, r1
+    rts
     case_invalidMove:
         loadn r1, #0
-        store arg0, r1
+        store Arg0, r1
         call restoreRegisters
         rts
-    
+
 
 
 
@@ -1005,9 +1024,9 @@ fn_checkBorders:
 fn_moveFrog:
     ;receives the input from the user and tries to move the frog
     ;Args : Arg1 = input
-    ;Returns : arg0 = 0 if frog died, else arg0 = 1
+    ;Returns : Arg0 = 0 if frog died, else Arg0 = 1
     call initRegisters
-    load r1, arg1
+    load r1, Arg1
     loadn r2, #87; W
     cmp r2, r1
     jeq case_W
@@ -1026,59 +1045,59 @@ case_W:
     load r1, frogPosition
     loadn r2, #40
     add r1, r1, r2
-    store arg1, r1
+    store Arg1, r1
     call fn_checkBorders
-    load r2, arg0
+    load r2, Arg0
     cmp r2, r0
     jeq case_noMove
     store frogPosition, r1
     loadn r1, #1
-    store arg0, r1
+    store Arg0, r1
     call restoreRegisters
     rts
 case_A:
     load r1, frogPosition
     dec r1
-    store arg1, r1
+    store Arg1, r1
     call fn_checkBorders
-    load r2, arg0
+    load r2, Arg0
     cmp r2, r0
     jeq case_noMove
     store frogPosition, r1
     loadn r1, #1
-    store arg0, r1
+    store Arg0, r1
     call restoreRegisters
     rts
 case_S:
     load r1, frogPosition
     loadn r2, #40
     sub r1, r1, r2
-    store arg1, r1
+    store Arg1, r1
     call fn_checkBorders
-    load r2, arg0
+    load r2, Arg0
     cmp r2, r0
     jeq case_noMove
     store frogPosition, r1
     loadn r1, #1
-    store arg0, r1
+    store Arg0, r1
     call restoreRegisters
     rts
 case_D:
     load r1, frogPosition
     inc r1
-    store arg1, r1
+    store Arg1, r1
     call fn_checkBorders
-    load r2, arg0
+    load r2, Arg0
     cmp r2, r0
     jeq case_noMove
     store frogPosition, r1
     loadn r1, #1
-    store arg0, r1
+    store Arg0, r1
     call restoreRegisters
     rts
 case_noMove:
     loadn r1, #1
-    store arg0, r1
+    store Arg0, r1
     call restoreRegisters
     rts
 
