@@ -327,6 +327,7 @@ timeLabel  : string " TIME"
 
 ; Data relating to the frog
 frogPosition : var #1
+    static frogPosition, #1139 ;About [19 x][28 y], bottom middle
 frog_charmap : var #6
     static frog_charmap     + #0, #769
     static frog_charmap     + #1, #770
@@ -1103,6 +1104,31 @@ case_noMove:
 
 
 
+fn_drawFrog:
+    ;Draws the frog on the screen at its position
+    ;Args : None
+    ;Returns : None
+    call initRegisters
+    load r1, frogPosition
+    loadn r2, #frog_charmap
+    loadi r3, r2
+    outchar r3, r1 ;Top left
+    inc r1
+    inc r2
+    loadi r3, r2
+    outchar r3, r1 ;Top Right
+    loadn r4, #39
+    add r1, r1, r4
+    inc r2
+    inc r2
+    loadi r3, r4
+    outchar r3, r1 ;Bottom left
+    inc r1
+    inc r2
+    loadi r3, r2
+    outchar r3, r1 ;Bottom right
+    call restoreRegisters
+    rts
 
 
 
