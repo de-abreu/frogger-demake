@@ -20,7 +20,7 @@ LANES : var #1
     static LANES, #10
 
 FILL : var #1
-    static FILL, #66
+    static FILL, #'B'
 
 
 ; Base interval: 1 microsecond, multiplied by itself yields a full second.
@@ -297,8 +297,8 @@ how_to_score7 : string "10 PTS "
 how_to_score8 : string "FOR EVERY REMAINING SECOND"
 
 ; Matrices to store background and foreground info, respectively
-background    : var #1200
-foreground    : var #1200
+background : var #1200
+foreground : var #1200
 
 ; Data segment to store in game status information
 
@@ -458,50 +458,11 @@ log_charmap : var #1
 
 ; NOTE: Functions to initialize and free memory or game objects
 
-initRegisters:
-    ; Boilerplate code to, at the start of every function, save the contents of the registers into the stack for later retrieval, and load the arguments of the current function to the registers. This function takes no arguments and returns nothing.
-
-    pop R0        ; take the return address to this function from the top of the stack
-    push R1
-    push R2
-    push R3
-    push R4
-    push R5
-    push R6
-    push R7
-    load R1, Arg1
-    load R2, Arg2
-    load R3, Arg3
-    load R4, Arg4
-    load R5, Arg5
-    load R6, Arg6
-    load R7, Arg7
-    push R0       ; place the return address of this function back to the top of the stack
-    loadn R0, #0  ; restore R0 to zero
-    rts           ; pop the return address from the top of the stack and return
-
-restoreRegisters:
-    ; Retrieves from the stack the stored register contents. This function complements the functionality of the previous "initRegisters" function, takes no arguments and returns nothing as well.
-
-    pop R0
-    pop R7
-    pop R6
-    pop R5
-    pop R4
-    pop R3
-    pop R2
-    pop R1
-    push R0
-    loadn R0, #0
-    rts
-
 initTitleScreen:
-    ; Prints the background of the title screen.
-    ; Arguments:
-    ; Arg1 = pointer to background map where to store printed characters
+    ; Prints the background of the title screen. Returns nothing.
 
-    call initRegisters
-
+    push R1
+    load R1, Arg1 ; pointer to background map where to store printed characters
 
     ; TODO: Resume from here. The insertion of the Wipe Map segment is causing statically stored data to be erased
 
@@ -592,16 +553,20 @@ initTitleScreen:
     store Arg2, R0
     call printString
 
+    pop R1
+    rts
+
 
 takeInput:
     ; A function that delays the game's execution for a given period to take an input from the player. If the input is one that was expected, the delay is canceled.
-    ; Arguments:
-    ; Arg1 = Delay multiplier. 1 implies a microsecond at 1MHz
-    ; Arg2 = Expected input
     ; Returns:
     ; Arg0 = 0, if no key was pressed, otherwise the ASCII value of key pressed
 
-    call initRegisters
+    push R1
+    push R2
+    load R1, Arg1 ; Delay multiplier. 1 implies a microsecond at 1MHz
+    load R2, Arg2 ; Expected input
+
     load R3, MICROSECOND
     loadn R4, #255
     store Arg0, R0
@@ -621,7 +586,8 @@ takeInput:
         dec R3
         jnz delay_A
     delayEnd:
-    call restoreRegisters
+    pop R2
+    pop R1
     rts
 
 ; NOTE: Functions for printing on screen
@@ -637,7 +603,17 @@ printChar:
     ; Returns:
     ; Arg0 = 0 if printing was interrupted, otherwise the printed string length
 
-    call initRegisters
+    push R1
+    push R2
+    push R3
+    push R4
+    push R5
+    load R1, Arg1 ; character to be printed, with color value already added
+    load R2, Arg2 ; position to start printing
+    load R3, Arg3 ; map to save printed characters
+    load R4, Arg4 ; number of characters to print
+    load R5, Arg5 ; Whether printing is animated and can be interrupted by the user's input. 0 implies false any other value is the ASCII value of the key that interrupts the animation
+
     add R6, R4, R2  ; position where to stop printing
     add R3, R3, R2  ; position where to start storing
     load R7, FRAMERATE
@@ -677,20 +653,27 @@ printChar:
         store Arg0, R0
 
     ppEnd:
-        call restoreRegisters
+        pop R5
+        pop R4
+        pop R3
+        pop R2
+        pop R1
         rts
 
 
 printInt:
     ; Prints a right-aligned integer value on screen.
-    ; Arguments:
-    ; Arg1 = integer value to be printed
-    ; Arg2 = right-aligned position in the screen from where to start printing
-    ; Arg3 = pointer to map where to save printed characters
-    ; Arg4 = color value to print number
     ; Returns: Nothing
 
-    call initRegisters
+    push R1
+    push R2
+    push R3
+    push R4
+    load R1, Arg1 ; integer value to be printed
+    load R2, Arg2 ; right-aligned position in the screen from where to start printing
+    load R3, Arg3 ; pointer to map where to save printed characters
+    load R4, Arg4 ; color value to print number
+
     add R3, R3, R2 ; Get location in map where to start storing
     loadn R5, #10  ; load the value 10 to apply the mod operation
 
@@ -709,18 +692,25 @@ printInt:
         jmp printIntLoop
 
     printIntEnd:
-        call restoreRegisters
+        pop R4
+        pop R3
+        pop R2
+        pop R1
         rts
 
 
 printVector:
     ; Prints the contents of a vector as characters on the screen.
-    ; Arguments:
-    ; Arg1 = pointer to the start of the vector
-    ; Arg2 = index of the position at the screen where to start printing
-    ; Arg3 = map to save printed characters
-    ; Arg4 = vector length
     ; Returns: Nothing
+
+    push R1
+    push R2
+    push R3
+    push R4
+    load R1, Arg1 ; pointer to the start of the vector
+    load R2, Arg2 ; index of the position at the screen where to start printing
+    load R3, Arg3 ; map to save printed characters
+    load R4, Arg4 ; vector length
 
     pvLoop:
         cmp R4, R0
@@ -733,22 +723,29 @@ printVector:
         dec R4
         jmp pvLoop
     pvEnd:
-        call restoreRegisters
+        pop R4
+        pop R3
+        pop R2
+        pop R1
         rts
 
 
 printString:
     ; Prints a string of text. Printing can be animated and interrupted by the user.
-    ; Arguments:
-    ; Arg1 = pointer to the string to be printed
-    ; Arg2 = index of the position at the screen where to start printing
-    ; Arg3 = map to save printed characters
-    ; Arg4 = color to be assigned to printed characters. If color values are already applied, pass 0 so as to not alter these.
-    ; Arg5 = Whether printing is animated and can be interrupted by the user's input. 0 implies false any other value is the ASCII value of the key that interrupts the animation
     ; Returns:
     ; Arg0 = 0 if printing was interrupted by the user, otherwise the printed string length.
 
-    call initRegisters
+    push R1
+    push R2
+    push R3
+    push R4
+    push R5
+    load R1, Arg1 ; pointer to the string to be printed
+    load R2, Arg2 ; index of the position at the screen where to start printing
+    load R3, Arg3 ; map to save printed characters
+    load R4, Arg4 ; color to be assigned to printed characters. If color values are already applied, pass 0 so as to not alter these.
+    load R5, Arg5 ; Whether printing is animated and can be interrupted by the user's input. 0 implies false any other value is the ASCII value of the key that interrupts the animation
+
 
     add R3, R3, R2
     cmp R5, R0
@@ -792,7 +789,11 @@ printString:
         store Arg0, R0
 
     psEnd:
-        call restoreRegisters
+        pop R5
+        pop R4
+        pop R3
+        pop R2
+        pop R1
         rts
 
 
@@ -805,7 +806,12 @@ printInstructions:
     ; Returns:
     ; Arg0 = 0 if printing was not interrupted, otherwise 1.
 
-    call initRegisters
+    push R1
+    push R2
+    push R3
+    load R1, Arg1  ; address of the vector of strings to be printed
+    load R2, Arg2  ; number of lines to be printed
+    load R3, Arg3  ; map to save printed characters
     loadn R4, #614 ; store line start
     loadn R5, #80  ; store line offset value
     loadn R6, #1   ; set padding
@@ -887,7 +893,9 @@ printInstructions:
 
     piEnd:
         store Arg0, R6
-        call restoreRegisters
+        pop R3
+        pop R2
+        pop R1
         rts
 
 ; NOTE: Game functions
@@ -898,8 +906,13 @@ titleScreen:
     ; Arg1 = current Highscore
     ; Arg2 = pointer to background vector
 
-    call initRegisters
+    push R1
+    push R2
+    load R1, Arg1
+    load R2, Arg2
+    store Arg1, R2
     call initTitleScreen
+
     mov R3, R0         ; variable to toggle between instructions to be displayed
     loadn R4, #'\n'    ; variable to compare if ENTER was pressed
     load R5, MICROSECOND
@@ -907,11 +920,11 @@ titleScreen:
     mul R5, R5, R6     ; Set delay interval to 3 seconds
     loadn R6, #5       ; Set number of lines of instructions to be printed
 
-    loadn R1, #25
-    store Arg2, R1
+    loadn R7, #25
+    store Arg2, R7
     store Arg3, R2
-    load R1, red
-    store Arg4, R1
+    load R7, red
+    store Arg4, R7
     call printInt      ; Print Highscore
 
     titleScreenLoop:
@@ -937,14 +950,14 @@ titleScreen:
         not R1, R1
         jmp titleScreenLoop
     titleScreenEnd:
-        call restoreRegisters
+        pop R2
+        pop R1
         rts
 
 fn_checkDeath:
     ;Checks if the frog hit an enemy
     ;Args : None
     ;Returns : Arg0 = if dead then 0, else 1
-    call initRegisters
     load r1, frogPosition
     loadn r2, #foreground
     add r3, r1, r2 ;Frogs position on the foreground
@@ -971,7 +984,6 @@ fn_checkDeath:
     ;If not Hit
     loadn r1, #1
     store Arg0, r1
-    call restoreRegisters
     rts
 
 
@@ -980,7 +992,6 @@ fn_checkDeath:
     case_Hit:
         loadn r1, #0
         store Arg0, r1
-        call restoreRegisters
         rts
 
 
@@ -993,7 +1004,7 @@ fn_checkBorders:
     ;Checks if the current move of the frog is valid due to map constraints
     ;Args : Arg1 = new position
     ;Returns: Arg0 = 0 if not valid, 1 if valid
-    call initRegisters
+
     load r1, frogPosition
     load r2, Arg1
     loadn r3, #1158 ; Compares to max position of the map
@@ -1014,7 +1025,6 @@ fn_checkBorders:
     case_invalidMove:
         loadn r1, #0
         store Arg0, r1
-        call restoreRegisters
         rts
 
 
@@ -1025,7 +1035,6 @@ fn_moveFrog:
     ;receives the input from the user and tries to move the frog
     ;Args : Arg1 = input
     ;Returns : Arg0 = 0 if frog died, else Arg0 = 1
-    call initRegisters
     load r1, Arg1
     loadn r2, #87; W
     cmp r2, r1
@@ -1039,7 +1048,6 @@ fn_moveFrog:
     loadn r2, #68; D
     cmp r2, r1
     jeq case_D
-    call restoreRegisters
     rts
 case_W:
     load r1, frogPosition
@@ -1053,7 +1061,6 @@ case_W:
     store frogPosition, r1
     loadn r1, #1
     store Arg0, r1
-    call restoreRegisters
     rts
 case_A:
     load r1, frogPosition
@@ -1066,7 +1073,6 @@ case_A:
     store frogPosition, r1
     loadn r1, #1
     store Arg0, r1
-    call restoreRegisters
     rts
 case_S:
     load r1, frogPosition
@@ -1080,7 +1086,6 @@ case_S:
     store frogPosition, r1
     loadn r1, #1
     store Arg0, r1
-    call restoreRegisters
     rts
 case_D:
     load r1, frogPosition
@@ -1093,12 +1098,10 @@ case_D:
     store frogPosition, r1
     loadn r1, #1
     store Arg0, r1
-    call restoreRegisters
     rts
 case_noMove:
     loadn r1, #1
     store Arg0, r1
-    call restoreRegisters
     rts
 
 
