@@ -2,6 +2,17 @@ jmp main
 
 ; NOTE: Data segment
 
+; Memory segment to store arguments to be passed to functions. a0 carries the return of any given function
+
+a0 : var #1
+a1 : var #1
+a2 : var #1
+a3 : var #1
+a4 : var #1
+a5 : var #1
+a6 : var #1
+a7 : var #1
+
 ; Constants
 
 WIDTH : var #1
@@ -75,6 +86,7 @@ title : var #200
   static title + #6   , #3138
   static title + #7   , #2626
   static title + #8   , #2626
+  static title + #9   , #2626
   static title + #10  , #3138
   static title + #11  , #3138
   static title + #12  , #3138
@@ -117,7 +129,7 @@ title : var #200
   static title + #47  , #2626
   static title + #48  , #3138
   static title + #49  , #3138
-  static title + #40  , #2626
+  static title + #50  , #2626
   static title + #51  , #3138
   static title + #52  , #2626
   static title + #53  , #3138
@@ -327,6 +339,7 @@ timeLabel  : string " TIME"
 
 ; Data relating to the frog
 frogPosition : var #1
+    static frogPosition, #1139 ;About [19 x][28 y], bottom middle
 frog_charmap : var #6
     static frog_charmap     + #0, #769
     static frog_charmap     + #1, #770
@@ -458,136 +471,170 @@ log_charmap : var #1
 
 ; NOTE: Functions to initialize and free memory or game objects
 
+initRegisters:
+    ; Save the registers' context for later retrieval
+    ; Arguments: None
+    ; Returns: Nothing
+
+    pop r0  ; Store function return address
+    push r1
+    push r2
+    push r3
+    push r4
+    push r5
+    push r6
+    push r7
+    push r0 ; Place it back to the top of the stack
+    load r1, a1
+    load r2, a2
+    load r3, a3
+    load r4, a4
+    load r5, a5
+    load r6, a6
+    load r7, a7
+    loadn r0, #0
+    rts     ; Pop and return.
+
+restoreRegisters:
+    ; Restore registers' context from stack
+    ; Arguments: None
+    ; Returns: Nothing
+
+    pop r0
+    pop r7
+    pop r6
+    pop r5
+    pop r4
+    pop r3
+    pop r2
+    pop r1
+    push r0
+    loadn r0, #0
+    rts
+
 initTitleScreen:
-    ; Prints the background of the title screen. Returns nothing.
+    ; Prints the background of the title screen.
+    ; a1 = Pointer to background map where to store printed characters
+    ; Returns: Nothing
 
-    push R1
-    load R1, Arg1 ; pointer to background map where to store printed characters
-
-    ; TODO: Resume from here. The insertion of the Wipe Map segment is causing statically stored data to be erased
+    call initRegisters
 
     ; Wipe Map
-    breakp
-    store Arg1, R0
-    store Arg2, R0
-    store Arg3, R1
-    load R1, SCREENSIZE
-    store Arg4, R1
-    store Arg5, R0
+    store a1, r0
+    store a2, r0
+    store a3, r1
+    load r1, SCREENSIZE
+    store a4, r1
+    store a5, r0
     call printChar
 
     ; Print Highscore indicator
-    breakp
-    loadn R1, #hiscoreLabel
-    store Arg1, R1
-    loadn R1, #13
-    store Arg2, R1
-    store Arg4, R0
+    loadn r1, #hiscoreLabel
+    store a1, r1
+    loadn r1, #13
+    store a2, r1
+    store a4, r0
     call printString
 
-    breakp
-    load R2, Arg0
-    add R1, R1, R2
-    store Arg2, R1
-    loadn R1, #'0'
-    load R2, red
-    add R1, R1, R2
-    store Arg1, R1
-    loadn R1, #5
-    store Arg4, R1
+    load r2, a0
+    add r1, r1, r2
+    store a2, r1
+    loadn r1, #'0'
+    load r2, red
+    add r1, r1, r2
+    store a1, r1
+    loadn r1, #5
+    store a4, r1
     call printChar
 
     ; Print "Frogger!"
     breakp
-    load R1, FILL         ; Fill character
-    load R2, blue
-    add R1, R1, R2
-    store Arg1, R1
-    loadn R3, #80
-    store Arg2, R3
-    loadn R2, #2
-    mul R1, R3, R2
-    store Arg4, R1
+    load r1, FILL
+    load r2, blue
+    add r1, r1, r2
+    store a1, r1 ; Fill character with added color
+    loadn r2, #80
+    store a2, r2
+    loadn r3, #2
+    mul r3, r3, r2
+    store a4, r3 ; Characters to print
     call printChar
 
-    loadn R1, #title
-    store Arg1, R1
-    load R1, Arg0
-    add R1, R1, R3
-    store Arg2, R1
-    load R1, title_length
-    store Arg4, R1
+    ; TODO: Continue debugging from here.
+
+    loadn r4, #title
+    store a1, r4
+    add r2, r2, r3
+    store a2, r2
+    load r3, title_length
+    store a4, r3
     call printVector
+
+    store a1, r1
+    add r1, r2, r3
+    store a2, r1
+    load r1, WIDTH
+    store a4, r1
+    call printChar
     breakp
 
-    loadn R1, #66
-    load R2, Arg0
-    load R3, blue
-    load R4, WIDTH
-    store Arg0, R1
-    store Arg1, R2
-    store Arg2, R3
-    store Arg4, R4
-    call printChar
-
     ; Print "Press enter to play"
-    loadn R1, #press
-    loadn R2, #1050
-    store Arg0, R1
-    store Arg1, R2
-    store Arg2, R0
+    loadn r1, #press
+    loadn r2, #1050
+    store a0, r1
+    store a1, r2
+    store a2, r0
     call printString
 
-    loadn R1, #enter
-    load R2, Arg0
-    load R3, yellow
-    store Arg0, R1
-    store Arg1, R2
-    store Arg2, R3
+    loadn r1, #enter
+    load r2, a0
+    load r3, yellow
+    store a0, r1
+    store a1, r2
+    store a2, r3
     call printString
 
-    loadn R1, #to_play
-    load R2, Arg0
-    store Arg0, R1
-    store Arg1, R2
-    store Arg2, R0
+    loadn r1, #to_play
+    load r2, a0
+    store a0, r1
+    store a1, r2
+    store a2, r0
     call printString
 
-    pop R1
+    call restoreRegisters
     rts
 
 
 takeInput:
     ; A function that delays the game's execution for a given period to take an input from the player. If the input is one that was expected, the delay is canceled.
+    ; Arguments:
+    ; a1 = Delay multiplier, 1 implies a microsecond at 1MHz
+    ; a2 = Expected input
     ; Returns:
-    ; Arg0 = 0, if no key was pressed, otherwise the ASCII value of key pressed
+    ; a0 = 0, if no key was pressed, otherwise the ASCII value of key pressed
 
-    push R1
-    push R2
-    load R1, Arg1 ; Delay multiplier. 1 implies a microsecond at 1MHz
-    load R2, Arg2 ; Expected input
-
-    load R3, MICROSECOND
-    loadn R4, #255
-    store Arg0, R0
+    call initRegisters
+    load r3, MICROSECOND
+    loadn r4, #255 ; Default value returned by inchar when no key press is detected
+    store a0, r0
 
     delay_A:
-        load R5, Arg1
+        load r5, a1
         delay_B:
-            inchar R6
-            cmp R4, R6
+            inchar r6
+            cmp r4, r6
             jeq delayContinue
-            store Arg0, R6
-            cmp R2, R6
+            store a0, r6
+            cmp r2, r6
             jeq delayEnd
     delayContinue:
-        dec R5
+        dec r5
         jnz delay_B
-        dec R3
+        dec r3
         jnz delay_A
     delayEnd:
-    pop R2
-    pop R1
+    pop r2
+    pop r1
     rts
 
 ; NOTE: Functions for printing on screen
@@ -595,307 +642,269 @@ takeInput:
 printChar:
     ; Prints a character, one or more times.
     ; Arguments:
-    ; Arg1 = character to be printed, with color value already added
-    ; Arg2 = position to start printing
-    ; Arg3 = map to save printed characters
-    ; Arg4 = number of characters to print
-    ; Arg5 = Whether printing is animated and can be interrupted by the user's input. 0 implies false any other value is the ASCII value of the key that interrupts the animation
+    ; a1 = character to be printed, with color value already added
+    ; a2 = position to start printing
+    ; a3 = map to save printed characters
+    ; a4 = number of characters to print
+    ; a5 = Whether printing is animated and can be interrupted by the user's input. 0 implies false any other value is the ASCII value of the key that interrupts the animation
     ; Returns:
-    ; Arg0 = 0 if printing was interrupted, otherwise the printed string length
+    ; a0 = 0 if printing was interrupted, otherwise the printed string length
 
-    push R1
-    push R2
-    push R3
-    push R4
-    push R5
-    load R1, Arg1 ; character to be printed, with color value already added
-    load R2, Arg2 ; position to start printing
-    load R3, Arg3 ; map to save printed characters
-    load R4, Arg4 ; number of characters to print
-    load R5, Arg5 ; Whether printing is animated and can be interrupted by the user's input. 0 implies false any other value is the ASCII value of the key that interrupts the animation
+    call initRegisters
+    add r6, r4, r2  ; position where to stop printing
+    add r3, r3, r2  ; position where to start storing
 
-    add R6, R4, R2  ; position where to stop printing
-    add R3, R3, R2  ; position where to start storing
-    load R7, FRAMERATE
-    store Arg1, R7
-    store Arg2, R5
+    cmp r5, r0
+    jeq ppUniterruptable
 
-    cmp R5, R0
-    jne ppInterruptable
-
-    ppUniterruptable:
-        cmp R2, R6
-        jeq ppUninterrupted
-        outchar R1, R2
-        storei R3, R1
-        inc R2
-        inc R3
-        jmp ppUniterruptable
+    load r7, FRAMERATE
+    store a1, r7
+    store a2, r5
 
     ppInterruptable:
-        cmp R2, R6
+        cmp r2, r6
         jeq ppUninterrupted
         call takeInput
-        load R7, Arg0
-        cmp R5, R7
+        load r7, a0
+        cmp r5, r7
         jeq ppInterrupted
-        outchar R1, R2
-        storei R3, R1
-        inc R2
-        inc R3
+        outchar r1, r2
+        storei r3, r1
+        inc r2
+        inc r3
         jmp ppInterruptable
 
+    ppUniterruptable:
+        cmp r2, r6
+        jeq ppUninterrupted
+        outchar r1, r2
+        storei r3, r1
+        inc r2
+        inc r3
+        jmp ppUniterruptable
+
     ppUninterrupted:
-        store Arg0, R4
+        store a0, r4
         jmp ppEnd
 
     ppInterrupted:
-        store Arg0, R0
+        store a0, r0
 
     ppEnd:
-        pop R5
-        pop R4
-        pop R3
-        pop R2
-        pop R1
+        call restoreRegisters
         rts
 
 
 printInt:
     ; Prints a right-aligned integer value on screen.
+    ; a1 = Integer value to be printed
+    ; a2 = Right-aligned position in the screen from where to start printing
+    ; a3 = Pointer to map where to save printed characters
+    ; a4 = Color value to print number
     ; Returns: Nothing
 
-    push R1
-    push R2
-    push R3
-    push R4
-    load R1, Arg1 ; integer value to be printed
-    load R2, Arg2 ; right-aligned position in the screen from where to start printing
-    load R3, Arg3 ; pointer to map where to save printed characters
-    load R4, Arg4 ; color value to print number
-
-    add R3, R3, R2 ; Get location in map where to start storing
-    loadn R5, #10  ; load the value 10 to apply the mod operation
+    call initRegisters
+    add r3, r3, r2 ; Get location in map where to start storing
+    loadn r5, #10  ; load the value 10 to apply the mod operation
 
     printIntLoop:
-        cmp R1, R0
+        cmp r1, r0
         jeq printIntEnd
-        loadn R6, #'0' ; load index value of the character 0
-        mod R7, R1, R5 ; get least significant digit from R1
-        add R6, R6, R7 ; apply it as an offset to the character map
-        add R6, R6, R4 ; apply color value
-        outchar R6, R2
-        storei R3, R6
-        dec R2
-        dec R3
-        div R1, R1, R5
+        loadn r6, #'0' ; load index value of the character 0
+        mod r7, r1, r5 ; get least significant digit from r1
+        add r6, r6, r7 ; apply it as an offset to the character map
+        add r6, r6, r4 ; apply color value
+        outchar r6, r2
+        storei r3, r6
+        dec r2
+        dec r3
+        div r1, r1, r5
         jmp printIntLoop
 
     printIntEnd:
-        pop R4
-        pop R3
-        pop R2
-        pop R1
+        call restoreRegisters
         rts
 
 
 printVector:
     ; Prints the contents of a vector as characters on the screen.
+    ; Arguments:
+    ; a1 = Pointer to the start of the vector
+    ; a2 = Index of the position at the screen where to start printing
+    ; a3 = Map to save printed characters
+    ; a4 = Vector length
     ; Returns: Nothing
 
-    push R1
-    push R2
-    push R3
-    push R4
-    load R1, Arg1 ; pointer to the start of the vector
-    load R2, Arg2 ; index of the position at the screen where to start printing
-    load R3, Arg3 ; map to save printed characters
-    load R4, Arg4 ; vector length
+    call initRegisters
+    breakp
+    add r3, r2, r3 ; Offset memory location to save characters
+    add r4, r3, r4 ; Memory location to stop storing or printing
 
     pvLoop:
-        cmp R4, R0
+        cmp r3, r4
         jeq pvEnd
-        outchar R2, R1
-        loadi R3, R1
-        inc R1
-        inc R2
-        inc R3
-        dec R4
+        loadi r4, r1
+        outchar r4, r2
+        inc r1
+        inc r2
+        inc r3
         jmp pvLoop
     pvEnd:
-        pop R4
-        pop R3
-        pop R2
-        pop R1
+        call restoreRegisters
         rts
 
 
 printString:
     ; Prints a string of text. Printing can be animated and interrupted by the user.
+    ; a1 = Pointer to the string to be printed
+    ; a2 = Index of the position at the screen where to start printing
+    ; a3 = Map to save printed characters
+    ; a4 = Color to be assigned to printed characters.
+    ;      If color values are already applied, pass 0 so as to not alter these.
+    ; a5 = Whether printing is animated and can be interrupted by the user's input.
+    ;      0 implies false any other value is the ASCII value of the key that interrupts the animation
     ; Returns:
-    ; Arg0 = 0 if printing was interrupted by the user, otherwise the printed string length.
+    ; a0 = 0 if printing was interrupted by the user, otherwise the printed string length.
 
-    push R1
-    push R2
-    push R3
-    push R4
-    push R5
-    load R1, Arg1 ; pointer to the string to be printed
-    load R2, Arg2 ; index of the position at the screen where to start printing
-    load R3, Arg3 ; map to save printed characters
-    load R4, Arg4 ; color to be assigned to printed characters. If color values are already applied, pass 0 so as to not alter these.
-    load R5, Arg5 ; Whether printing is animated and can be interrupted by the user's input. 0 implies false any other value is the ASCII value of the key that interrupts the animation
-
-
-    add R3, R3, R2
-    cmp R5, R0
+    call initRegisters
+    add r3, r3, r2 ; Offset memory location where to store characters
+    cmp r5, r0
     jne psInterruptable
 
     psUninterruptable:
-        loadi R7, R1        ; retrieve character to be printed
-        cmp R7, R0          ; check if it is the terminator character
+        loadi r7, r1        ; retrieve character to be printed
+        cmp r7, r0          ; check if it is the terminator character
         jeq psUninterrupted ; Escape if it is
-        add R7, R7, R4      ; Add color value to character
-        outchar R7, R2      ; Print character
-        storei R3, R7
-        inc R1              ; Increment string pointer
-        inc R2              ; Increment screen position
-        inc R3              ; Increment map pointer
+        add r7, r7, r4      ; Add color value to character
+        outchar r7, r2      ; Print character
+        storei r3, r7
+        inc r1              ; Increment string pointer
+        inc r2              ; Increment screen position
+        inc r3              ; Increment map pointer
         jmp psUninterruptable
 
     psInterruptable:
         call takeInput
-        load R7, Arg0
-        cmp R7, R5
+        load r7, a0
+        cmp r7, r5
         jeq psInterrupted
-        loadi R7, R1
-        cmp R7, R0
+        loadi r7, r1
+        cmp r7, r0
         jeq psUninterrupted
-        add R7, R7, R4
-        outchar R7, R2
-        storei R3, R7
-        inc R1
-        inc R2
-        inc R3
+        add r7, r7, r4
+        outchar r7, r2
+        storei r3, r7
+        inc r1
+        inc r2
+        inc r3
         jmp psInterruptable
 
     psUninterrupted:
-        load R7, Arg1
-        sub R1, R1, R7
-        store Arg0, R1
+        load r7, a1
+        sub r1, r1, r7
+        store a0, r1
         jmp psEnd
 
     psInterrupted:
-        store Arg0, R0
+        store a0, r0
 
     psEnd:
-        pop R5
-        pop R4
-        pop R3
-        pop R2
-        pop R1
+        call restoreRegisters
         rts
 
 
 printInstructions:
     ; Prints a centered text box containing instructions on how to play or score and returns whether the user has interrupted printing or not.
     ; Arguments:
-    ; Arg1 = address of the vector of strings to be printed
-    ; Arg2 = number of lines to be printed
-    ; Arg3 = map to save printed characters
+    ; a1 = address of the vector of strings to be printed
+    ; a2 = number of lines to be printed
+    ; a3 = map to save printed characters
     ; Returns:
-    ; Arg0 = 0 if printing was not interrupted, otherwise 1.
+    ; a0 = 0 if printing was not interrupted, otherwise 1.
 
-    push R1
-    push R2
-    push R3
-    load R1, Arg1  ; address of the vector of strings to be printed
-    load R2, Arg2  ; number of lines to be printed
-    load R3, Arg3  ; map to save printed characters
-    loadn R4, #614 ; store line start
-    loadn R5, #80  ; store line offset value
-    loadn R6, #1   ; set padding
+    call initRegisters
+    loadn r4, #614 ; store line start
+    loadn r5, #80  ; store line offset value
+    loadn r6, #1   ; set padding
 
     ; Print Header
-    store Arg2, R4
-    store Arg4, R0
-    store Arg5, R4
+    store a2, r4
+    store a4, r0
+    store a5, r4
     call printString
-    load R1, Arg0
-    cmp R1, R0
+    load r1, a0
+    cmp r1, r0
     jeq piEnd
-    add R4, R4, R1
+    add r4, r4, r1
 
     ; Pad right
-    store Arg1, R0
-    store Arg2, R4
-    store Arg6, R6
+    store a1, r0
+    store a2, r4
+    store a6, r6
     call printChar
-    load R4, Arg0
-    cmp R4, R0
+    load r4, a0
+    cmp r4, r0
     jeq piEnd
-    dec R2
+    dec r2
 
     ; Set initial values
-    loadn R4, #693
-    load R5, WIDTH ; Screen width
-    loadn R6, #4
-    sub R5, R5, R6
+    loadn r4, #693
+    load r5, WIDTH ; Screen width
+    loadn r6, #4
+    sub r5, r5, r6
 
     piBody:
-        cmp R2, R0
+        cmp r2, r0
         jeq piCompleted
 
         ; Print with emphasis (red)
-        load R6, red
-        store Arg1, R1
-        store Arg2, R4
-        store Arg3, R6
+        load r6, red
+        store a1, r1
+        store a2, r4
+        store a3, r6
         call printString
-        load R7, Arg0
-        cmp R7, R0
+        load r7, a0
+        cmp r7, r0
         jne piEnd
 
         ; Offset string and screen pointer
-        add R1, R1, R6
-        add R6, R4, R7
+        add r1, r1, r6
+        add r6, r4, r7
 
         ; Print description (yellow)
-        store Arg1, R1
-        store Arg2, R6
-        load R6, yellow
-        store Arg3, R6
+        store a1, r1
+        store a2, r6
+        load r6, yellow
+        store a3, r6
         call printString
-        load R7, Arg0
-        cmp R7, R0
+        load r7, a0
+        cmp r7, r0
         jne piEnd
 
         ; Offset string and screen pointer
-        add R1, R1, R7
-        add R6, R6, R7
+        add r1, r1, r7
+        add r6, r6, r7
 
         ; Pad right
-        store Arg1, R0
-        store Arg2, R6
-        sub R7, R5, R7 ; Set R7 as the difference between the message and line lengths
-        store Arg6, R7 ; That's the padding value.
-        load R7, yellow
-        store Arg3, R7
+        store a1, r0
+        store a2, r6
+        sub r7, r5, r7 ; Set r7 as the difference between the message and line lengths
+        store a6, r7 ; That's the padding value.
+        load r7, yellow
+        store a3, r7
         call printChar
 
         ; Move towards printing next line and decrement line count
-        add R4, R4, R5
-        dec R2
+        add r4, r4, r5
+        dec r2
         jmp piBody
 
     piCompleted:
-        loadn R6, #0
+        loadn r6, #0
 
     piEnd:
-        store Arg0, R6
-        pop R3
-        pop R2
-        pop R1
+        store a0, r6
+        call restoreRegisters
         rts
 
 ; NOTE: Game functions
@@ -903,61 +912,58 @@ printInstructions:
 titleScreen:
     ; Prints the title screen, displaying game instructions.
     ; Arguments:
-    ; Arg1 = current Highscore
-    ; Arg2 = pointer to background vector
+    ; a1 = current Highscore
+    ; a2 = pointer to background vector
+    ; Returns: Nothing
 
-    push R1
-    push R2
-    load R1, Arg1
-    load R2, Arg2
-    store Arg1, R2
+    call initRegisters
+    store a1, r2
     call initTitleScreen
 
-    mov R3, R0         ; variable to toggle between instructions to be displayed
-    loadn R4, #'\n'    ; variable to compare if ENTER was pressed
-    load R5, MICROSECOND
-    loadn R6, #3
-    mul R5, R5, R6     ; Set delay interval to 3 seconds
-    loadn R6, #5       ; Set number of lines of instructions to be printed
+    mov r3, r0         ; variable to toggle between instructions to be displayed
+    loadn r4, #'\n'    ; variable to compare if ENTER was pressed
+    load r5, MICROSECOND
+    loadn r6, #3
+    mul r5, r5, r6     ; Set delay interval to 3 seconds
+    loadn r6, #5       ; Set number of lines of instructions to be printed
 
-    loadn R7, #25
-    store Arg2, R7
-    store Arg3, R2
-    load R7, red
-    store Arg4, R7
+    loadn r7, #25
+    store a2, r7
+    store a3, r2
+    load r7, red
+    store a4, r7
     call printInt      ; Print Highscore
 
     titleScreenLoop:
-        cmp R3, R0     ; Either print instructions for scoring or playing
+        cmp r3, r0     ; Either print instructions for scoring or playing
         jeq selectPlay ; Selection logic
-        load R2, how_to_score0
+        load r2, how_to_score0
         jmp instructionSelected
         selectPlay:
-            load R2, how_to_play0
+            load r2, how_to_play0
         instructionSelected:
-            store Arg1, R2
-        store Arg2, R6
+            store a1, r2
+        store a2, r6
         call printInstructions
-        load R2, Arg0
-        cmp R2, R0
+        load r2, a0
+        cmp r2, r0
         jnz titleScreenEnd
-        store Arg1, R5
-        store Arg2, R4
+        store a1, r5
+        store a2, r4
         call takeInput
-        load R2, Arg0
-        cmp R2, R4
+        load r2, a0
+        cmp r2, r4
         jeq titleScreenEnd
-        not R1, R1
+        not r1, r1
         jmp titleScreenLoop
     titleScreenEnd:
-        pop R2
-        pop R1
+        call restoreRegisters
         rts
 
 fn_checkDeath:
     ;Checks if the frog hit an enemy
     ;Args : None
-    ;Returns : Arg0 = if dead then 0, else 1
+    ;Returns : a0 = if dead then 0, else 1
     load r1, frogPosition
     loadn r2, #foreground
     add r3, r1, r2 ;Frogs position on the foreground
@@ -983,7 +989,7 @@ fn_checkDeath:
     jne case_Hit
     ;If not Hit
     loadn r1, #1
-    store Arg0, r1
+    store a0, r1
     rts
 
 
@@ -991,7 +997,7 @@ fn_checkDeath:
 
     case_Hit:
         loadn r1, #0
-        store Arg0, r1
+        store a0, r1
         rts
 
 
@@ -1002,11 +1008,11 @@ fn_checkDeath:
 
 fn_checkBorders:
     ;Checks if the current move of the frog is valid due to map constraints
-    ;Args : Arg1 = new position
-    ;Returns: Arg0 = 0 if not valid, 1 if valid
+    ;Args : a1 = new position
+    ;Returns: a0 = 0 if not valid, 1 if valid
 
     load r1, frogPosition
-    load r2, Arg1
+    load r2, a1
     loadn r3, #1158 ; Compares to max position of the map
     cmp r2, r3
     jle case_invalidMove ;Out of map
@@ -1020,11 +1026,11 @@ fn_checkBorders:
     cmp r1, r2 ;Checks if two positions arent on different lines (stepped over the edge)
     jne case_invalidMove
     loadn r1, #1
-    store Arg0, r1
+    store a0, r1
     rts
     case_invalidMove:
         loadn r1, #0
-        store Arg0, r1
+        store a0, r1
         rts
 
 
@@ -1033,9 +1039,9 @@ fn_checkBorders:
 
 fn_moveFrog:
     ;receives the input from the user and tries to move the frog
-    ;Args : Arg1 = input
-    ;Returns : Arg0 = 0 if frog died, else Arg0 = 1
-    load r1, Arg1
+    ;Args : a1 = input
+    ;Returns : a0 = 0 if frog died, else a0 = 1
+    load r1, a1
     loadn r2, #87; W
     cmp r2, r1
     jeq case_W
@@ -1053,70 +1059,95 @@ case_W:
     load r1, frogPosition
     loadn r2, #40
     add r1, r1, r2
-    store Arg1, r1
+    store a1, r1
     call fn_checkBorders
-    load r2, Arg0
+    load r2, a0
     cmp r2, r0
     jeq case_noMove
     store frogPosition, r1
     loadn r1, #1
-    store Arg0, r1
+    store a0, r1
     rts
 case_A:
     load r1, frogPosition
     dec r1
-    store Arg1, r1
+    store a1, r1
     call fn_checkBorders
-    load r2, Arg0
+    load r2, a0
     cmp r2, r0
     jeq case_noMove
     store frogPosition, r1
     loadn r1, #1
-    store Arg0, r1
+    store a0, r1
     rts
 case_S:
     load r1, frogPosition
     loadn r2, #40
     sub r1, r1, r2
-    store Arg1, r1
+    store a1, r1
     call fn_checkBorders
-    load r2, Arg0
+    load r2, a0
     cmp r2, r0
     jeq case_noMove
     store frogPosition, r1
     loadn r1, #1
-    store Arg0, r1
+    store a0, r1
     rts
 case_D:
     load r1, frogPosition
     inc r1
-    store Arg1, r1
+    store a1, r1
     call fn_checkBorders
-    load r2, Arg0
+    load r2, a0
     cmp r2, r0
     jeq case_noMove
     store frogPosition, r1
     loadn r1, #1
-    store Arg0, r1
+    store a0, r1
     rts
 case_noMove:
     loadn r1, #1
-    store Arg0, r1
+    store a0, r1
     rts
 
 
 
+fn_drawFrog:
+    ;Draws the frog on the screen at its position
+    ;Args : None
+    ;Returns : None
+    call initRegisters
+    load r1, frogPosition
+    loadn r2, #frog_charmap
+    loadi r3, r2
+    outchar r3, r1 ;Top left
+    inc r1
+    inc r2
+    loadi r3, r2
+    outchar r3, r1 ;Top Right
+    loadn r4, #39
+    add r1, r1, r4
+    inc r2
+    inc r2
+    loadi r3, r4
+    outchar r3, r1 ;Bottom left
+    inc r1
+    inc r2
+    loadi r3, r2
+    outchar r3, r1 ;Bottom right
+    call restoreRegisters
+    rts
 
 
 
 main:
-    loadn R0, #0 ; Set R0 to 0, this register should hold this value always
-    load R1, hiscore
-    store Arg1, R1
-    loadn R1, #background
-    store Arg2, R1
-    loadn R1, #foreground
-    store Arg3, R1
+    loadn r0, #0 ; Set r0 to 0, this register should hold this value always
+    load r1, hiscore
+    store a1, r1
+    loadn r1, #background
+    store a2, r1
+    loadn r1, #foreground
+    store a3, r1
 
     gameLoop:
         call titleScreen
