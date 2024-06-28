@@ -33,16 +33,19 @@ LANES : var #1
 FILL : var #1
     static FILL, #'B'
 
+ENTER: var #1
+    static ENTER, #13
+
 
 ; Base interval: 1 microsecond, multiplied by itself yields a full second.
 
 MICROSECOND : var #1
     static MICROSECOND, #1000
 
-; Multiplier for the interval for 1/20 of a second, i.e. the framerate
+; Multiplier for the framerate interval
 
 FRAMERATE : var #1
-    static FRAMERATE, #150
+    static FRAMERATE, #300
 
 
 ; Color offsets. Remember, white = 0
@@ -67,6 +70,7 @@ pink   : var #1
     static pink   , #3328
 
 ; Title screen's variables
+demake       : string "- THE DEMAKE -"
 hiscoreLabel : string "HISCORE "
 press        : string "PRESS "
 enter        : string "ENTER "
@@ -340,6 +344,7 @@ timeLabel  : string " TIME"
 ; Data relating to the frog
 frogPosition : var #1
     static frogPosition, #1139 ;About [19 x][28 y], bottom middle
+
 frog_charmap : var #6
     static frog_charmap     + #0, #769
     static frog_charmap     + #1, #770
@@ -548,7 +553,6 @@ initTitleScreen:
     call printChar
 
     ; Print "Frogger!"
-    breakp
     load r1, FILL
     load r2, blue
     add r1, r1, r2
@@ -559,8 +563,6 @@ initTitleScreen:
     mul r3, r3, r2
     store a4, r3 ; Characters to print
     call printChar
-
-    ; TODO: Continue debugging from here.
 
     loadn r4, #title
     store a1, r4
@@ -576,29 +578,46 @@ initTitleScreen:
     load r1, WIDTH
     store a4, r1
     call printChar
-    breakp
+
+    ; Print "- The Demake -"
+    loadn r1, #13
+    store a1, r1
+    store a2,r1
+    call screenOffset
+    loadn r1, #demake
+    store a1, r1
+    load r1, a0
+    store a2, r1
+    store a4, r0
+    call printString
 
     ; Print "Press enter to play"
+    loadn r1, #26
+    store a1, r1
+    loadn r1, #10
+    store a2, r1
+    call screenOffset
     loadn r1, #press
-    loadn r2, #1050
-    store a0, r1
-    store a1, r2
-    store a2, r0
+    store a1, r1
+    load r1, a0
+    store a2, r1
     call printString
 
-    loadn r1, #enter
-    load r2, a0
-    load r3, yellow
-    store a0, r1
+    loadn r2, #enter
     store a1, r2
-    store a2, r3
+    load r2, a0
+    add r1, r1, r2
+    store a2, r1
+    load r2, yellow
+    store a4, r2
     call printString
 
-    loadn r1, #to_play
-    load r2, a0
-    store a0, r1
+    loadn r2, #to_play
     store a1, r2
-    store a2, r0
+    load r2, a0
+    add r1, r1, r2
+    store a2, r1
+    store a4, r0
     call printString
 
     call restoreRegisters
@@ -619,7 +638,7 @@ takeInput:
     store a0, r0
 
     delay_A:
-        load r5, a1
+        mov r5, r1
         delay_B:
             inchar r6
             cmp r4, r6
@@ -633,11 +652,27 @@ takeInput:
         dec r3
         jnz delay_A
     delayEnd:
-    pop r2
-    pop r1
+    call restoreRegisters
     rts
 
 ; NOTE: Functions for printing on screen
+
+screenOffset:
+    ; Gives the offset that, given the screen's dimensions corresponds to a given column and row
+    ; Arguments:
+    ; a1 = row
+    ; a2 = column
+    ; Returns:
+    ; a0 = offset
+
+    call initRegisters
+    load r3, WIDTH
+    mul r1, r1, r3
+    add r1, r1, r2
+    store a0, r1
+    call restoreRegisters
+    rts
+
 
 printChar:
     ; Prints a character, one or more times.
@@ -736,15 +771,14 @@ printVector:
     ; Returns: Nothing
 
     call initRegisters
-    breakp
     add r3, r2, r3 ; Offset memory location to save characters
     add r4, r3, r4 ; Memory location to stop storing or printing
 
     pvLoop:
         cmp r3, r4
         jeq pvEnd
-        loadi r4, r1
-        outchar r4, r2
+        loadi r5, r1
+        outchar r5, r2
         inc r1
         inc r2
         inc r3
@@ -768,20 +802,12 @@ printString:
 
     call initRegisters
     add r3, r3, r2 ; Offset memory location where to store characters
+    mov r6, r1
     cmp r5, r0
-    jne psInterruptable
-
-    psUninterruptable:
-        loadi r7, r1        ; retrieve character to be printed
-        cmp r7, r0          ; check if it is the terminator character
-        jeq psUninterrupted ; Escape if it is
-        add r7, r7, r4      ; Add color value to character
-        outchar r7, r2      ; Print character
-        storei r3, r7
-        inc r1              ; Increment string pointer
-        inc r2              ; Increment screen position
-        inc r3              ; Increment map pointer
-        jmp psUninterruptable
+    jeq psUninterruptable
+    load r7, FRAMERATE
+    store a1, r5
+    store a2, r7
 
     psInterruptable:
         call takeInput
@@ -799,9 +825,20 @@ printString:
         inc r3
         jmp psInterruptable
 
+    psUninterruptable:
+        loadi r7, r1        ; retrieve character to be printed
+        cmp r7, r0          ; check if it is the terminator character
+        jeq psUninterrupted ; Escape if it is
+        add r7, r7, r4      ; Add color value to character
+        outchar r7, r2      ; Print character
+        storei r3, r7
+        inc r1              ; Increment string pointer
+        inc r2              ; Increment screen position
+        inc r3              ; Increment map pointer
+        jmp psUninterruptable
+
     psUninterrupted:
-        load r7, a1
-        sub r1, r1, r7
+        sub r1, r1, r6
         store a0, r1
         jmp psEnd
 
@@ -814,96 +851,127 @@ printString:
 
 
 printInstructions:
-    ; Prints a centered text box containing instructions on how to play or score and returns whether the user has interrupted printing or not.
+    ; Prints a left aligned text box containing instructions on how to play or score and returns whether the user has interrupted printing or not.
     ; Arguments:
     ; a1 = address of the vector of strings to be printed
     ; a2 = number of lines to be printed
     ; a3 = map to save printed characters
+    ; a4 = leftmost column from where to start printing instructions
     ; Returns:
-    ; a0 = 0 if printing was not interrupted, otherwise 1.
+    ; a0 = 0 if printing was interrupted, otherwise 1.
 
     call initRegisters
-    loadn r4, #614 ; store line start
-    loadn r5, #80  ; store line offset value
-    loadn r6, #1   ; set padding
+    store a0, r0
 
-    ; Print Header
-    store a2, r4
+    ; Print a centered header
+    loadn r5, #16
+    store a1, r5
+    loadn r5, #14
+    store a2, r5
+    call screenOffset
+    load r5, a0
+    store a1, r1
+    store a2, r5
     store a4, r0
-    store a5, r4
+    load r3, ENTER
+    store a5, r3
     call printString
-    load r1, a0
-    cmp r1, r0
+    load r3, a0
+    cmp r3, r0
     jeq piEnd
-    add r4, r4, r1
+    add r1, r1, r3
+    inc r1
+    add r5, r5, r3
 
     ; Pad right
     store a1, r0
-    store a2, r4
-    store a6, r6
+    store a2, r5
+    loadn r3, #1
+    store a4, r3
     call printChar
-    load r4, a0
-    cmp r4, r0
+    load r3, a0
+    cmp r3, r0
     jeq piEnd
     dec r2
 
     ; Set initial values
-    loadn r4, #693
-    load r5, WIDTH ; Screen width
-    loadn r6, #4
-    sub r5, r5, r6
+    loadn r5, #18
+    store a1, r5
+    store a2, r0
+    call screenOffset
+    load r5, a0
+    load r6, WIDTH
 
     piBody:
         cmp r2, r0
         jeq piCompleted
 
+        ; Pad left
+        store a1, r0
+        store a2, r5
+        store a4, r4
+        call printChar
+        load r7, a0
+        cmp r7, r0
+        jeq piEnd
+
+        ; Offset screen pointer
+        add r5, r5, r7
+
         ; Print with emphasis (red)
-        load r6, red
         store a1, r1
-        store a2, r4
-        store a3, r6
+        store a2, r5
+        load r7, red
+        store a4, r7
         call printString
         load r7, a0
         cmp r7, r0
-        jne piEnd
-
-        ; Offset string and screen pointer
-        add r1, r1, r6
-        add r6, r4, r7
-
-        ; Print description (yellow)
-        store a1, r1
-        store a2, r6
-        load r6, yellow
-        store a3, r6
-        call printString
-        load r7, a0
-        cmp r7, r0
-        jne piEnd
+        jeq piEnd
 
         ; Offset string and screen pointer
         add r1, r1, r7
-        add r6, r6, r7
+        inc r1
+        add r5, r5, r7
+
+        ; Print description (yellow)
+        store a1, r1
+        store a2, r5
+        load r7, yellow
+        store a4, r7
+        call printString
+        load r7, a0
+        cmp r7, r0
+        jeq piEnd
+
+        ; Offset string and screen pointer
+        add r1, r1, r7
+        inc r1
+        add r5, r5, r7
 
         ; Pad right
         store a1, r0
-        store a2, r6
-        sub r7, r5, r7 ; Set r7 as the difference between the message and line lengths
-        store a6, r7 ; That's the padding value.
-        load r7, yellow
-        store a3, r7
+        store a2, r5
+        mod R7, R5, R6
+        sub R7, R6, R7
+        dec r7
+        store a4, R7
         call printChar
+        load r7, a0
+        cmp r7, r0
+        jeq piEnd
 
-        ; Move towards printing next line and decrement line count
-        add r4, r4, r5
+        ; Offset screen pointer
+        add r5, r5, r7
+        inc r5
+        add r5, r5, r6
+
         dec r2
         jmp piBody
 
     piCompleted:
-        loadn r6, #0
+        store a0, r3
 
     piEnd:
-        store a0, r6
         call restoreRegisters
         rts
 
@@ -920,42 +988,46 @@ titleScreen:
     store a1, r2
     call initTitleScreen
 
-    mov r3, r0         ; variable to toggle between instructions to be displayed
-    loadn r4, #'\n'    ; variable to compare if ENTER was pressed
-    load r5, MICROSECOND
-    loadn r6, #3
-    mul r5, r5, r6     ; Set delay interval to 3 seconds
-    loadn r6, #5       ; Set number of lines of instructions to be printed
-
-    loadn r7, #25
-    store a2, r7
+    store a1, r1
     store a3, r2
-    load r7, red
-    store a4, r7
-    call printInt      ; Print Highscore
+    loadn r1, #25         ; Column offset
+    store a2, r1
+    load r1, red
+    store a4, r1
+    call printInt         ; Print Highscore
+
+    mov r1, r0            ; variable to toggle between instructions to be displayed
+    load r2, ENTER        ; variable to compare if ENTER was pressed
+    load r3, MICROSECOND
+    loadn r4, #30
+    mul r3, r3, r4        ; Set delay interval to 3 seconds
+    loadn r4, #5          ; Set number of lines of instructions to be printed
 
     titleScreenLoop:
-        cmp r3, r0     ; Either print instructions for scoring or playing
-        jeq selectPlay ; Selection logic
-        load r2, how_to_score0
+        cmp r1, r0        ; Either print instructions for scoring or playing
+        jeq selectPlay    ; Selection logic
+        loadn r5, #how_to_score0
+        loadn r6, #2      ; Column offset
         jmp instructionSelected
         selectPlay:
-            load r2, how_to_play0
+            loadn r5, #how_to_play0
+            loadn r6, #13 ; Column offset
         instructionSelected:
-            store a1, r2
-        store a2, r6
-        call printInstructions
-        load r2, a0
-        cmp r2, r0
-        jnz titleScreenEnd
-        store a1, r5
-        store a2, r4
-        call takeInput
-        load r2, a0
-        cmp r2, r4
-        jeq titleScreenEnd
-        not r1, r1
-        jmp titleScreenLoop
+            store a1, r5
+            store a2, r4
+            store a4, r6
+            call printInstructions
+            load r5, a0
+            cmp r5, r0
+            jeq titleScreenEnd
+            store a1, r3
+            store a2, r2
+            call takeInput
+            load r5, a0
+            cmp r5, r2
+            jeq titleScreenEnd
+            not r1, r1
+            jmp titleScreenLoop
     titleScreenEnd:
         call restoreRegisters
         rts
@@ -1143,18 +1215,16 @@ fn_drawFrog:
 main:
     loadn r0, #0 ; Set r0 to 0, this register should hold this value always
     load r1, hiscore
-    store a1, r1
-    loadn r1, #background
-    store a2, r1
-    loadn r1, #foreground
-    store a3, r1
+    loadn r2, #background
+    loadn r3, #foreground
 
-    gameLoop:
+    mainLoop:
+        breakp
+        store a1, r1
+        store a2, r2
         call titleScreen
-    halt
-
-
-
-
-
-
+        ; store a1, r1
+        ; store a2, r2
+        ; store a3, r3
+        ; call gameScreen
+        jmp mainLoop

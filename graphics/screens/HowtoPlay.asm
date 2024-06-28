@@ -559,7 +559,7 @@ HowtoPlay : var #1200
   static HowtoPlay + #530, #3917
   static HowtoPlay + #531, #3917
   static HowtoPlay + #532, #3917
-  static HowtoPlay + #533, #111
+  static HowtoPlay + #533, #45
   static HowtoPlay + #534, #3917
   static HowtoPlay + #535, #84
   static HowtoPlay + #536, #72
@@ -572,7 +572,7 @@ HowtoPlay : var #1200
   static HowtoPlay + #543, #75
   static HowtoPlay + #544, #69
   static HowtoPlay + #545, #3917
-  static HowtoPlay + #546, #111
+  static HowtoPlay + #546, #45
   static HowtoPlay + #547, #3926
   static HowtoPlay + #548, #3917
   static HowtoPlay + #549, #3917
@@ -729,7 +729,7 @@ HowtoPlay : var #1200
   static HowtoPlay + #692, #3906
   static HowtoPlay + #693, #2391
   static HowtoPlay + #694, #3917
-  static HowtoPlay + #695, #2415
+  static HowtoPlay + #695, #2349
   static HowtoPlay + #696, #3917
   static HowtoPlay + #697, #2893
   static HowtoPlay + #698, #2895
@@ -813,7 +813,7 @@ HowtoPlay : var #1200
   static HowtoPlay + #772, #3906
   static HowtoPlay + #773, #2369
   static HowtoPlay + #774, #3906
-  static HowtoPlay + #775, #2415
+  static HowtoPlay + #775, #2349
   static HowtoPlay + #776, #3917
   static HowtoPlay + #777, #2893
   static HowtoPlay + #778, #2895
@@ -897,7 +897,7 @@ HowtoPlay : var #1200
   static HowtoPlay + #852, #3906
   static HowtoPlay + #853, #2387
   static HowtoPlay + #854, #3906
-  static HowtoPlay + #855, #2415
+  static HowtoPlay + #855, #2349
   static HowtoPlay + #856, #3917
   static HowtoPlay + #857, #2893
   static HowtoPlay + #858, #2895
@@ -981,7 +981,7 @@ HowtoPlay : var #1200
   static HowtoPlay + #932, #3906
   static HowtoPlay + #933, #2372
   static HowtoPlay + #934, #3924
-  static HowtoPlay + #935, #2415
+  static HowtoPlay + #935, #2349
   static HowtoPlay + #936, #3917
   static HowtoPlay + #937, #2893
   static HowtoPlay + #938, #2895
