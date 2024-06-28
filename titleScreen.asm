@@ -343,7 +343,7 @@ timeLabel  : string " TIME"
 
 ; Data relating to the frog
 frog_pos : var #1
-    static frog_pos, #1139 ;About [19 x][28 y], bottom middle
+    static frog_pos, #1060 ;About [19 x][28 y], bottom middle
 
 frog_charmap : var #6
     static frog_charmap     + #0, #769
@@ -1100,19 +1100,13 @@ fn_checkDeath:
         store a0, r1
         rts
 
-
-
-
-
-
-
 fn_checkBorders:
     ;Checks if the current move of the frog is valid due to map constraints
     ;Args : a1 = new position
     ;Returns: a0 = 0 if not valid, 1 if valid
-    call initRegisters
+    call saveRegisters
     load r2, frog_pos
-    loadn r3, #1158 ; Compares to max position of the map
+    loadn r3, #1078 ; Compares to max position of the map
     cmp r3, r2
     jle case_invalidMove ;Out of map
     loadn r3, #40
@@ -1142,9 +1136,6 @@ fn_checkBorders:
         store a0, r1
         call restoreRegisters
         rts
-
-
-
 
 
 fn_moveFrog:
@@ -1228,7 +1219,7 @@ fn_moveFrog:
 fn_eraseFrog:
     ;Erases the frog and puts the background in its position
     ;No args, no return
-    call initRegisters
+    call saveRegisters
     load r1, frog_pos
     loadn r2, #background
     loadi r3, r2
@@ -1252,9 +1243,9 @@ fn_eraseFrog:
 fn_checkWin:
     ;Checks if the frog has reached the target
     ;No args, returns in a0, 1 if won, else 0
-    call initRegisters
+    call saveRegisters
     load r1, frog_pos
-    loadn r2, #40
+    loadn r2, #160
     cmp r2, r1
     jle case_win
     store a0, r0
@@ -1311,43 +1302,59 @@ initStats:
     call restoreRegisters
     rts
 
-initLanes:
-    ; Sets up the initial settings for this game's obstacles
-    ; Arguments: None
-    ; Returns: Nothing
+; initLanes:
+;     ; Sets up the initial settings for this game's obstacles
+;     ; Arguments: None
+;     ; Returns: Nothing
 
+;     call saveRegisters
+;     loadn r1, #lanes
+;     loadi r1, r1
+;     load r2, lowerBoundary
+;     loadn r3, 2
+
+
+;     ; Setup Yellow
+;     sub r3, r3, r4
+;     storei r2, r3
+;     inc r2
+
+;     loadn r5, #16
+;     storei r2, r5
+;     inc r2
+
+;     loadn r5, #3
+;     storei r2, r5
+;     inc r2
+
+;     loadn r5, #50
+;     storei r2, r5
+;     inc r2
+
+;     storei r2, r0
+;     inc r2
+
+
+
+fn_subLives:
+    ;Removes one live
+    ;Returns 0 if there are still lives
+    ;Returns 1 if game over
     call saveRegisters
-    load r1, #lanes
-    loadi r1, r1
-    loadn r2, lowerBoundary
-    loadn r3, 2
-
-
-    ; Setup Yellow
-    sub r3, r3, r4
-    storei r2, r3
-    inc r2
-
-    loadn r5, #16
-    storei r2, r5
-    inc r2
-
-    loadn r5, #3
-    storei r2, r5
-    inc r2
-
-    loadn r5, #50
-    storei r2, r5
-    inc r2
-
-    storei r2, r0
-    inc r2
-
-
-
-
-
-
+    load r1, lives
+    loadn r2, #1
+    sub r1, r1, r2
+    cmp r1, r0
+    jeq case_death_subLives 
+    store lives, r1
+    store a0, r0
+    call restoreRegisters
+    rts
+    case_death_subLives:
+        store lives, r1
+        store a0, r2
+        call restoreRegisters
+        rts
 
 gameScreen:
     ; Function to execute the game itself.
@@ -1360,7 +1367,7 @@ gameScreen:
 
     call saveRegisters
     call initStats
-    call initLanes
+    ;call initLanes
 
 
 
@@ -1376,7 +1383,7 @@ main:
         call titleScreen
 
         ;Prints background
-        loadn r1, background
+        loadn r1, #background
         store a1, r1 ;Pointer to background
         store a3, r1 ;Prints itself to itself ?????
         store a2, r0 ;Prints from the start
@@ -1405,19 +1412,38 @@ main:
             call fn_checkWin
             load r1, a0
             cmp r1, r0
-            jne case_win
+            jne case_Reached
             ;TODO -- Move enemies
 
             ;TODO -- Checks colision after enemie move
 
             jmp gameLoop
             case_dead:
+                ;Subtracts one live 
+                call fn_subLives
+                load r1, a0
+                cmp r1, r0
+                ;Ends game if lives drop to zero
+                jne game_over
+                loadn r1, #1060
+                store frog_pos, r1
+                call fn_drawFrog
+                jmp gameLoop
+            case_Reached:
+                ;Update socre
+                load r1, score
+                loadn r2, #100
+                add r1, r1, r2
+                store score, r1
+                ;Update saved
+                load r1, saved
+                inc r1
+                store saved, r1 
 
 
-
-
-            case_victory:
-
+            game_over:
+            ;IDK
+            nop
 
 
         loadn r1, #1
