@@ -343,7 +343,7 @@ timeLabel  : string " TIME"
 
 ; Data relating to the frog
 frog_pos : var #1
-    static frogPosition, #1139 ;About [19 x][28 y], bottom middle
+    static frog_pos, #1139 ;About [19 x][28 y], bottom middle
 
 frog_charmap : var #6
     static frog_charmap     + #0, #769
@@ -1068,7 +1068,7 @@ fn_checkDeath:
     ;Checks if the frog hit an enemy
     ;Args : None
     ;Returns : a0 = if dead then 0, else 1
-    load r1, frogPosition
+    load r1, frog_pos
     loadn r2, #foreground
     add r3, r1, r2 ;Frogs position on the foreground
     ;Top left
@@ -1111,7 +1111,7 @@ fn_checkBorders:
     ;Args : a1 = new position
     ;Returns: a0 = 0 if not valid, 1 if valid
     call initRegisters
-    load r2, frogPosition
+    load r2, frog_pos
     loadn r3, #1158 ; Compares to max position of the map
     cmp r3, r2
     jle case_invalidMove ;Out of map
@@ -1166,7 +1166,7 @@ fn_moveFrog:
     jeq case_D
     rts
     case_W:
-        load r1, frogPosition
+        load r1, frog_pos
         loadn r2, #40
         sub r1, r1, r2
         store a1, r1
@@ -1175,12 +1175,12 @@ fn_moveFrog:
         cmp r2, r0
         jeq case_noMove
         call fn_eraseFrog
-        store frogPosition, r1
+        store frog_pos, r1
         loadn r1, #1
         store a0, r1
         rts
     case_A:
-        load r1, frogPosition
+        load r1, frog_pos
         dec r1
         store a1, r1
         call fn_checkBorders
@@ -1188,12 +1188,12 @@ fn_moveFrog:
         cmp r2, r0
         jeq case_noMove
         call fn_eraseFrog
-        store frogPosition, r1
+        store frog_pos, r1
         loadn r1, #1
         store a0, r1
         rts
     case_S:
-        load r1, frogPosition
+        load r1, frog_pos
         loadn r2, #40
         add r1, r1, r2
         store a1, r1
@@ -1202,12 +1202,12 @@ fn_moveFrog:
         cmp r2, r0
         jeq case_noMove
         call fn_eraseFrog
-        store frogPosition, r1
+        store frog_pos, r1
         loadn r1, #1
         store a0, r1
         rts
     case_D:
-        load r1, frogPosition
+        load r1, frog_pos
         inc r1
         store a1, r1
         call fn_checkBorders
@@ -1215,7 +1215,7 @@ fn_moveFrog:
         cmp r2, r0
         jeq case_noMove
         call fn_eraseFrog
-        store frogPosition, r1
+        store frog_pos, r1
         loadn r1, #1
         store a0, r1
         rts
@@ -1229,7 +1229,7 @@ fn_eraseFrog:
     ;Erases the frog and puts the background in its position
     ;No args, no return
     call initRegisters
-    load r1, frogPosition
+    load r1, frog_pos
     loadn r2, #background
     loadi r3, r2
     outchar r3, r1 ;Top left
@@ -1253,7 +1253,7 @@ fn_checkWin:
     ;Checks if the frog has reached the target
     ;No args, returns in a0, 1 if won, else 0
     call initRegisters
-    load r1, frogPosition
+    load r1, frog_pos
     loadn r2, #40
     cmp r2, r1
     jle case_win
@@ -1272,7 +1272,7 @@ fn_drawFrog:
     ;Args : None
     ;Returns : None
     call saveRegisters
-    load r1, frogPosition
+    load r1, frog_pos
     loadn r2, #frog_charmap
     loadi r3, r2
     outchar r3, r1 ;Top left
@@ -1365,25 +1365,17 @@ gameScreen:
 
 
 main:
-    ; loadn r1, #87
-    ; store a1, r1
-    ; call fn_moveFrog
-    ; load r2, frogPosition
-
-
-
-
     loadn r0, #0 ; Set r0 to 0, this register should hold this value always
     load r1, hiscore
     loadn r2, #background
     loadn r3, #foreground
-
     mainLoop:
+        ;Title screen
         store a1, r1
         store a2, r2
         call titleScreen
 
-
+        ;Prints background
         loadn r1, background
         store a1, r1 ;Pointer to background
         store a3, r1 ;Prints itself to itself ?????
@@ -1418,7 +1410,7 @@ main:
 
             ;TODO -- Checks colision after enemie move
 
-
+            jmp gameLoop
             case_dead:
 
 
@@ -1432,9 +1424,4 @@ main:
         store a1, r1
         store a2, r2
         call titleScreen
-        store a1, r1
-        store a2, r2
-        store a3, r3
-        call gameScreen
-        load r1, a0
         jmp mainLoop
