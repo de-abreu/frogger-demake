@@ -1396,16 +1396,14 @@ main:
         ; call printVector
         gameLoop:
             ;Input
-            loadn r7, #100
-            loadn r1, #1
+
+            loadn r1, #300
             store a1, r1
             loadn r1, #666
             store a2, r1
-            inchar r1
-            outchar r1, r7
-            ;call takeInput
             ;Movement
-            ;load r1, a0
+            call takeInput
+            load r1, a0
             ;breakp
             store a1, r1
             call fn_moveFrog
