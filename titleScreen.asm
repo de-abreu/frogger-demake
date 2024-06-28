@@ -1074,8 +1074,8 @@ fn_checkDeath:
     ;Top left
     loadi r4, r3
     cmp r4, r0
-    ;Top Right
     jne case_Hit
+    ;Top Right
     inc r3
     loadi r4, r3
     cmp r4, r0
@@ -1095,10 +1095,6 @@ fn_checkDeath:
     loadn r1, #1
     store a0, r1
     rts
-
-
-
-
     case_Hit:
         loadn r1, #0
         store a0, r1
@@ -1114,27 +1110,37 @@ fn_checkBorders:
     ;Checks if the current move of the frog is valid due to map constraints
     ;Args : a1 = new position
     ;Returns: a0 = 0 if not valid, 1 if valid
-
-    load r1, frogPosition
-    load r2, a1
+    call initRegisters
+    load r2, frogPosition
     loadn r3, #1158 ; Compares to max position of the map
-    cmp r2, r3
+    cmp r3, r2
     jle case_invalidMove ;Out of map
     loadn r3, #40
     loadn r5, #39
     mod r4, r2, r3 ;Cehcks if is the last column
     cmp r4, r5
     jeq case_invalidMove
-    div r1, r1, r3
-    div r2, r2, r3
-    cmp r1, r2 ;Checks if two positions arent on different lines (stepped over the edge)
+    div r4, r1, r3
+    div r5, r2, r3
+    cmp r4, r5 ;Checks if two positions arent on different lines (stepped over the edge)
+    jeq case_validMove
+    sub r4, r2, r1
+    loadn r5, #1
+    cmp r4, r5
+    jne case_validMove
+    sub r4, r1, r2
+    cmp r4, r5
+    jne case_validMove
     jne case_invalidMove
+    case_validMove:
     loadn r1, #1
     store a0, r1
+    call restoreRegisters
     rts
     case_invalidMove:
         loadn r1, #0
         store a0, r1
+        call restoreRegisters
         rts
 
 
@@ -1159,60 +1165,89 @@ fn_moveFrog:
     cmp r2, r1
     jeq case_D
     rts
-case_W:
+    case_W:
+        load r1, frogPosition
+        loadn r2, #40
+        sub r1, r1, r2
+        store a1, r1
+        call fn_checkBorders
+        load r2, a0
+        cmp r2, r0
+        jeq case_noMove
+        call fn_eraseFrog
+        store frogPosition, r1
+        loadn r1, #1
+        store a0, r1
+        rts
+    case_A:
+        load r1, frogPosition
+        dec r1
+        store a1, r1
+        call fn_checkBorders
+        load r2, a0
+        cmp r2, r0
+        jeq case_noMove
+        call fn_eraseFrog
+        store frogPosition, r1
+        loadn r1, #1
+        store a0, r1
+        rts
+    case_S:
+        load r1, frogPosition
+        loadn r2, #40
+        add r1, r1, r2
+        store a1, r1
+        call fn_checkBorders
+        load r2, a0
+        cmp r2, r0
+        jeq case_noMove
+        call fn_eraseFrog
+        store frogPosition, r1
+        loadn r1, #1
+        store a0, r1
+        rts
+    case_D:
+        load r1, frogPosition
+        inc r1
+        store a1, r1
+        call fn_checkBorders
+        load r2, a0
+        cmp r2, r0
+        jeq case_noMove
+        call fn_eraseFrog
+        store frogPosition, r1
+        loadn r1, #1
+        store a0, r1
+        rts
+    case_noMove:
+        loadn r1, #1
+        store a0, r1
+        rts
+
+
+fn_eraseFrog:
+    call initRegisters
     load r1, frogPosition
-    loadn r2, #40
-    add r1, r1, r2
-    store a1, r1
-    call fn_checkBorders
-    load r2, a0
-    cmp r2, r0
-    jeq case_noMove
-    store frogPosition, r1
-    loadn r1, #1
-    store a0, r1
-    rts
-case_A:
-    load r1, frogPosition
-    dec r1
-    store a1, r1
-    call fn_checkBorders
-    load r2, a0
-    cmp r2, r0
-    jeq case_noMove
-    store frogPosition, r1
-    loadn r1, #1
-    store a0, r1
-    rts
-case_S:
-    load r1, frogPosition
-    loadn r2, #40
-    sub r1, r1, r2
-    store a1, r1
-    call fn_checkBorders
-    load r2, a0
-    cmp r2, r0
-    jeq case_noMove
-    store frogPosition, r1
-    loadn r1, #1
-    store a0, r1
-    rts
-case_D:
-    load r1, frogPosition
+    loadn r2, #background
+    loadi r3, r2
+    outchar r3, r1 ;Top left
     inc r1
-    store a1, r1
-    call fn_checkBorders
-    load r2, a0
-    cmp r2, r0
-    jeq case_noMove
-    store frogPosition, r1
-    loadn r1, #1
-    store a0, r1
+    inc r2
+    loadi r3, r2
+    outchar r3, r1 ;Top Right
+    loadn r4, #39
+    add r1, r1, r4
+    add r2, r2, r4
+    loadi r3, r4
+    outchar r3, r1 ;Bottom left
+    inc r1
+    inc r2
+    loadi r3, r2
+    outchar r3, r1 ;Bottom right
+    call restoreRegisters
     rts
-case_noMove:
-    loadn r1, #1
-    store a0, r1
-    rts
+
+
 
 
 
@@ -1313,13 +1348,25 @@ gameScreen:
 
 
 main:
-    loadn r0, #0 ; Set r0 to 0, this register should hold this value always
-    load r1, hiscore
-    loadn r2, #background
-    loadn r3, #foreground
+    ; loadn r1, #87
+    ; store a1, r1
+    ; call fn_moveFrog
+    ; load r2, frogPosition
 
+
+
+
+    loadn r0, #0 ; Set r0 to 0, this register should hold this value always
+    ; load r1, hiscore
+    ; loadn r2, #background
+    ; loadn r3, #foreground
+    ; store a1, r1
+    ; store a2, r2
+    ; call titleScreen
     mainLoop:
-        breakp
+
+
+        loadn r1, #1
         store a1, r1
         store a2, r2
         call titleScreen
