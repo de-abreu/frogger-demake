@@ -342,7 +342,7 @@ livesLabel : string "LIVES "
 timeLabel  : string " TIME"
 
 ; Data relating to the frog
-frogPosition : var #1
+frog_pos : var #1
     static frogPosition, #1139 ;About [19 x][28 y], bottom middle
 
 frog_charmap : var #6
@@ -1226,6 +1226,8 @@ fn_moveFrog:
 
 
 fn_eraseFrog:
+    ;Erases the frog and puts the background in its position
+    ;No args, no return
     call initRegisters
     load r1, frogPosition
     loadn r2, #background
@@ -1247,8 +1249,22 @@ fn_eraseFrog:
     call restoreRegisters
     rts
 
-
-
+fn_checkWin:
+    ;Checks if the frog has reached the target
+    ;No args, returns in a0, 1 if won, else 0
+    call initRegisters
+    load r1, frogPosition
+    loadn r2, #40
+    cmp r2, r1
+    jle case_win
+    store a0, r0
+    call restoreRegisters
+    rts
+    case_win:
+    loadn r1, #1
+    store a0, r1
+    call restoreRegisters
+    rts
 
 
 fn_drawFrog:
@@ -1268,7 +1284,7 @@ fn_drawFrog:
     add r1, r1, r4
     inc r2
     inc r2
-    loadi r3, r4
+    loadi r3, r2
     outchar r3, r1 ;Bottom left
     inc r1
     inc r2
@@ -1347,6 +1363,7 @@ gameScreen:
     call initLanes
 
 
+
 main:
     ; loadn r1, #87
     ; store a1, r1
@@ -1357,13 +1374,58 @@ main:
 
 
     loadn r0, #0 ; Set r0 to 0, this register should hold this value always
-    ; load r1, hiscore
-    ; loadn r2, #background
-    ; loadn r3, #foreground
-    ; store a1, r1
-    ; store a2, r2
-    ; call titleScreen
+    load r1, hiscore
+    loadn r2, #background
+    loadn r3, #foreground
+
     mainLoop:
+        store a1, r1
+        store a2, r2
+        call titleScreen
+
+
+        loadn r1, background
+        store a1, r1 ;Pointer to background
+        store a3, r1 ;Prints itself to itself ?????
+        store a2, r0 ;Prints from the start
+        loadn r1, #1200
+        store a4, r1
+        call printVector
+        gameLoop:
+            ;Input
+            loadn r1, #1
+            store a1, r1
+            loadn r1, #666
+            store a2, r1
+            call takeInput
+            ;Movement
+            load r1, a0
+            store a1, r1
+            call fn_moveFrog
+            ;Checks colision after frog move
+            call fn_checkDeath
+            load r1, a0
+            cmp r1, r0
+            jeq case_dead
+            ;Draws
+            call fn_drawFrog
+            ;Checks victory
+            call fn_checkWin
+            load r1, a0
+            cmp r1, r0
+            jne case_win
+            ;TODO -- Move enemies
+
+            ;TODO -- Checks colision after enemie move
+
+
+            case_dead:
+
+
+
+
+            case_victory:
+
 
 
         loadn r1, #1
