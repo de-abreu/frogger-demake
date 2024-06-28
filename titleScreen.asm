@@ -676,7 +676,7 @@ takeInput:
             cmp r4, r6
             jeq delayContinue
             store a0, r6
-            cmp r2, r6
+            ;cmp r2, r6
             jeq delayEnd
     delayContinue:
         dec r5
@@ -1379,32 +1379,36 @@ gameScreen:
 
 main:
     loadn r0, #0 ; Set r0 to 0, this register should hold this value always
-    load r1, hiscore
-    loadn r2, #background
-    loadn r3, #foreground
+    ; load r1, hiscore
+    ; loadn r2, #background
+    ; loadn r3, #foreground
     mainLoop:
-        ;Title screen
-        store a1, r1
-        store a2, r2
-        call titleScreen
+        ; ;Title screen
+        ; store a1, r1
+        ; store a2, r2
+        ; call titleScreen
 
         ;Prints background
-        loadn r1, #background
-        store a1, r1 ;Pointer to background
-        store a3, r1 ;Prints itself to itself ?????
-        store a2, r0 ;Prints from the start
-        loadn r1, #1200
-        store a4, r1
-        call printVector
+        ; loadn r1, #background
+        ; store a1, r1 ;Pointer to background
+        ; store a3, r1 ;Prints itself to itself ?????
+        ; store a2, r0 ;Prints from the start
+        ; loadn r1, #1200
+        ; store a4, r1
+        ; call printVector
         gameLoop:
             ;Input
+            loadn r7, #100
             loadn r1, #1
             store a1, r1
             loadn r1, #666
             store a2, r1
-            call takeInput
+            inchar r1
+            outchar r1, r7
+            ;call takeInput
             ;Movement
-            load r1, a0
+            ;load r1, a0
+            ;breakp
             store a1, r1
             call fn_moveFrog
             ;Checks colision after frog move
@@ -1452,8 +1456,8 @@ main:
             nop
 
 
-        loadn r1, #1
-        store a1, r1
-        store a2, r2
-        call titleScreen
+        ; loadn r1, #1
+        ; store a1, r1
+        ; store a2, r2
+        ; call titleScreen
         jmp mainLoop

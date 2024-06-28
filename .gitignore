@@ -10,3 +10,4 @@ simulador_Linux/*
 *.mif
 !charmap.mif
 test.asm
+Makefile
