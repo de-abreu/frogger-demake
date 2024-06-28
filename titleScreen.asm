@@ -1142,6 +1142,7 @@ fn_moveFrog:
         load r2, a0
         cmp r2, r0
         jeq case_noMove
+        call fn_eraseFrog
         store frogPosition, r1
         loadn r1, #1
         store a0, r1
@@ -1154,6 +1155,7 @@ fn_moveFrog:
         load r2, a0
         cmp r2, r0
         jeq case_noMove
+        call fn_eraseFrog
         store frogPosition, r1
         loadn r1, #1
         store a0, r1
@@ -1167,6 +1169,7 @@ fn_moveFrog:
         load r2, a0
         cmp r2, r0
         jeq case_noMove
+        call fn_eraseFrog
         store frogPosition, r1
         loadn r1, #1
         store a0, r1
@@ -1179,6 +1182,7 @@ fn_moveFrog:
         load r2, a0
         cmp r2, r0
         jeq case_noMove
+        call fn_eraseFrog
         store frogPosition, r1
         loadn r1, #1
         store a0, r1
@@ -1187,6 +1191,31 @@ fn_moveFrog:
         loadn r1, #1
         store a0, r1
         rts
+
+
+fn_eraseFrog:
+    call initRegisters
+    load r1, frogPosition
+    loadn r2, #background
+    loadi r3, r2
+    outchar r3, r1 ;Top left
+    inc r1
+    inc r2
+    loadi r3, r2
+    outchar r3, r1 ;Top Right
+    loadn r4, #39
+    add r1, r1, r4
+    add r2, r2, r4
+    loadi r3, r4
+    outchar r3, r1 ;Bottom left
+    inc r1
+    inc r2
+    loadi r3, r2
+    outchar r3, r1 ;Bottom right
+    call restoreRegisters
+    rts
+
+
 
 
 
@@ -1236,12 +1265,17 @@ main:
     ; call titleScreen
     mainLoop:
 
-        inchar r1
+
+        loadn r1, #1
+        store a1, r1
+        loadn r1, #666
+        store a2, r1
+        call takeInput
+        load r1, a0
+        ;breakp
         store a1, r1
         call fn_moveFrog
-        load r2, frogPosition
-        call fn_drawFrog
-        load r2, frogPosition
+        call fn_drawFrog    
         ; store a1, r1
         ; store a2, r2
         ; store a3, r3
