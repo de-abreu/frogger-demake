@@ -303,13 +303,13 @@ how_to_play8  : string "MOVE RIGHT"
 
 ; How to Score
 how_to_score0 : string "HOW TO SCORE"
-how_to_score1 : string "10 PTS "
+how_to_score1 : string "1 PT "
 how_to_score2 : string "FOR EVERY LEAP FORWARD"
-how_to_score3 : string "50 PTS "
+how_to_score3 : string "5 PTS "
 how_to_score4 : string "FOR EVERY FROG THAT CROSSED"
-how_to_score5 : string "1000 PTS "
+how_to_score5 : string "100 PTS "
 how_to_score6 : string "FOR CROSSING ALL FROGS"
-how_to_score7 : string "10 PTS "
+how_to_score7 : string "1 PT "
 how_to_score8 : string "FOR EVERY REMAINING SECOND"
 
 ; Matrices to store background and foreground info, respectively
@@ -377,22 +377,54 @@ saved_charmap : var #6
     static saved_charmap    + #4, #3191
     static saved_charmap    + #5, #0
 
-; Lanes of obstacles in the frog's path, comprised of five words:
+; Lanes of obstacles in the frog's path, comprised of 7 words:
 ; 0: y position of the top left corner of the obstacle charmap
 ; 1: x position of the top left corner of the obstacle charmap
 ; 2: quantity of copies of the object to be displayed
 ; 3: spacing between such copies
 ; 4: speed at which the object traverses the screen
-lane_0 : var #5
-lane_1 : var #5
-lane_2 : var #5
-lane_3 : var #5
-lane_4 : var #5
-lane_5 : var #5
-lane_6 : var #5
-lane_7 : var #5
-lane_8 : var #5
-lane_9 : var #5
+; 5: direction the object is moving towards: 0 for left, otherwise right
+; 6: pointer to the obstacle charmap
+lane_0 : var #7
+    static lane_0 + #0, #24
+    static lane_0 + #5, #0
+    static lane_0 + #6, #yellow_charmap
+lane_1 : var #7
+    static lane_1 + #0, #22
+    static lane_1 + #5, #1
+    static lane_1 + #6, #tractor_charmap
+lane_2 : var #7
+    static lane_2 + #0, #20
+    static lane_2 + #5, #0
+    static lane_2 + #6, #pink_charmap
+lane_3 : var #7
+    static lane_3 + #0, #18
+    static lane_3 + #5, #1
+    static lane_3 + #6, #red_charmap
+lane_4 : var #7
+    static lane_4 + #0, #16
+    static lane_4 + #5, #1
+    static lane_4 + #6, #truck_charmap
+lane_5 : var #7
+    static lane_5 + #0, #12
+    static lane_5 + #5, #0
+    static lane_5 + #6, #turtle_charmap
+lane_6 : var #7
+    static lane_6 + #0, #10
+    static lane_6 + #5, #1
+    static lane_6 + #6, #log_charmap
+lane_7 : var #7
+    static lane_7 + #0, #8
+    static lane_7 + #5, #1
+    static lane_7 + #6, #log_charmap
+lane_8 : var #7
+    static lane_8 + #0, #6
+    static lane_8 + #5, #0
+    static lane_8 + #6, #turtle_charmap
+lane_9 : var #7
+    static lane_9 + #0, #4
+    static lane_9 + #5, #1
+    static lane_9 + #6, #log_charmap
 lanes : var #10
     static lanes + #0, #lane_0
     static lanes + #1, #lane_1
@@ -476,7 +508,7 @@ log_charmap : var #1
 
 ; NOTE: Functions to initialize and free memory or game objects
 
-initRegisters:
+saveRegisters:
     ; Save the registers' context for later retrieval
     ; Arguments: None
     ; Returns: Nothing
@@ -522,7 +554,7 @@ initTitleScreen:
     ; a1 = Pointer to background map where to store printed characters
     ; Returns: Nothing
 
-    call initRegisters
+    call saveRegisters
 
     ; Wipe Map
     store a1, r0
@@ -632,7 +664,7 @@ takeInput:
     ; Returns:
     ; a0 = 0, if no key was pressed, otherwise the ASCII value of key pressed
 
-    call initRegisters
+    call saveRegisters
     load r3, MICROSECOND
     loadn r4, #255 ; Default value returned by inchar when no key press is detected
     store a0, r0
@@ -665,7 +697,7 @@ screenOffset:
     ; Returns:
     ; a0 = offset
 
-    call initRegisters
+    call saveRegisters
     load r3, WIDTH
     mul r1, r1, r3
     add r1, r1, r2
@@ -685,7 +717,7 @@ printChar:
     ; Returns:
     ; a0 = 0 if printing was interrupted, otherwise the printed string length
 
-    call initRegisters
+    call saveRegisters
     add r6, r4, r2  ; position where to stop printing
     add r3, r3, r2  ; position where to start storing
 
@@ -738,7 +770,7 @@ printInt:
     ; a4 = Color value to print number
     ; Returns: Nothing
 
-    call initRegisters
+    call saveRegisters
     add r3, r3, r2 ; Get location in map where to start storing
     loadn r5, #10  ; load the value 10 to apply the mod operation
 
@@ -770,7 +802,7 @@ printVector:
     ; a4 = Vector length
     ; Returns: Nothing
 
-    call initRegisters
+    call saveRegisters
     add r3, r2, r3 ; Offset memory location to save characters
     add r4, r3, r4 ; Memory location to stop storing or printing
 
@@ -800,7 +832,7 @@ printString:
     ; Returns:
     ; a0 = 0 if printing was interrupted by the user, otherwise the printed string length.
 
-    call initRegisters
+    call saveRegisters
     add r3, r3, r2 ; Offset memory location where to store characters
     mov r6, r1
     cmp r5, r0
@@ -860,7 +892,7 @@ printInstructions:
     ; Returns:
     ; a0 = 0 if printing was interrupted, otherwise 1.
 
-    call initRegisters
+    call saveRegisters
     store a0, r0
 
     ; Print a centered header
@@ -984,7 +1016,7 @@ titleScreen:
     ; a2 = pointer to background vector
     ; Returns: Nothing
 
-    call initRegisters
+    call saveRegisters
     store a1, r2
     call initTitleScreen
 
@@ -1188,7 +1220,7 @@ fn_drawFrog:
     ;Draws the frog on the screen at its position
     ;Args : None
     ;Returns : None
-    call initRegisters
+    call saveRegisters
     load r1, frogPosition
     loadn r2, #frog_charmap
     loadi r3, r2
@@ -1211,6 +1243,74 @@ fn_drawFrog:
     rts
 
 
+initStats:
+    ; Sets up the initial values of this game's status
+    ; Arguments: None
+    ; Returns: Nothing
+
+    call saveRegisters
+    store level, R0
+    store score, R0
+    store saved, R0
+    store elapsed, R0
+    loadn r1, #7
+    store lives, r1
+    loadn r1, #1000
+    store oneUp, r1
+    call restoreRegisters
+    rts
+
+initLanes:
+    ; Sets up the initial settings for this game's obstacles
+    ; Arguments: None
+    ; Returns: Nothing
+
+    call saveRegisters
+    load r1, #lanes
+    loadi r1, r1
+    loadn r2, lowerBoundary
+    loadn r3, 2
+
+
+    ; Setup Yellow
+    sub r3, r3, r4
+    storei r2, r3
+    inc r2
+
+    loadn r5, #16
+    storei r2, r5
+    inc r2
+
+    loadn r5, #3
+    storei r2, r5
+    inc r2
+
+    loadn r5, #50
+    storei r2, r5
+    inc r2
+
+    storei r2, r0
+    inc r2
+
+
+
+
+
+
+
+gameScreen:
+    ; Function to execute the game itself.
+    ; Arguments:
+    ; a1 = Hiscore
+    ; a2 = Pointer to background vector
+    ; a3 = Pointer to foreground vector
+    ; Returns:
+    ; a0 = updated Hiscore
+
+    call saveRegisters
+    call initStats
+    call initLanes
+
 
 main:
     loadn r0, #0 ; Set r0 to 0, this register should hold this value always
@@ -1223,8 +1323,9 @@ main:
         store a1, r1
         store a2, r2
         call titleScreen
-        ; store a1, r1
-        ; store a2, r2
-        ; store a3, r3
-        ; call gameScreen
+        store a1, r1
+        store a2, r2
+        store a3, r3
+        call gameScreen
+        load r1, a0
         jmp mainLoop

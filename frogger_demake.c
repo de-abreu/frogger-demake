@@ -19,7 +19,7 @@ int arrived(bool *ponds, Object *frog) {
 
 // NOTE: Function for moving the frog, returns an integer indicating if a pond
 // was reached (from 0 to 4) with -1 indicating otherwise.
-int moveFrog(MAP, Stats *s, Object *frog) {
+int moveFrog(BACKGROUND, Stats *s, Object *frog) {
     int pond = -1;
     wchar_t c;
 
@@ -32,7 +32,7 @@ int moveFrog(MAP, Stats *s, Object *frog) {
         if (frog->pos[0] <= UPPERBOUNDARY + 3 &&
             (pond = arrived(s->ponds, frog)) == -1)
             break;
-        eraseGameObject(map, frog->charmap, frog->pos);
+        eraseGameObject(background, frog->charmap, frog->pos);
         if (--frog->pos[0] >= s->distance)
             break;
         s->score += 10;
@@ -41,91 +41,91 @@ int moveFrog(MAP, Stats *s, Object *frog) {
     case L'a':
         if (!frog->pos[1])
             break;
-        eraseGameObject(map, frog->charmap, frog->pos);
+        eraseGameObject(background, frog->charmap, frog->pos);
         frog->pos[1]--;
         break;
     case L's':
         if (frog->pos[0] == LOWERBOUNDARY - 2)
             break;
-        eraseGameObject(map, frog->charmap, frog->pos);
+        eraseGameObject(background, frog->charmap, frog->pos);
         frog->pos[0]++;
         break;
     case L'd':
         if (frog->pos[1] == WIDTH - 2)
             break;
-        eraseGameObject(map, frog->charmap, frog->pos);
+        eraseGameObject(background, frog->charmap, frog->pos);
         frog->pos[1]++;
     }
     return pond;
 }
 
-bool obstacleHit(wchar_t (*obstacles)[WIDTH], Object *frog) {
+bool obstacleHit(FOREGROUND, Object *frog) {
     int pos[2] = {frog->pos[0], frog->pos[1]};
-    return (obstacles[pos[0]][pos[1]] > L' ' ||
-            obstacles[pos[0] + 1][pos[1]] > L' ' ||
-            obstacles[pos[0]][pos[1] + 1] > L' ' ||
-            obstacles[pos[0] + 1][pos[1] + 1] > L' ');
+    return (foreground[pos[0]][pos[1]] > L' ' ||
+            foreground[pos[0] + 1][pos[1]] > L' ' ||
+            foreground[pos[0]][pos[1] + 1] > L' ' ||
+            foreground[pos[0] + 1][pos[1] + 1] > L' ');
 }
 
-void resetTimer(MAP, Stats *s, time_t *timer) {
+void resetTimer(BACKGROUND, Stats *s, time_t *timer) {
     wchar_t string[16];
     wmemset(string, L'█', 15);
     string[15] = L'\0';
-    printString(map, string, 29, WIDTH / 2 - 1);
+    printString(background, string, 29, WIDTH / 2 - 1);
     s->elapsed = 0;
     *timer = time(NULL);
 }
 
-void nextFrog(MAP, Object *frog, Stats *s, time_t *timer) {
-    eraseGameObject(map, frog->charmap, frog->pos);
+void nextFrog(BACKGROUND, Object *frog, Stats *s, time_t *timer) {
+    eraseGameObject(background, frog->charmap, frog->pos);
     initPos(frog->pos);
-    resetTimer(map, s, timer);
+    resetTimer(background, s, timer);
     s->distance = frog->pos[0];
 }
 
-void gameScreen(MAP, unsigned int hiscore) {
+void gameScreen(BACKGROUND, unsigned int hiscore) {
     int pond;
     Stats prev, current;
     Object frog;
     Lane setup[LANES];
     time_t timer = time(NULL);
-    wchar_t obstacles[HEIGHT][WIDTH] = {0};
+    wchar_t foreground[HEIGHT][WIDTH] = {0};
 
     initStats(&current, hiscore);
     initSetup(setup, current.level);
     initFrog(&frog);
-    drawHUD(map, &current);
-    drawMap(map);
-    drawObstacles(obstacles, setup);
+    drawHUD(background, &current);
+    drawMap(background);
+    drawObstacles(foreground, setup);
 
     while (current.saved < 5) {
         memcpy(&prev, &current, sizeof(Stats));
-        if ((pond = moveFrog(map, &current, &frog)) != -1) {
-            drawSaved(map, &frog, pond);
-            nextFrog(map, &frog, &current, &timer);
+        if ((pond = moveFrog(background, &current, &frog)) != -1) {
+            drawSaved(background, &frog, pond);
+            nextFrog(background, &frog, &current, &timer);
             current.saved += 1;
             current.score += 50;
         } else if (current.elapsed < 15)
-            drawFrog(map, &frog, true);
+            drawFrog(background, &frog, true);
         else {
-            drawFrog(map, &frog, false);
+            drawFrog(background, &frog, false);
             usleep(19 * FRAMERATE);
             if (--current.lives) {
-                printChar(map[29][7 + current.lives] = L' ', 29,
+                printChar(background[29][7 + current.lives] = L' ', 29,
                           7 + current.lives);
-                nextFrog(map, &frog, &current, &timer);
+                nextFrog(background, &frog, &current, &timer);
             } else {
                 // gameOver();
-                titleScreen(map, hiscore);
+                titleScreen(background, hiscore);
             }
         }
         usleep(FRAMERATE);
-        updateLanes(obstacles, map, setup);
-        updateHUD(map, &prev, &current, timer);
+        updateLanes(foreground, background, setup);
+        updateHUD(background, &prev, &current, timer);
     }
 }
 
-void titleScreen(MAP, unsigned int hiscore) {
+void titleScreen(BACKGROUND, unsigned int hiscore) {
     wchar_t *title[] = {L"FROGGER!", L"- THE DEMAKE -"},
             *howToScore[] = {L"10 Pts   For every leap forward",
                              L"50 Pts   For every frog that crossed",
@@ -136,13 +136,14 @@ void titleScreen(MAP, unsigned int hiscore) {
     bool toggle, interrupted;
     time_t t;
 
-    initTitle(map);
+    initTitle(background);
     toggle = false;
-    if (printTextBox(map, title, 8, 2, &alignCentered) &&
-        printLine(map, 27, L"Press ENTER to play", &alignCentered, true))
-        while (
-            (toggle && printInstructions(map, L"How to Play", howToPlay)) ||
-            (!toggle && printInstructions(map, L"How to Score", howToScore))) {
+    if (printTextBox(background, title, 8, 2, &alignCentered) &&
+        printLine(background, 27, L"Press ENTER to play", &alignCentered, true))
+        while ((toggle &&
+                printInstructions(background, L"How to Play", howToPlay)) ||
+               (!toggle &&
+                printInstructions(background, L"How to Score", howToScore))) {
             t = time(NULL);
             while (difftime(time(NULL), t) < 3 &&
                    !(interrupted = pressed(L'\n')))
@@ -151,7 +152,7 @@ void titleScreen(MAP, unsigned int hiscore) {
                 break;
             toggle = !toggle;
         }
-    gameScreen(map, hiscore);
+    gameScreen(background, hiscore);
 }
 
 // NOTE: Main function of the Frogger game

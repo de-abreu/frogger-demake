@@ -13,7 +13,7 @@
 #define LANES 10                               // Amount of lanes in the map
 #define LOWERBOUNDARY HEIGHT - 2               // Game screen lower boundary
 #define BACKGROUND wchar_t(*background)[WIDTH] // Wide char matrix to store background elements
-#define FOREGROUND wchar_t(*foregorund)[WIDTH] // Wide char matrix to store obstacles
+#define FOREGROUND wchar_t(*foreground)[WIDTH] // Wide char matrix to store obstacles
 #define MAX_LIVES 7                            // Maximum amount of lives (retries) the player can have
                                                // at any moment
 #define TIME_LIMIT 60                          // Time limit (in seconds) for the player to reach a pond
@@ -80,10 +80,10 @@ void drawHUD(BACKGROUND, Stats *s);
 void drawBackground(BACKGROUND);
 void drawObstacles(BACKGROUND, FOREGROUND, Lane *level);
 void drawSaved(BACKGROUND, Object *frog, int pond);
-void eraseGameObject(wchar_t(*obstacles)[WIDTH], BACKGROUND, wchar_t **charmap, int *pos);
-void moveObstacle(wchar_t(*obstacles)[WIDTH], BACKGROUND, Object *o, int prev);
+void eraseGameObject(FOREGROUND, BACKGROUND, wchar_t **charmap, int *pos);
+void moveObstacle(FOREGROUND, BACKGROUND, Object *o, int prev);
 void updateHUD(BACKGROUND, Stats *prev, Stats *current, time_t timer);
-void updateLanes(wchar_t(*obstacles)[WIDTH], BACKGROUND, Lane *level);
+void updateLanes(FOREGROUND, BACKGROUND, Lane *level);
 void wipeScreen(BACKGROUND);
 
 // NOTE: Functions to manipulate game objects
