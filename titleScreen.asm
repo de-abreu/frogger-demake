@@ -387,42 +387,72 @@ saved_charmap : var #6
 ; 6: pointer to the obstacle charmap
 lane_0 : var #7
     static lane_0 + #0, #24
+    static lane_0 + #2, #3
+    static lane_0 + #3, #16
+    static lane_0 + #4, #50
     static lane_0 + #5, #0
     static lane_0 + #6, #yellow_charmap
 lane_1 : var #7
     static lane_1 + #0, #22
+    static lane_1 + #2, #3
+    static lane_1 + #3, #16
+    static lane_1 + #4, #100
     static lane_1 + #5, #1
     static lane_1 + #6, #tractor_charmap
 lane_2 : var #7
     static lane_2 + #0, #20
+    static lane_2 + #2, #3
+    static lane_2 + #3, #16
+    static lane_2 + #4, #30
     static lane_2 + #5, #0
     static lane_2 + #6, #pink_charmap
 lane_3 : var #7
     static lane_3 + #0, #18
+    static lane_3 + #2, #1
+    static lane_3 + #3, #43
+    static lane_3 + #4, #7
     static lane_3 + #5, #1
     static lane_3 + #6, #red_charmap
 lane_4 : var #7
     static lane_4 + #0, #16
-    static lane_4 + #5, #1
+    static lane_4 + #2, #2
+    static lane_4 + #3, #18
+    static lane_4 + #4, #3
+    static lane_4 + #5, #0
     static lane_4 + #6, #truck_charmap
 lane_5 : var #7
     static lane_5 + #0, #12
+    static lane_5 + #2, #5
+    static lane_5 + #3, #8
+    static lane_5 + #4, #100
     static lane_5 + #5, #0
     static lane_5 + #6, #turtle_charmap
 lane_6 : var #7
     static lane_6 + #0, #10
+    static lane_6 + #2, #3
+    static lane_6 + #3, #15
+    static lane_6 + #4, #50
     static lane_6 + #5, #1
     static lane_6 + #6, #log_charmap
 lane_7 : var #7
     static lane_7 + #0, #8
+    static lane_7 + #2, #2
+    static lane_7 + #3, #22
+    static lane_7 + #4, #100
     static lane_7 + #5, #1
     static lane_7 + #6, #log_charmap
 lane_8 : var #7
     static lane_8 + #0, #6
+    static lane_8 + #2, #6
+    static lane_8 + #3, #8
+    static lane_8 + #4, #100
     static lane_8 + #5, #0
     static lane_8 + #6, #turtle_charmap
 lane_9 : var #7
     static lane_9 + #0, #4
+    static lane_9 + #2, #4
+    static lane_9 + #3, #20
+    static lane_9 + #4, #20
     static lane_9 + #5, #1
     static lane_9 + #6, #log_charmap
 lanes : var #10
@@ -1237,7 +1267,7 @@ fn_eraseFrog:
     loadn r4, #39
     add r1, r1, r4
     add r2, r2, r4
-    loadi r3, r4
+    loadi r3, r1    
     outchar r3, r1 ;Bottom left
     inc r1
     inc r2
@@ -1307,38 +1337,6 @@ initStats:
     store oneUp, r1
     call restoreRegisters
     rts
-
-; initLanes:
-;     ; Sets up the initial settings for this game's obstacles
-;     ; Arguments: None
-;     ; Returns: Nothing
-
-;     call saveRegisters
-;     loadn r1, #lanes
-;     loadi r1, r1
-;     load r2, lowerBoundary
-;     loadn r3, 2
-
-
-;     ; Setup Yellow
-;     sub r3, r3, r4
-;     storei r2, r3
-;     inc r2
-
-;     loadn r5, #16
-;     storei r2, r5
-;     inc r2
-
-;     loadn r5, #3
-;     storei r2, r5
-;     inc r2
-
-;     loadn r5, #50
-;     storei r2, r5
-;     inc r2
-
-;     storei r2, r0
-;     inc r2
 
 
 
@@ -1425,7 +1423,11 @@ main:
             jne case_Reached
             ;TODO -- Move enemies
 
-            ;TODO -- Checks colision after enemie move
+            ;Checks colision after enemie move
+            call fn_checkDeath
+            load r1, a0
+            cmp r1, r0
+            jeq case_dead
 
             jmp gameLoop
             case_dead:
