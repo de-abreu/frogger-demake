@@ -1141,8 +1141,8 @@ fn_checkBorders:
 fn_moveFrog:
     ;receives the input from the user and tries to move the frog
     ;Args : a1 = input
-    ;Returns : a0 = 0 if frog died, else a0 = 1
-    load r1, a1
+    ;Returns None
+    call saveRegisters
     loadn r2, #87; W
     cmp r2, r1
     jeq case_W
@@ -1155,6 +1155,7 @@ fn_moveFrog:
     loadn r2, #68; D
     cmp r2, r1
     jeq case_D
+    call restoreRegisters
     rts
     case_W:
         load r1, frog_pos
@@ -1169,6 +1170,7 @@ fn_moveFrog:
         store frog_pos, r1
         loadn r1, #1
         store a0, r1
+        call restoreRegisters
         rts
     case_A:
         load r1, frog_pos
@@ -1182,6 +1184,7 @@ fn_moveFrog:
         store frog_pos, r1
         loadn r1, #1
         store a0, r1
+        call restoreRegisters
         rts
     case_S:
         load r1, frog_pos
@@ -1196,6 +1199,7 @@ fn_moveFrog:
         store frog_pos, r1
         loadn r1, #1
         store a0, r1
+        call restoreRegisters
         rts
     case_D:
         load r1, frog_pos
@@ -1209,10 +1213,12 @@ fn_moveFrog:
         store frog_pos, r1
         loadn r1, #1
         store a0, r1
+        call restoreRegisters
         rts
     case_noMove:
         loadn r1, #1
         store a0, r1
+        call restoreRegisters
         rts
 
 
