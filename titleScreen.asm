@@ -27,6 +27,9 @@ SCREENSIZE : var #1
 MAXLIVES : var #1
     static MAXLIVES, #7
 
+ONEUPINCREMENT: var #1
+    static ONEUPINCREMENT, #1000
+
 LANES : var #1
     static LANES, #10
 
@@ -326,7 +329,6 @@ hiscore  : var #1
     static hiscore, #0
 level    : var #1
 lives    : var #1
-    static lives, #7
 oneUp    : var #1
 saved    : var #1
 score    : var #1
@@ -350,7 +352,7 @@ life : var #3
 
 ; Data relating to the frog
 frog_pos : var #1
-    static frog_pos, #1139 ;About [19 x][28 y], bottom middle
+    static frog_pos, #1060 ;About [19 x][28 y], bottom middle
 
 frog_charmap : var #6
     static frog_charmap     + #0, #769
@@ -394,42 +396,72 @@ saved_charmap : var #6
 ; 6: pointer to the obstacle charmap
 lane_0 : var #7
     static lane_0 + #0, #24
+    static lane_0 + #2, #3
+    static lane_0 + #3, #16
+    static lane_0 + #4, #50
     static lane_0 + #5, #0
     static lane_0 + #6, #yellow_charmap
 lane_1 : var #7
     static lane_1 + #0, #22
+    static lane_1 + #2, #3
+    static lane_1 + #3, #16
+    static lane_1 + #4, #100
     static lane_1 + #5, #1
     static lane_1 + #6, #tractor_charmap
 lane_2 : var #7
     static lane_2 + #0, #20
+    static lane_2 + #2, #3
+    static lane_2 + #3, #16
+    static lane_2 + #4, #30
     static lane_2 + #5, #0
     static lane_2 + #6, #pink_charmap
 lane_3 : var #7
     static lane_3 + #0, #18
+    static lane_3 + #2, #1
+    static lane_3 + #3, #43
+    static lane_3 + #4, #7
     static lane_3 + #5, #1
     static lane_3 + #6, #red_charmap
 lane_4 : var #7
     static lane_4 + #0, #16
-    static lane_4 + #5, #1
+    static lane_4 + #2, #2
+    static lane_4 + #3, #18
+    static lane_4 + #4, #3
+    static lane_4 + #5, #0
     static lane_4 + #6, #truck_charmap
 lane_5 : var #7
     static lane_5 + #0, #12
+    static lane_5 + #2, #5
+    static lane_5 + #3, #8
+    static lane_5 + #4, #100
     static lane_5 + #5, #0
     static lane_5 + #6, #turtle_charmap
 lane_6 : var #7
     static lane_6 + #0, #10
+    static lane_6 + #2, #3
+    static lane_6 + #3, #15
+    static lane_6 + #4, #50
     static lane_6 + #5, #1
     static lane_6 + #6, #log_charmap
 lane_7 : var #7
     static lane_7 + #0, #8
+    static lane_7 + #2, #2
+    static lane_7 + #3, #22
+    static lane_7 + #4, #100
     static lane_7 + #5, #1
     static lane_7 + #6, #log_charmap
 lane_8 : var #7
     static lane_8 + #0, #6
+    static lane_8 + #2, #6
+    static lane_8 + #3, #8
+    static lane_8 + #4, #100
     static lane_8 + #5, #0
     static lane_8 + #6, #turtle_charmap
 lane_9 : var #7
     static lane_9 + #0, #4
+    static lane_9 + #2, #4
+    static lane_9 + #3, #20
+    static lane_9 + #4, #20
     static lane_9 + #5, #1
     static lane_9 + #6, #log_charmap
 lanes : var #10
@@ -510,6 +542,8 @@ turtle_charmap : var #6
 
 log_charmap : var #1
     static log_charmap, #322
+
+gameOverLabel: string " GAME OVER "
 
 ; NOTE: Code segment
 
@@ -683,7 +717,7 @@ takeInput:
             cmp r4, r6
             jeq delayContinue
             store a0, r6
-            cmp r2, r6
+            ;cmp r2, r6
             jeq delayEnd
     delayContinue:
         dec r5
@@ -1015,6 +1049,264 @@ printInstructions:
         call restoreRegisters
         rts
 
+; NOTE: Drawing functions
+
+drawHUD:
+    ; Function to draw HUD elements
+    ; Arguments:
+    ; a1 = Pointer to background vector
+    ; Returns: Nothing
+
+    call saveRegisters
+    store a3, r1
+    store a5, r0
+    loadn r1, #'0'
+    load r2, red
+    add r1, r1, r2
+
+    ; draw 1-up label
+    loadn r3, #oneUpLabel
+    store a1, r3
+    store a2, r0
+    store a4, r0
+    call printString
+
+    load r3, a0
+    inc r3
+    outchar r1, r3
+    inc r3
+
+    loadn r4, #6
+    add r3, r3, r4
+    store a2, r3
+    load r4, oneUp
+    store a1, r4
+    store a4, r2
+    call printInt
+
+    ; draw score
+    loadn r4, #scoreLabel
+    store a1, r4
+    loadn r3, #29
+    store a2, r3
+    store a4, r2
+    call printString
+
+    store a1, r1
+    load r4, a0
+    add r3, r3, r4
+    store a2, r3
+    loadn r4, #5
+    store a4, r4
+    call printChar
+
+    ; draw lives
+    loadn r1, #HEIGHT
+    dec r1
+    store a1, r1
+    store a2, r0
+    call screenOffset
+    loadn r1, #livesLabel
+    store a1, r1
+    load r1, a0
+    store a2, r1
+    store a4, r0
+    call printString
+
+    loadn r2, #life
+    store a1, r2
+    load r2, green
+    store a4, r2
+    load r2, lives
+    livesLoop:
+        load r3, a0
+        inc r3
+        add r1, r1, r3
+        store a2, r1
+        call printString
+        dec r2
+        jnz livesLoop
+
+    ; NOTE: draw timer
+    call restoreRegisters
+    rts
+
+drawPonds:
+    ; Auxiliary function to draw the ponds by the top of the screen
+    loadn r4, #2
+    mov r5, r4
+    store a1, r3
+    store a2, r1
+    store a4, r4
+
+    pondOutherLoop:
+        call printChar     ; print leftmost margin
+        loadn r6, #9       ; Set inner loop counter
+        loadn r7, #4       ; Set the length of the ponds and their intervals
+        store a4, r7
+        pondInnerLoop:
+            load r7, a0
+            add r1, r1, r7
+            inc r1
+            store a2, r1
+            mod r7, r6, r5 ; print ponds at odd intervals
+            jz printGrass
+            printPond:
+                store a1, r4
+                jmp pondContinue
+            printGrass:
+                store a1, r3
+            pondContinue:
+                call printChar
+                load r7, a0
+                add r1, r1, r7
+                dec r6
+                jnz pondInnerLoop
+        store a1, r3
+        store a2, r1
+        store a4, r4
+        call printChar
+        load r7, a0
+        add r1, r1, r7
+        dec r2
+        jnz pondOutherLoop
+    rts
+
+
+drawBackground:
+    ; Draw the game's background
+    ; Arguments:
+    ; a1 = pointer to the background vector
+
+    call saveRegisters
+    store a3, r1
+    store a5, r0
+    mov r1, r0
+
+    load r2, FILL
+    load r3, grass
+    add r3, r2, r3
+    load r4, blue
+    add r4, r2, r4
+    call drawPonds
+
+    ; Draw river
+    load r4, WIDTH
+    loadn r5, #10
+    mul r5, r4, r5
+    store a1, r3
+    store a2, r1
+    store a4, r5
+    call printChar
+    load r5, a0
+    add r1, r1, r5
+
+    ; Draw grass
+    loadn r5, #2
+    mul r5, r4, r5
+    store a1, r2
+    store a2, r1
+    store a4, r5
+    call printChar
+    load r5, a0
+    add r1, r1, r5
+
+    ; Draw asphalt
+    loadn r5, #10
+    mul r5, r4, r5
+    store a1, r0
+    store a2, r1
+    store a4, r5
+    call printChar
+    load r5, a0
+    add r1, r1, r5
+
+    ; Draw sidewalk
+    loadn r5, #2
+    mul r5, r4, r5
+    load r2, FILL
+    load r3, gray
+    add r2, r2, r3
+    store a1, r2
+    store a2, r1
+    store a4, r5
+    call printChar
+    load r5, a0
+    add r1, r1, r5
+
+    call restoreRegisters
+    rts
+
+drawGameOver:
+    ; Draws a "Game Over" disclaimer that lingers for some time (unless interrupted) before returning the player to the Title Screen
+    ; Arguments:
+    ; a1 = pointer to background vector
+    ; Returns: Nothing
+
+    call saveRegisters
+    store a3, r1
+    load r1, ENTER
+    store a5, r1
+    loadn r2, #13 ; disclaimer top left row
+    loadn r3, #14 ; disclaimer top left column
+    loadn r4, #11 ; disclaimer horizontal length
+
+    ; Print disclaimer's top margin
+    store a1, r2
+    store a2, r3
+    call screenOffset
+    load r5, a0
+
+    store a1, r0
+    store a2, r5
+    store a4, r4
+    call printChar
+    load r5, a0
+    cmp r5, r0
+    jeq GameOverEnd
+    inc r2
+
+    ; Print the disclaimer's label
+    store a1, r2
+    store a2, r3
+    call screenOffset
+    load r5, a0
+
+    store a2, r5
+    load r5, gameOverLabel
+    store a1, r5
+    store a4, r0
+    call printString
+    load r5, a0
+    cmp r5, r0
+    jeq GameOverEnd
+    inc r2
+
+    ; Print disclaimer's bottom margin
+    store a1, r2
+    store a2, r3
+    call screenOffset
+    load r5, a0
+
+    store a1, r0
+    store a2, r5
+    store a4, r3
+    call printChar
+    load r5, a0
+    cmp r5, r0
+    jeq GameOverEnd
+
+    ; Interval to display disclaimer before transitioning to the next screen
+    load r2, MICROSECOND
+    store a1, r2
+    store a2, r1
+    call takeInput
+
+    GameOverEnd:
+        call restoreRegisters
+        rts
+
+
 ; NOTE: Game functions
 
 titleScreen:
@@ -1072,6 +1364,31 @@ titleScreen:
         call restoreRegisters
         rts
 
+gameScreen:
+    ; Function to execute the game itself.
+    ; Arguments:
+    ; a1 = Hiscore
+    ; a2 = Pointer to background vector
+    ; a3 = Pointer to foreground vector
+    ; Returns:
+    ; a0 = updated Hiscore
+
+    call saveRegisters
+    call initStats
+    store a1, r2
+    call drawHUD
+    call drawBackground
+
+    load r4, lives
+    gameLoop:
+        ; TODO: Augusto and Felipe, insert calls to game functions here
+        ; jmp gameLoop
+    gameOver:
+    store a1, r2
+    call drawGameOver
+    store a0, r1
+    rts
+
 fn_checkDeath:
     ;Checks if the frog hit an enemy
     ;Args : None
@@ -1108,19 +1425,13 @@ fn_checkDeath:
         store a0, r1
         rts
 
-
-
-
-
-
-
 fn_checkBorders:
     ;Checks if the current move of the frog is valid due to map constraints
     ;Args : a1 = new position
     ;Returns: a0 = 0 if not valid, 1 if valid
-    call initRegisters
+    call saveRegisters
     load r2, frog_pos
-    loadn r3, #1158 ; Compares to max position of the map
+    loadn r3, #1078 ; Compares to max position of the map
     cmp r3, r2
     jle case_invalidMove ;Out of map
     loadn r3, #40
@@ -1152,14 +1463,11 @@ fn_checkBorders:
         rts
 
 
-
-
-
 fn_moveFrog:
     ;receives the input from the user and tries to move the frog
     ;Args : a1 = input
-    ;Returns : a0 = 0 if frog died, else a0 = 1
-    load r1, a1
+    ;Returns None
+    call saveRegisters
     loadn r2, #87; W
     cmp r2, r1
     jeq case_W
@@ -1172,6 +1480,7 @@ fn_moveFrog:
     loadn r2, #68; D
     cmp r2, r1
     jeq case_D
+    call restoreRegisters
     rts
     case_W:
         load r1, frog_pos
@@ -1186,6 +1495,7 @@ fn_moveFrog:
         store frog_pos, r1
         loadn r1, #1
         store a0, r1
+        call restoreRegisters
         rts
     case_A:
         load r1, frog_pos
@@ -1199,6 +1509,7 @@ fn_moveFrog:
         store frog_pos, r1
         loadn r1, #1
         store a0, r1
+        call restoreRegisters
         rts
     case_S:
         load r1, frog_pos
@@ -1213,6 +1524,7 @@ fn_moveFrog:
         store frog_pos, r1
         loadn r1, #1
         store a0, r1
+        call restoreRegisters
         rts
     case_D:
         load r1, frog_pos
@@ -1226,17 +1538,20 @@ fn_moveFrog:
         store frog_pos, r1
         loadn r1, #1
         store a0, r1
+        call restoreRegisters
         rts
     case_noMove:
         loadn r1, #1
         store a0, r1
+        call restoreRegisters
         rts
 
 
 fn_eraseFrog:
     ;Erases the frog and puts the background in its position
     ;No args, no return
-    call initRegisters
+
+    call saveRegisters
     load r1, frog_pos
     loadn r2, #background
     loadi r3, r2
@@ -1248,7 +1563,7 @@ fn_eraseFrog:
     loadn r4, #39
     add r1, r1, r4
     add r2, r2, r4
-    loadi r3, r4
+    loadi r3, r1
     outchar r3, r1 ;Bottom left
     inc r1
     inc r2
@@ -1260,9 +1575,10 @@ fn_eraseFrog:
 fn_checkWin:
     ;Checks if the frog has reached the target
     ;No args, returns in a0, 1 if won, else 0
-    call initRegisters
+
+    call saveRegisters
     load r1, frog_pos
-    loadn r2, #40
+    loadn r2, #160
     cmp r2, r1
     jle case_win
     store a0, r0
@@ -1312,23 +1628,24 @@ initStats:
     store score, R0
     store saved, R0
     store elapsed, R0
-    loadn r1, #7
+    load r1, MAXLIVES
     store lives, r1
-    loadn r1, #1000
+    load r1, ONEUPINCREMENT
     store oneUp, r1
     call restoreRegisters
     rts
 
-initLanes:
-    ; Sets up the initial settings for this game's obstacles
-    ; Arguments: None
-    ; Returns: Nothing
 
+
+fn_subLives:
+    ;Removes one live
+    ;Returns 0 if there are still lives
+    ;Returns 1 if game over
     call saveRegisters
-    load r1, #lanes
+    loadn r1, #lanes
     loadi r1, r1
-    loadn r2, lowerBoundary
-    loadn r3, 2
+    load r2, lowerBoundary
+    loadn r3, #2
 
 
     ; Setup Yellow
@@ -1351,275 +1668,99 @@ initLanes:
     storei r2, r0
     inc r2
 
-; NOTE: Drawing functions
-
-drawHUD:
-    ; Function to draw HUD elements
-    ; Arguments:
-    ; a1 = Pointer to background vector
-    ; Returns: Nothing
-
-    call saveRegisters
-    store a3, r1
-    store a5, r0
-    loadn r1, #'0'
-    load r2, red
-    add r1, r1, r2
-
-    ; draw 1-up label
-    load r3, #oneUpLabel
-    store a1, r3
-    store a2, r0
-    store a4, r0
-    call printString
-
-    load r3, a0
-    inc r3
-    outchar r1, r3
-    inc r3
-
-    loadn r4, #6
-    add r3, r3, r4
-    store a2, r3
-    load r4, oneUp
-    store a1, r4
-    store a4, r2
-    call printInt
-
-    ; draw score
-    load r4, #scoreLabel
-    store a1, r4
-    loadn r3, #29
-    store a2, r3
-    store a4, r2
-    call printString
-
-    store a1, r1
-    load r4, a0
-    add r3, r3, r4
-    store a2, r3
-    loadn r4, #5
-    store a4, r4
-    call printChar
-
-    ; draw lives
-    loadn r1, #HEIGHT
-    dec r1
-    store a1, r1
-    store a2, r0
-    call screenOffset
-    loadn r1, #livesLabel
-    store a1, r1
-    load r1, a0
-    store a2, r1
-    store a4, r0
-    call printString
-
-    load r2, #life
-    store a1, r2
-    load r2, green
-    store a4, r2
-    loadn r2, lives
-    livesLoop:
-        load r3, a0
-        inc r3
-        add r1, r1, r3
-        store a2, r1
-        call printString
-        dec r2
-        jnz livesLoop
-
-    ; NOTE: draw timer
-    call restoreRegisters
-    rts
-
-drawBackground:
-    ; Draw the game's background
-    ; a1 = pointer to the background vector
-
-    call saveRegisters
-    store a3, r1
-    store a5, r0
-    mov r1, r0
-
-    load r2, FILL
-    load r3, grass
-    add r3, r2, r3
-    load r4, blue
-    add r4, r2, r4
-    loadn r4, #2
-    mov r5, r4
-    store a1, r3
-    store a2, r1
-    store a4, r4
-
-    pondOutherLoop:
-        loadn r6, #9
-        call printChar
-
-        loadn r7, #4
-        store a4, r7
-        pondInnerLoop:
-            load r7, a0
-            add r1, r1, r7
-            inc r1
-            store a2, r1
-            mod r6, r5
-            jz printGrass
-            printPond:
-                store a1, r4
-                jmp pondContinue
-            printGrass:
-                store a1, r3
-            pondContinue:
-                call printChar
-                load r7, a0
-                add r1, r1, r7
-                dec r6
-                jnz pondInnerLoop
-        store a1, r3
-        store a2, r1
-        store a4, r4
-        call printChar
-        load r7, a0
-        add r1, r1, r7
-        dec r2
-        jnz pondOutherLoop
-
-    load r4, WIDTH
-    loadn r5, #10
-    mul r5, r4, r5
-    store a1, r3
-    store a2, r1
-    store a4, r5
-    call printChar
-    load r5, a0
-    add r1, r1, r5
-
-    load r5, #2
-    mul r5, r4, r5
-    store a1, r2
-    store a2, r1
-    store a4, r5
-    call printChar
-    load r5, a0
-    add r1, r1, r5
-
-    load r5, #10
-    mul r5, r4, r5
-    store a1, r0
-    store a2, r1
-    store a4, r5
-    call printChar
-    load r5, a0
-    add r1, r1, r5
-
-    load r5, #2
-    mul r5, r4, r5
-    load r2, FILL
-    load r3, gray
-    add r2, r2, r3
-    store a1, r2
-    store a2, r1
-    store a4, r5
-    call printChar
-    load r5, a0
-    add r1, r1, r5
-
-    call restoreRegisters
-    rts
-
-
-gameScreen:
-    ; Function to execute the game itself.
-    ; Arguments:
-    ; a1 = Hiscore
-    ; a2 = Pointer to background vector
-    ; a3 = Pointer to foreground vector
-    ; Returns:
-    ; a0 = updated Hiscore
-
-    call saveRegisters
-    call initStats
-    store a1, r2
-    ; call initLanes
-    call drawHUD
-    call drawBackground
-
-
-
-
 main:
-    ; loadn r1, #87
-    ; store a1, r1
-    ; call fn_moveFrog
-    ; load r2, frog_pos
-
-
-
-
     loadn r0, #0 ; Set r0 to 0, this register should hold this value always
     load r1, hiscore
     loadn r2, #background
     loadn r3, #foreground
-
     mainLoop:
+
         store a1, r1
         store a2, r2
         call titleScreen
 
-
-        loadn r1, background
-        store a1, r1 ;Pointer to background
-        store a3, r1 ;Prints itself to itself ?????
-        store a2, r0 ;Prints from the start
-        loadn r1, #1200
-        store a4, r1
-        call printVector
-        gameLoop:
-            ;Input
-            loadn r1, #1
-            store a1, r1
-            loadn r1, #666
-            store a2, r1
-            call takeInput
-            ;Movement
-            load r1, a0
-            store a1, r1
-            call fn_moveFrog
-            ;Checks colision after frog move
-            call fn_checkDeath
-            load r1, a0
-            cmp r1, r0
-            jeq case_dead
-            ;Draws
-            call fn_drawFrog
-            ;Checks victory
-            call fn_checkWin
-            load r1, a0
-            cmp r1, r0
-            jne case_win
-            ;TODO -- Move enemies
-
-            ;TODO -- Checks colision after enemie move
-
-
-            case_dead:
-
-
-
-
-            case_victory:
-
-
-
-        loadn r1, #1
-        store a1, r1
-        store a2, r2
-        call titleScreen
         store a1, r1
         store a2, r2
         store a3, r3
         call gameScreen
+
         load r1, a0
         jmp mainLoop
+
+    ; WARNING: Felipe, the contents of the main functions that you've created ar commented below. I had to comment it to compile and test the functions that I've created so far. Please consider moving these into the gameScreen function. Don't be an enemy to clean code. Augusto, please use the screenOffset function now before you write too much code and we have trouble with debugging later. 0_0
+
+        ; ;Prints background
+        ; ; loadn r1, #background
+        ; ; store a1, r1 ;Pointer to background
+        ; ; store a3, r1 ;Prints itself to itself ?????
+        ; ; store a2, r0 ;Prints from the start
+        ; ; loadn r1, #1200
+        ; ; store a4, r1
+        ; ; call printVector
+        ; gameLoop:
+        ;     ;Input
+
+        ;     loadn r1, #300
+        ;     store a1, r1
+        ;     loadn r1, #666
+        ;     store a2, r1
+        ;     ;Movement
+        ;     call takeInput
+        ;     load r1, a0
+        ;     ;breakp
+        ;     store a1, r1
+        ;     call fn_moveFrog
+        ;     ;Checks collision after frog move
+        ;     call fn_checkDeath
+        ;     load r1, a0
+        ;     cmp r1, r0
+        ;     jeq case_dead
+        ;     ;Draws
+        ;     call fn_drawFrog
+        ;     ;Checks victory
+        ;     call fn_checkWin
+        ;     load r1, a0
+        ;     cmp r1, r0
+        ;     jne case_Reached
+        ;     ;TODO -- Move enemies
+
+        ;     ;Checks collision after enemies move
+        ;     call fn_checkDeath
+        ;     load r1, a0
+        ;     cmp r1, r0
+        ;     jeq case_dead
+
+        ;     jmp gameLoop
+        ;     case_dead:
+        ;         ;Subtracts one live
+        ;         call fn_subLives
+        ;         load r1, a0
+        ;         cmp r1, r0
+        ;         ;Ends game if lives drop to zero
+        ;         jne game_over
+        ;         loadn r1, #1060
+        ;         store frog_pos, r1
+        ;         call fn_drawFrog
+        ;         jmp gameLoop
+        ;     case_Reached:
+        ;         ;Update socre
+        ;         load r1, score
+        ;         loadn r2, #100
+        ;         add r1, r1, r2
+        ;         store score, r1
+        ;         ;Update saved
+        ;         load r1, saved
+        ;         inc r1
+        ;         store saved, r1
+
+
+        ;     game_over:
+        ;     ;IDK
+        ;     nop
+
+
+        ; ; loadn r1, #1
+        ; ; store a1, r1
+        ; ; store a2, r2
+        ; ; call titleScreen
+        ; jmp mainLoop
