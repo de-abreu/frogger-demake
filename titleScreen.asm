@@ -36,6 +36,9 @@ LANES : var #1
 FILL : var #1
     static FILL, #'B'
 
+HEART : var #1
+    static HEART, #2429
+
 ENTER: var #1
     static ENTER, #13
 
@@ -294,6 +297,49 @@ title : var #200
   static title + #197 , #2626
   static title + #198 , #3138
   static title + #199 , #3138
+
+ponds : var #40
+  static ponds + #0   , #2626
+  static ponds + #1   , #2626
+  static ponds + #2   , #3138
+  static ponds + #3   , #3138
+  static ponds + #4   , #3138
+  static ponds + #5   , #3138
+  static ponds + #6   , #2626
+  static ponds + #7   , #2626
+  static ponds + #8   , #2626
+  static ponds + #9   , #2626
+  static ponds + #10  , #3138
+  static ponds + #11  , #3138
+  static ponds + #12  , #3138
+  static ponds + #13  , #3138
+  static ponds + #14  , #2626
+  static ponds + #15  , #2626
+  static ponds + #16  , #2626
+  static ponds + #17  , #2626
+  static ponds + #18  , #3138
+  static ponds + #19  , #3138
+  static ponds + #20  , #3138
+  static ponds + #21  , #3138
+  static ponds + #22  , #2626
+  static ponds + #23  , #2626
+  static ponds + #24  , #2626
+  static ponds + #25  , #2626
+  static ponds + #26  , #3138
+  static ponds + #27  , #3138
+  static ponds + #28  , #3138
+  static ponds + #29  , #3138
+  static ponds + #30  , #2626
+  static ponds + #31  , #2626
+  static ponds + #32  , #2626
+  static ponds + #33  , #2626
+  static ponds + #34  , #3138
+  static ponds + #35  , #3138
+  static ponds + #36  , #3138
+  static ponds + #37  , #3138
+  static ponds + #38  , #2626
+  static ponds + #39  , #2626
+
 
 ; How to play
 how_to_play0  : string "HOW TO PLAY"
@@ -872,7 +918,7 @@ printString:
     ; a5 = Whether printing is animated and can be interrupted by the user's input.
     ;      0 implies false any other value is the ASCII value of the key that interrupts the animation
     ; Returns:
-    ; a0 = 0 if printing was interrupted by the user, otherwise the printed string length.
+    ; a0 = 0 if printing was interrupted, otherwise the printed string length.
 
     call saveRegisters
     add r3, r3, r2 ; Offset memory location where to store characters
@@ -1064,7 +1110,7 @@ drawHUD:
     load r2, red
     add r1, r1, r2
 
-    ; draw 1-up label
+    ; draw 1-up counter
     loadn r3, #oneUpLabel
     store a1, r3
     store a2, r0
@@ -1072,11 +1118,9 @@ drawHUD:
     call printString
 
     load r3, a0
-    inc r3
     outchar r1, r3
-    inc r3
 
-    loadn r4, #6
+    loadn r4, #4
     add r3, r3, r4
     store a2, r3
     load r4, oneUp
@@ -1089,7 +1133,7 @@ drawHUD:
     store a1, r4
     loadn r3, #29
     store a2, r3
-    store a4, r2
+    store a4, r0
     call printString
 
     store a1, r1
@@ -1101,7 +1145,7 @@ drawHUD:
     call printChar
 
     ; draw lives
-    loadn r1, #HEIGHT
+    load r1, HEIGHT
     dec r1
     store a1, r1
     store a2, r0
@@ -1113,65 +1157,18 @@ drawHUD:
     store a4, r0
     call printString
 
-    loadn r2, #life
-    store a1, r2
-    load r2, green
+    load r3, HEART
+    store a1, r3
+    load r3, a0
+    add r1, r1, r3
+    store a2, r1
+    load r2, MAXLIVES
     store a4, r2
-    load r2, lives
-    livesLoop:
-        load r3, a0
-        inc r3
-        add r1, r1, r3
-        store a2, r1
-        call printString
-        dec r2
-        jnz livesLoop
+    call printChar
 
     ; NOTE: draw timer
     call restoreRegisters
     rts
-
-drawPonds:
-    ; Auxiliary function to draw the ponds by the top of the screen
-    loadn r4, #2
-    mov r5, r4
-    store a1, r3
-    store a2, r1
-    store a4, r4
-
-    pondOutherLoop:
-        call printChar     ; print leftmost margin
-        loadn r6, #9       ; Set inner loop counter
-        loadn r7, #4       ; Set the length of the ponds and their intervals
-        store a4, r7
-        pondInnerLoop:
-            load r7, a0
-            add r1, r1, r7
-            inc r1
-            store a2, r1
-            mod r7, r6, r5 ; print ponds at odd intervals
-            jz printGrass
-            printPond:
-                store a1, r4
-                jmp pondContinue
-            printGrass:
-                store a1, r3
-            pondContinue:
-                call printChar
-                load r7, a0
-                add r1, r1, r7
-                dec r6
-                jnz pondInnerLoop
-        store a1, r3
-        store a2, r1
-        store a4, r4
-        call printChar
-        load r7, a0
-        add r1, r1, r7
-        dec r2
-        jnz pondOutherLoop
-    rts
-
 
 drawBackground:
     ; Draw the game's background
@@ -1181,58 +1178,74 @@ drawBackground:
     call saveRegisters
     store a3, r1
     store a5, r0
-    mov r1, r0
 
-    load r2, FILL
-    load r3, grass
-    add r3, r2, r3
-    load r4, blue
-    add r4, r2, r4
-    call drawPonds
+    ; Draw ponds
+    loadn r1, #2
+    store a1, r1
+    store a2, r0
+    call screenOffset
+    load r1, a0
+    store a2, r1
+    loadn r2, #ponds
+    store a1, r2
+    load r3, WIDTH
+    store a4, r3
+    call printVector
+    add r1, r1, r3
+    store a1, r2
+    store a2, r1
+    store a3, r3
+    call printVector
+
+    load r1, FILL
 
     ; Draw river
-    load r4, WIDTH
-    loadn r5, #10
-    mul r5, r4, r5
-    store a1, r3
-    store a2, r1
-    store a4, r5
+    loadn r2, #6
+    store a1, r2
+    store a2, r0
+    call screenOffset
+    load r2, a0
+    store a2, r2
+    load r4, blue
+    add r4, r1, r4
+    store a1, r4
+    loadn r4, #8
+    mul r4, r3, r4
+    store a4, r4
     call printChar
-    load r5, a0
-    add r1, r1, r5
 
     ; Draw grass
-    loadn r5, #2
-    mul r5, r4, r5
-    store a1, r2
-    store a2, r1
+    load r4, a0
+    add r2, r2, r4
+    store a2, r2
+    load r4, grass
+    add r4, r1, r4
+    store a1, r4
+    loadn r4, #2
+    mul r5, r3, r4
     store a4, r5
     call printChar
-    load r5, a0
-    add r1, r1, r5
 
     ; Draw asphalt
-    loadn r5, #10
-    mul r5, r4, r5
     store a1, r0
-    store a2, r1
+    load r5, a0
+    add r2, r2, r5
+    store a2, r2
+    loadn r5, #10
+    mul r5, r3, r5
     store a4, r5
     call printChar
-    load r5, a0
-    add r1, r1, r5
 
     ; Draw sidewalk
-    loadn r5, #2
-    mul r5, r4, r5
-    load r2, FILL
-    load r3, gray
-    add r2, r2, r3
-    store a1, r2
-    store a2, r1
-    store a4, r5
-    call printChar
     load r5, a0
-    add r1, r1, r5
+    add r2, r2, r5
+    store a2, r2
+    load r5, gray
+    add r5, r1, r5
+    store a1, r5
+    mul r3, r3, r4
+    store a4, r3
+    call printChar
 
     call restoreRegisters
     rts
@@ -1247,7 +1260,7 @@ drawGameOver:
     store a3, r1
     load r1, ENTER
     store a5, r1
-    loadn r2, #13 ; disclaimer top left row
+    loadn r2, #12 ; disclaimer top left row
     loadn r3, #14 ; disclaimer top left column
     loadn r4, #11 ; disclaimer horizontal length
 
@@ -1273,7 +1286,7 @@ drawGameOver:
     load r5, a0
 
     store a2, r5
-    load r5, gameOverLabel
+    loadn r5, #gameOverLabel
     store a1, r5
     store a4, r0
     call printString
@@ -1290,7 +1303,7 @@ drawGameOver:
 
     store a1, r0
     store a2, r5
-    store a4, r3
+    store a4, r4
     call printChar
     load r5, a0
     cmp r5, r0
@@ -1387,6 +1400,7 @@ gameScreen:
     store a1, r2
     call drawGameOver
     store a0, r1
+    breakp
     rts
 
 fn_checkDeath:
@@ -1683,8 +1697,8 @@ main:
         store a2, r2
         store a3, r3
         call gameScreen
-
         load r1, a0
+        breakp
         jmp mainLoop
 
     ; WARNING: Felipe, the contents of the main functions that you've created ar commented below. I had to comment it to compile and test the functions that I've created so far. Please consider moving these into the gameScreen function. Don't be an enemy to clean code. Augusto, please use the screenOffset function now before you write too much code and we have trouble with debugging later. 0_0
