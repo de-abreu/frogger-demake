@@ -52,8 +52,8 @@ FRAMERATE : var #1
 
 brown  : var #1
     static brown  , #256
-grass  : var #1
-    static grass  , #512
+green  : var #1
+    static green  , #512
 musk   : var #1
     static musk   , #768
 teal   : var #1
@@ -62,6 +62,8 @@ gray   : var #1
     static gray   , #1792
 red    : var #1
     static red    , #2304
+grass  : var #1
+    static grass  , #2560
 yellow : var #1
     static yellow , #2816
 blue   : var #1
@@ -324,6 +326,7 @@ hiscore  : var #1
     static hiscore, #0
 level    : var #1
 lives    : var #1
+    static lives, #7
 oneUp    : var #1
 saved    : var #1
 score    : var #1
@@ -340,10 +343,14 @@ scoreLabel : string "SCORE "
 oneUpLabel : string "1-UP "
 livesLabel : string "LIVES "
 timeLabel  : string " TIME"
+life : var #3
+    static life + #0, #66
+    static life + #1, #' '
+    static life + #2, #0
 
 ; Data relating to the frog
 frog_pos : var #1
-    static frogPosition, #1139 ;About [19 x][28 y], bottom middle
+    static frog_pos, #1139 ;About [19 x][28 y], bottom middle
 
 frog_charmap : var #6
     static frog_charmap     + #0, #769
@@ -439,8 +446,8 @@ lanes : var #10
 
 yellow_charmap : var #8
     static yellow_charmap  + #0   , #2836
-    static yellow_charmap  + #1   , #2937
-    static yellow_charmap  + #2   , #2938
+    static yellow_charmap  + #1   , #2837
+    static yellow_charmap  + #2   , #2838
     static yellow_charmap  + #3   , #0
     static yellow_charmap  + #4   , #2878
     static yellow_charmap  + #5   , #2879
@@ -773,19 +780,20 @@ printInt:
     call saveRegisters
     add r3, r3, r2 ; Get location in map where to start storing
     loadn r5, #10  ; load the value 10 to apply the mod operation
+    loadn r6, #'0' ; load index value of the character 0
 
     printIntLoop:
         cmp r1, r0
         jeq printIntEnd
-        loadn r6, #'0' ; load index value of the character 0
         mod r7, r1, r5 ; get least significant digit from r1
-        add r6, r6, r7 ; apply it as an offset to the character map
-        add r6, r6, r4 ; apply color value
-        outchar r6, r2
-        storei r3, r6
+        add r7, r6, r7 ; apply it as an offset to the character map
+        add r7, r7, r4 ; apply color value
+        outchar r7, r2
+        storei r3, r7
         dec r2
         dec r3
         div r1, r1, r5
+        jz printIntEnd
         jmp printIntLoop
 
     printIntEnd:
@@ -1068,7 +1076,7 @@ fn_checkDeath:
     ;Checks if the frog hit an enemy
     ;Args : None
     ;Returns : a0 = if dead then 0, else 1
-    load r1, frogPosition
+    load r1, frog_pos
     loadn r2, #foreground
     add r3, r1, r2 ;Frogs position on the foreground
     ;Top left
@@ -1111,7 +1119,7 @@ fn_checkBorders:
     ;Args : a1 = new position
     ;Returns: a0 = 0 if not valid, 1 if valid
     call initRegisters
-    load r2, frogPosition
+    load r2, frog_pos
     loadn r3, #1158 ; Compares to max position of the map
     cmp r3, r2
     jle case_invalidMove ;Out of map
@@ -1166,7 +1174,7 @@ fn_moveFrog:
     jeq case_D
     rts
     case_W:
-        load r1, frogPosition
+        load r1, frog_pos
         loadn r2, #40
         sub r1, r1, r2
         store a1, r1
@@ -1175,12 +1183,12 @@ fn_moveFrog:
         cmp r2, r0
         jeq case_noMove
         call fn_eraseFrog
-        store frogPosition, r1
+        store frog_pos, r1
         loadn r1, #1
         store a0, r1
         rts
     case_A:
-        load r1, frogPosition
+        load r1, frog_pos
         dec r1
         store a1, r1
         call fn_checkBorders
@@ -1188,12 +1196,12 @@ fn_moveFrog:
         cmp r2, r0
         jeq case_noMove
         call fn_eraseFrog
-        store frogPosition, r1
+        store frog_pos, r1
         loadn r1, #1
         store a0, r1
         rts
     case_S:
-        load r1, frogPosition
+        load r1, frog_pos
         loadn r2, #40
         add r1, r1, r2
         store a1, r1
@@ -1202,12 +1210,12 @@ fn_moveFrog:
         cmp r2, r0
         jeq case_noMove
         call fn_eraseFrog
-        store frogPosition, r1
+        store frog_pos, r1
         loadn r1, #1
         store a0, r1
         rts
     case_D:
-        load r1, frogPosition
+        load r1, frog_pos
         inc r1
         store a1, r1
         call fn_checkBorders
@@ -1215,7 +1223,7 @@ fn_moveFrog:
         cmp r2, r0
         jeq case_noMove
         call fn_eraseFrog
-        store frogPosition, r1
+        store frog_pos, r1
         loadn r1, #1
         store a0, r1
         rts
@@ -1229,7 +1237,7 @@ fn_eraseFrog:
     ;Erases the frog and puts the background in its position
     ;No args, no return
     call initRegisters
-    load r1, frogPosition
+    load r1, frog_pos
     loadn r2, #background
     loadi r3, r2
     outchar r3, r1 ;Top left
@@ -1253,7 +1261,7 @@ fn_checkWin:
     ;Checks if the frog has reached the target
     ;No args, returns in a0, 1 if won, else 0
     call initRegisters
-    load r1, frogPosition
+    load r1, frog_pos
     loadn r2, #40
     cmp r2, r1
     jle case_win
@@ -1272,7 +1280,7 @@ fn_drawFrog:
     ;Args : None
     ;Returns : None
     call saveRegisters
-    load r1, frogPosition
+    load r1, frog_pos
     loadn r2, #frog_charmap
     loadi r3, r2
     outchar r3, r1 ;Top left
@@ -1343,10 +1351,183 @@ initLanes:
     storei r2, r0
     inc r2
 
+; NOTE: Drawing functions
 
+drawHUD:
+    ; Function to draw HUD elements
+    ; Arguments:
+    ; a1 = Pointer to background vector
+    ; Returns: Nothing
 
+    call saveRegisters
+    store a3, r1
+    store a5, r0
+    loadn r1, #'0'
+    load r2, red
+    add r1, r1, r2
 
+    ; draw 1-up label
+    load r3, #oneUpLabel
+    store a1, r3
+    store a2, r0
+    store a4, r0
+    call printString
 
+    load r3, a0
+    inc r3
+    outchar r1, r3
+    inc r3
+
+    loadn r4, #6
+    add r3, r3, r4
+    store a2, r3
+    load r4, oneUp
+    store a1, r4
+    store a4, r2
+    call printInt
+
+    ; draw score
+    load r4, #scoreLabel
+    store a1, r4
+    loadn r3, #29
+    store a2, r3
+    store a4, r2
+    call printString
+
+    store a1, r1
+    load r4, a0
+    add r3, r3, r4
+    store a2, r3
+    loadn r4, #5
+    store a4, r4
+    call printChar
+
+    ; draw lives
+    loadn r1, #HEIGHT
+    dec r1
+    store a1, r1
+    store a2, r0
+    call screenOffset
+    loadn r1, #livesLabel
+    store a1, r1
+    load r1, a0
+    store a2, r1
+    store a4, r0
+    call printString
+
+    load r2, #life
+    store a1, r2
+    load r2, green
+    store a4, r2
+    loadn r2, lives
+    livesLoop:
+        load r3, a0
+        inc r3
+        add r1, r1, r3
+        store a2, r1
+        call printString
+        dec r2
+        jnz livesLoop
+
+    ; NOTE: draw timer
+    call restoreRegisters
+    rts
+
+drawBackground:
+    ; Draw the game's background
+    ; a1 = pointer to the background vector
+
+    call saveRegisters
+    store a3, r1
+    store a5, r0
+    mov r1, r0
+
+    load r2, FILL
+    load r3, grass
+    add r3, r2, r3
+    load r4, blue
+    add r4, r2, r4
+    loadn r4, #2
+    mov r5, r4
+    store a1, r3
+    store a2, r1
+    store a4, r4
+
+    pondOutherLoop:
+        loadn r6, #9
+        call printChar
+
+        loadn r7, #4
+        store a4, r7
+        pondInnerLoop:
+            load r7, a0
+            add r1, r1, r7
+            inc r1
+            store a2, r1
+            mod r6, r5
+            jz printGrass
+            printPond:
+                store a1, r4
+                jmp pondContinue
+            printGrass:
+                store a1, r3
+            pondContinue:
+                call printChar
+                load r7, a0
+                add r1, r1, r7
+                dec r6
+                jnz pondInnerLoop
+        store a1, r3
+        store a2, r1
+        store a4, r4
+        call printChar
+        load r7, a0
+        add r1, r1, r7
+        dec r2
+        jnz pondOutherLoop
+
+    load r4, WIDTH
+    loadn r5, #10
+    mul r5, r4, r5
+    store a1, r3
+    store a2, r1
+    store a4, r5
+    call printChar
+    load r5, a0
+    add r1, r1, r5
+
+    load r5, #2
+    mul r5, r4, r5
+    store a1, r2
+    store a2, r1
+    store a4, r5
+    call printChar
+    load r5, a0
+    add r1, r1, r5
+
+    load r5, #10
+    mul r5, r4, r5
+    store a1, r0
+    store a2, r1
+    store a4, r5
+    call printChar
+    load r5, a0
+    add r1, r1, r5
+
+    load r5, #2
+    mul r5, r4, r5
+    load r2, FILL
+    load r3, gray
+    add r2, r2, r3
+    store a1, r2
+    store a2, r1
+    store a4, r5
+    call printChar
+    load r5, a0
+    add r1, r1, r5
+
+    call restoreRegisters
+    rts
 
 
 gameScreen:
@@ -1360,7 +1541,11 @@ gameScreen:
 
     call saveRegisters
     call initStats
-    call initLanes
+    store a1, r2
+    ; call initLanes
+    call drawHUD
+    call drawBackground
+
 
 
 
@@ -1368,7 +1553,7 @@ main:
     ; loadn r1, #87
     ; store a1, r1
     ; call fn_moveFrog
-    ; load r2, frogPosition
+    ; load r2, frog_pos
 
 
 
