@@ -2,6 +2,8 @@ jmp main
 
 ; NOTE: Data segment
 
+; TODO: Simplify the charmap so that sprites can be loaded and printed by a function using solely a couple of variables as arguments. After that, remove the hardcoded color palette as well.
+
 ; Memory segment to store arguments to be passed to functions. a0 carries the return of any given function
 
 a0 : var #1
@@ -21,9 +23,6 @@ WIDTH : var #1
 HEIGHT : var #1
     static HEIGHT, #30
 
-SCREENSIZE : var #1
-    static SCREENSIZE, #1200
-
 MAXLIVES : var #1
     static MAXLIVES, #7
 
@@ -36,23 +35,14 @@ LANES : var #1
 FILL : var #1
     static FILL, #'B'
 
-HEART : var #1
-    static HEART, #2429
-
 ENTER: var #1
     static ENTER, #13
 
-
-; Base interval: 1 microsecond, multiplied by itself yields a full second.
-
 MICROSECOND : var #1
-    static MICROSECOND, #1000
-
-; Multiplier for the framerate interval
+    static MICROSECOND, #1000 ; Base interval: 1 microsecond, multiplied by itself yields a full second.
 
 FRAMERATE : var #1
-    static FRAMERATE, #300
-
+    static FRAMERATE, #300    ; Multiplier for the framerate interval
 
 ; Color offsets. Remember, white = 0
 
@@ -340,7 +330,6 @@ ponds : var #40
   static ponds + #38  , #2626
   static ponds + #39  , #2626
 
-
 ; How to play
 how_to_play0  : string "HOW TO PLAY"
 how_to_play1  : string "W - "
@@ -440,6 +429,7 @@ saved_charmap : var #6
 ; 4: speed at which the object traverses the screen
 ; 5: direction the object is moving towards: 0 for left, otherwise right
 ; 6: pointer to the obstacle charmap
+
 lane_0 : var #7
     static lane_0 + #0, #24
     static lane_0 + #2, #3
@@ -521,6 +511,12 @@ lanes : var #10
     static lanes + #7, #lane_7
     static lanes + #8, #lane_8
     static lanes + #9, #lane_9
+
+; Charmaps
+
+heart_charmap: var #2
+    static heart_charmap + #0, #2429
+    static heart_charmap + #1, #1
 
 yellow_charmap : var #8
     static yellow_charmap  + #0   , #2836
@@ -647,7 +643,9 @@ initTitleScreen:
     store a1, r0
     store a2, r0
     store a3, r1
-    load r1, SCREENSIZE
+    load r1, WIDTH
+    load r2, HEIGHT
+    mul r1, r1, r2
     store a4, r1
     store a5, r0
     call printChar
@@ -777,7 +775,7 @@ takeInput:
 ; NOTE: Functions for printing on screen
 
 screenOffset:
-    ; Gives the offset that, given the screen's dimensions corresponds to a given column and row
+    ; Gives the offset that, given the screen's dimensions, corresponds to a given column and row
     ; Arguments:
     ; a1 = row
     ; a2 = column
@@ -805,8 +803,8 @@ printChar:
     ; a0 = 0 if printing was interrupted, otherwise the printed string length
 
     call saveRegisters
-    add r6, r4, r2  ; position where to stop printing
     add r3, r3, r2  ; position where to start storing
+    add r6, r4, r2  ; position where to stop printing
 
     cmp r5, r0
     jeq ppUniterruptable
@@ -1178,73 +1176,64 @@ drawBackground:
     call saveRegisters
     store a3, r1
     store a5, r0
+    load r1, FILL     ; Character to print
+    load r2, WIDTH    ; Screen's width
+    loadn r3, #2      ; Vertical length of the ponds, river margin and the sidewalk
+    loadn r4, #10      ; Vertical length of the river and the road
+    store a1, r3
+    store a2, r0
+    call screenOffset
+    load r5, a0       ; Cursor position on the screen
 
     ; Draw ponds
-    loadn r1, #2
-    store a1, r1
-    store a2, r0
-    call screenOffset
-    load r1, a0
-    store a2, r1
-    loadn r2, #ponds
-    store a1, r2
-    load r3, WIDTH
-    store a4, r3
-    call printVector
-    add r1, r1, r3
-    store a1, r2
-    store a2, r1
-    store a3, r3
-    call printVector
-
-    load r1, FILL
+    loadn r6, #ponds
+    store a1, r6
+    store a4, r2
+    mov r6, r3 ; Vector needs to be printed twice
+    pondLoop:
+        store a2, r5
+        call printVector
+        add r5, r5, r2
+        dec r6
+        jnz pondLoop
 
     ; Draw river
-    loadn r2, #6
-    store a1, r2
-    store a2, r0
-    call screenOffset
-    load r2, a0
-    store a2, r2
-    load r4, blue
-    add r4, r1, r4
-    store a1, r4
-    loadn r4, #8
-    mul r4, r3, r4
-    store a4, r4
+    load r6, blue
+    add r6, r1, r6
+    store a1, r6
+    store a2, r5
+    mul r6, r2, r4
+    store a4, r6
     call printChar
+    add r5, r5, r6
 
     ; Draw grass
-    load r4, a0
-    add r2, r2, r4
-    store a2, r2
-    load r4, grass
-    add r4, r1, r4
-    store a1, r4
-    loadn r4, #2
-    mul r5, r3, r4
-    store a4, r5
+    load r6, grass
+    add r6, r1, r6
+    store a1, r6
+    store a2, r5
+    mul r6, r2, r3
+    store a4, r6
     call printChar
+    add r5, r5, r6
 
     ; Draw asphalt
     store a1, r0
-    load r5, a0
-    add r2, r2, r5
-    store a2, r2
-    loadn r5, #10
-    mul r5, r3, r5
-    store a4, r5
+    store a2, r5
+    mul r6, r2, r4
+    store a4, r6
+    breakp
     call printChar
+    breakp
+    add r5, r5, r6
 
     ; Draw sidewalk
-    load r5, a0
-    add r2, r2, r5
-    store a2, r2
-    load r5, gray
-    add r5, r1, r5
-    store a1, r5
-    mul r3, r3, r4
-    store a4, r3
+    load r6, gray
+    add r6, r1, r6
+    store a1, r6
+    store a2, r5
+    mul r6, r2, r3
+    store a4, r6
     call printChar
 
     call restoreRegisters
@@ -1400,7 +1389,6 @@ gameScreen:
     store a1, r2
     call drawGameOver
     store a0, r1
-    breakp
     rts
 
 fn_checkDeath:
@@ -1698,10 +1686,9 @@ main:
         store a3, r3
         call gameScreen
         load r1, a0
-        breakp
         jmp mainLoop
 
-    ; WARNING: Felipe, the contents of the main functions that you've created ar commented below. I had to comment it to compile and test the functions that I've created so far. Please consider moving these into the gameScreen function. Don't be an enemy to clean code. Augusto, please use the screenOffset function now before you write too much code and we have trouble with debugging later. 0_0
+    ; WARNING: Felipe, the contents of the main functions that you've created are commented below. I had to comment it to compile and test the functions that I've created so far. Please consider moving these into the gameScreen function. Don't be an enemy to clean code. Augusto, please use the screenOffset function now before you write too much code and we have trouble with debugging later. 0_0
 
         ; ;Prints background
         ; ; loadn r1, #background
