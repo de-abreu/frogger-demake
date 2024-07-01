@@ -1378,6 +1378,8 @@ titleScreen:
         rts
 
 gameScreen:
+    ;SUGESTAO: Pq usa essas informacoes como parametros se ja sao globais?
+    ;Ja tem variaveis para elas, tao so travando registrador
     ; Function to execute the game itself.
     ; Arguments:
     ; a1 = Hiscore
@@ -1394,7 +1396,77 @@ gameScreen:
 
     load r4, lives
     gameLoop:
+        ;TODO: precisa por a partes das lanes, movimento do sapo implementado
         ; TODO: Augusto and Felipe, insert calls to game functions here
+
+        
+
+
+        ;Input
+        loadn r7, #200
+        store a1 ,R7
+        loadn r7, #1
+        store a2, r7
+        call takeInput
+        load r7, a0
+        
+        ;Movement
+        store a1, r7
+        call fn_moveFrog
+
+        ;Checks collision after frog move
+        call fn_checkDeath
+        load r7, a0
+        cmp r7, r0
+        jeq case_Dead
+
+        ;Draws
+        call fn_drawFrog
+
+        ;Checks victory
+        call fn_checkWin
+        load r7, a0
+        cmp r7, r0
+        jne case_Reached
+
+        ;Mover inimigos aqui
+
+
+        jmp gameLoop
+        case_Dead:
+
+            ;Subtracts one live, game over if it goes to zero
+            call fn_subLives
+            load r7, a0
+            cmp r7, r0
+            jne game_over
+            store a1, r2
+        call drawHUD
+            loadn r7, #1060
+            store frog_pos, r7
+            call fn_drawFrog
+            
+            jmp gameLoop
+
+
+        case_Reached:
+
+            ;Update score
+            load r7, score
+            loadn r6, #100
+            add r7, r7, r6
+            store score, r7
+                
+            ;Update saved
+            load r7, saved
+            inc r7
+            store, saved, r7
+
+            store a1, r2
+            call drawHUD
+
+            jmp gameLoop
+        
         ; jmp gameLoop
     gameOver:
     store a1, r2
@@ -1449,22 +1521,25 @@ fn_checkBorders:
     cmp r3, r2
     jle case_invalidMove ;Out of map
     loadn r3, #40
-    loadn r5, #39
+    loadn r5, #38
     mod r4, r2, r3 ;Cehcks if is the last column
     cmp r4, r5
     jeq case_invalidMove
-    div r4, r1, r3
-    div r5, r2, r3
-    cmp r4, r5 ;Checks if two positions arent on different lines (stepped over the edge)
-    jeq case_validMove
-    sub r4, r2, r1
     loadn r5, #1
-    cmp r4, r5
-    jne case_validMove
-    sub r4, r1, r2
-    cmp r4, r5
-    jne case_validMove
-    jne case_invalidMove
+    cmp r4, r5 ;First column
+    jeq case_invalidMove
+    ; div r4, r1, r3
+    ; div r5, r2, r3
+    ; cmp r4, r5 ;Checks if two positions arent on different lines (stepped over the edge)
+    ; jeq case_validMove
+    ; sub r4, r2, r1
+    ; loadn r5, #1
+    ; cmp r4, r5
+    ; jne case_validMove
+    ; sub r4, r1, r2
+    ; cmp r4, r5
+    ; jne case_validMove
+    ; jne case_invalidMove
     case_validMove:
     loadn r1, #1
     store a0, r1
