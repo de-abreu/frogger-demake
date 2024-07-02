@@ -23,12 +23,6 @@ WIDTH : var #1
 HEIGHT : var #1
     static HEIGHT, #30
 
-MAXLIVES : var #1
-    static MAXLIVES, #7
-
-ONEUPINCREMENT: var #1
-    static ONEUPINCREMENT, #1000
-
 LANES : var #1
     static LANES, #10
 
@@ -37,9 +31,6 @@ FILL : var #1
 
 ENTER: var #1
     static ENTER, #13
-
-MICROSECOND : var #1
-    static MICROSECOND, #1000 ; Base interval: 1 microsecond, multiplied by itself yields a full second.
 
 FRAMERATE : var #1
     static FRAMERATE, #300    ; Multiplier for the framerate interval
@@ -750,7 +741,7 @@ takeInput:
     ; a0 = 0, if no key was pressed, otherwise the ASCII value of key pressed
 
     call saveRegisters
-    load r3, MICROSECOND
+    load r3, THOUSAND
     loadn r4, #255 ; Default value returned by inchar when no key press is detected
     store a0, r0
 
@@ -775,7 +766,7 @@ takeInput:
 ; NOTE: Functions for printing on screen
 
 screenOffset:
-    ; Gives the offset that, given the screen's dimensions, corresponds to a given column and row
+    ; Gives the offset that, given the screen's dimensions, corresponds to a given column and row. Values beyond the screen's HEIGHT and WIDTH get wrapped around.
     ; Arguments:
     ; a1 = row
     ; a2 = column
@@ -783,8 +774,11 @@ screenOffset:
     ; a0 = offset
 
     call saveRegisters
-    load r3, WIDTH
-    mul r1, r1, r3
+    load r3, HEIGHT
+    load r4, WIDTH
+    mod r1, r1, r3
+    mul r1, r1, r4
+    mod r2, r2, r4
     add r1, r1, r2
     store a0, r1
     call restoreRegisters
@@ -1095,6 +1089,54 @@ printInstructions:
 
 ; NOTE: Drawing functions
 
+drawCharmap:
+    ; Function to draw game object's charmaps. Loops around the edges of the screen
+    ; a1 = Pointer to charmap data structure
+    ; a2 = Vertical position where to print the top left corner of the charmap
+    ; a3 = Horizontal position where to print the top left corner of the charmap
+    ; a4 = Pointer to map where to store the charmap,
+    ;      If set to 0 the charmap won't be saved to a map
+
+    mov r5, r1
+    inc r5
+    loadi r1, r1   ; Charmap's initial character
+    loadi r5, r5   ; Charmap's total length
+
+    loadn r6, #2   ; Row counter
+    div r7, r5, r6 ; Second row length
+    store a3, r7   ; Store to memory
+    sub r5, r5, r7 ; First (current) row length
+
+    rowLoop:
+        store a1, r2
+        mov r2, r3
+        columnLoop:
+            dec r5
+            jz columnEnd
+            store a2, r3
+            call screenOffset
+            load r7, a0
+            outchar r1, r7
+            cmp r3, r0
+            jeq columnContinue
+            storei r4, r1
+            inc r4
+        columnContinue:
+            inc r1
+            inc r3
+            jmp columnLoop
+        columnEnd:
+            dec r6
+            jz rowEnd
+            mv r3, r2
+            load r2, a1
+            inc r2
+            load r5, a3
+            call rowLoop
+    rowEnd:
+        call restoreRegisters
+        rts
+
 drawHUD:
     ; Function to draw HUD elements
     ; Arguments:
@@ -1299,7 +1341,7 @@ drawGameOver:
     jeq GameOverEnd
 
     ; Interval to display disclaimer before transitioning to the next screen
-    load r2, MICROSECOND
+    load r2, #1000
     store a1, r2
     store a2, r1
     call takeInput
@@ -1332,9 +1374,7 @@ titleScreen:
 
     mov r1, r0            ; variable to toggle between instructions to be displayed
     load r2, ENTER        ; variable to compare if ENTER was pressed
-    load r3, MICROSECOND
-    loadn r4, #30
-    mul r3, r3, r4        ; Set delay interval to 3 seconds
+    loadn r3, #30000      ; Set delay interval to 3 seconds
     loadn r4, #5          ; Set number of lines of instructions to be printed
 
     titleScreenLoop:
@@ -1367,8 +1407,9 @@ titleScreen:
         rts
 
 gameScreen:
-    ;SUGESTAO: Pq usa essas informacoes como parametros se ja sao globais?
-    ;Ja tem variaveis para elas, tao so travando registrador
+    ; PERF: Pq usa essas informacoes como parametros se ja sao globais?
+    ; Ja tem variaveis para elas, tao so travando registrador
+
     ; Function to execute the game itself.
     ; Arguments:
     ; a1 = Hiscore
@@ -1386,9 +1427,7 @@ gameScreen:
     load r4, lives
     gameLoop:
         ;TODO: precisa por a partes das lanes, movimento do sapo implementado
-        ; TODO: Augusto and Felipe, insert calls to game functions here
-
-        
+       ; TODO: Augusto and Felipe, insert calls to game functions here
 
 
         ;Input
@@ -1398,7 +1437,7 @@ gameScreen:
         store a2, r7
         call takeInput
         load r7, a0
-        
+
         ;Movement
         store a1, r7
         call fn_moveFrog
@@ -1418,13 +1457,13 @@ gameScreen:
         cmp r7, r0
         jne case_Reached
 
-        ;Mover inimigos aqui
+        ;TODO: Mover inimigos aqui
 
 
         jmp gameLoop
         case_Dead:
 
-            ;Subtracts one live, game over if it goes to zero
+            ;Subtracts one life, game over if it goes to zero
             call fn_subLives
             load r7, a0
             cmp r7, r0
@@ -1434,7 +1473,7 @@ gameScreen:
             loadn r7, #1060
             store frog_pos, r7
             call fn_drawFrog
-            
+
             jmp gameLoop
 
 
@@ -1445,7 +1484,7 @@ gameScreen:
             loadn r6, #100
             add r7, r7, r6
             store score, r7
-                
+
             ;Update saved
             load r7, saved
             inc r7
@@ -1455,13 +1494,13 @@ gameScreen:
             call drawHUD
 
             jmp gameLoop
-        
+
         ; jmp gameLoop
     gameOver:
-    store a1, r2
-    call drawGameOver
-    store a0, r1
-    rts
+        store a1, r2
+        call drawGameOver
+        store a0, r1
+        rts
 
 fn_checkDeath:
     ;Checks if the frog hit an enemy
@@ -1705,9 +1744,9 @@ initStats:
     store score, R0
     store saved, R0
     store elapsed, R0
-    load r1, MAXLIVES
+    load r1, #7
     store lives, r1
-    load r1, ONEUPINCREMENT
+    load r1, #1000
     store oneUp, r1
     call restoreRegisters
     rts
@@ -1762,81 +1801,3 @@ main:
         call gameScreen
         load r1, a0
         jmp mainLoop
-
-    ; WARNING: Felipe, the contents of the main functions that you've created are commented below. I had to comment it to compile and test the functions that I've created so far. Please consider moving these into the gameScreen function. Don't be an enemy to clean code. Augusto, please use the screenOffset function now before you write too much code and we have trouble with debugging later. 0_0
-
-        ; ;Prints background
-        ; ; loadn r1, #background
-        ; ; store a1, r1 ;Pointer to background
-        ; ; store a3, r1 ;Prints itself to itself ?????
-        ; ; store a2, r0 ;Prints from the start
-        ; ; loadn r1, #1200
-        ; ; store a4, r1
-        ; ; call printVector
-        ; gameLoop:
-        ;     ;Input
-
-        ;     loadn r1, #300
-        ;     store a1, r1
-        ;     loadn r1, #666
-        ;     store a2, r1
-        ;     ;Movement
-        ;     call takeInput
-        ;     load r1, a0
-        ;     ;breakp
-        ;     store a1, r1
-        ;     call fn_moveFrog
-        ;     ;Checks collision after frog move
-        ;     call fn_checkDeath
-        ;     load r1, a0
-        ;     cmp r1, r0
-        ;     jeq case_dead
-        ;     ;Draws
-        ;     call fn_drawFrog
-        ;     ;Checks victory
-        ;     call fn_checkWin
-        ;     load r1, a0
-        ;     cmp r1, r0
-        ;     jne case_Reached
-        ;     ;TODO -- Move enemies
-
-        ;     ;Checks collision after enemies move
-        ;     call fn_checkDeath
-        ;     load r1, a0
-        ;     cmp r1, r0
-        ;     jeq case_dead
-
-        ;     jmp gameLoop
-        ;     case_dead:
-        ;         ;Subtracts one live
-        ;         call fn_subLives
-        ;         load r1, a0
-        ;         cmp r1, r0
-        ;         ;Ends game if lives drop to zero
-        ;         jne game_over
-        ;         loadn r1, #1060
-        ;         store frog_pos, r1
-        ;         call fn_drawFrog
-        ;         jmp gameLoop
-        ;     case_Reached:
-        ;         ;Update socre
-        ;         load r1, score
-        ;         loadn r2, #100
-        ;         add r1, r1, r2
-        ;         store score, r1
-        ;         ;Update saved
-        ;         load r1, saved
-        ;         inc r1
-        ;         store saved, r1
-
-
-        ;     game_over:
-        ;     ;IDK
-        ;     nop
-
-
-        ; ; loadn r1, #1
-        ; ; store a1, r1
-        ; ; store a2, r2
-        ; ; call titleScreen
-        ; jmp mainLoop
