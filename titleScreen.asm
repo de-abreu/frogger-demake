@@ -735,13 +735,13 @@ initTitleScreen:
 takeInput:
     ; A function that delays the game's execution for a given period to take an input from the player. If the input is one that was expected, the delay is canceled.
     ; Arguments:
-    ; a1 = Delay multiplier, 1 implies a microsecond at 1MHz
+    ; a1 = Delay multiplier
     ; a2 = Expected input
     ; Returns:
     ; a0 = 0, if no key was pressed, otherwise the ASCII value of key pressed
 
     call saveRegisters
-    load r3, THOUSAND
+    load r3, #1000 ; Base delay, implies a microsecond at 1 MHz
     loadn r4, #255 ; Default value returned by inchar when no key press is detected
     store a0, r0
 
@@ -752,7 +752,7 @@ takeInput:
             cmp r4, r6
             jeq delayContinue
             store a0, r6
-            ;cmp r2, r6
+            cmp r2, r6
             jeq delayEnd
     delayContinue:
         dec r5
@@ -1090,13 +1090,14 @@ printInstructions:
 ; NOTE: Drawing functions
 
 drawCharmap:
-    ; Function to draw game object's charmaps. Loops around the edges of the screen
+    ; Function to draw game object's charmaps. Wraps around the edges of the screen
     ; a1 = Pointer to charmap data structure
     ; a2 = Vertical position where to print the top left corner of the charmap
     ; a3 = Horizontal position where to print the top left corner of the charmap
     ; a4 = Pointer to map where to store the charmap,
     ;      If set to 0 the charmap won't be saved to a map
 
+    call saveRegisters
     mov r5, r1
     inc r5
     loadi r1, r1   ; Charmap's initial character
