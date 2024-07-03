@@ -2,8 +2,6 @@ jmp main
 
 ; NOTE: Data segment
 
-; TODO: Simplify the charmap so that sprites can be loaded and printed by a function using solely a couple of variables as arguments. After that, remove the hardcoded color palette as well.
-
 ; Memory segment to store arguments to be passed to functions. a0 carries the return of any given function
 a0 : var #1
 a1 : var #1
@@ -34,8 +32,8 @@ FRAMERATE : var #1
     static FRAMERATE, #300    ; Multiplier for the framerate interval
 
 ; Some color offsets. Remember, white = 0
-green  : var #1
-    static green  , #512
+gray   : var #1
+    static gray   , #2048
 red    : var #1
     static red    , #2304
 grass  : var #1
@@ -266,48 +264,6 @@ title : var #200
   static title + #198 , #3138
   static title + #199 , #3138
 
-ponds : var #40
-  static ponds + #0   , #2626
-  static ponds + #1   , #2626
-  static ponds + #2   , #3138
-  static ponds + #3   , #3138
-  static ponds + #4   , #3138
-  static ponds + #5   , #3138
-  static ponds + #6   , #2626
-  static ponds + #7   , #2626
-  static ponds + #8   , #2626
-  static ponds + #9   , #2626
-  static ponds + #10  , #3138
-  static ponds + #11  , #3138
-  static ponds + #12  , #3138
-  static ponds + #13  , #3138
-  static ponds + #14  , #2626
-  static ponds + #15  , #2626
-  static ponds + #16  , #2626
-  static ponds + #17  , #2626
-  static ponds + #18  , #3138
-  static ponds + #19  , #3138
-  static ponds + #20  , #3138
-  static ponds + #21  , #3138
-  static ponds + #22  , #2626
-  static ponds + #23  , #2626
-  static ponds + #24  , #2626
-  static ponds + #25  , #2626
-  static ponds + #26  , #3138
-  static ponds + #27  , #3138
-  static ponds + #28  , #3138
-  static ponds + #29  , #3138
-  static ponds + #30  , #2626
-  static ponds + #31  , #2626
-  static ponds + #32  , #2626
-  static ponds + #33  , #2626
-  static ponds + #34  , #3138
-  static ponds + #35  , #3138
-  static ponds + #36  , #3138
-  static ponds + #37  , #3138
-  static ponds + #38  , #2626
-  static ponds + #39  , #2626
-
 ; How to play
 how_to_play0  : string "HOW TO PLAY"
 how_to_play1  : string "W - "
@@ -336,7 +292,6 @@ foreground : var #1200
 
 ; Data segment to store in game status information
 distance : var #1
-elapsed  : var #1
 hiscore  : var #1
     static hiscore, #0
 level    : var #1
@@ -445,7 +400,6 @@ lanes : var #10
 
 ; Data relating to the frog
 frog_pos : var #1
-    static frog_pos, #1060 ; About [19 x][28 y], bottom middle
 
 ; Charmaps
 
@@ -464,10 +418,6 @@ drowned_charmap : var #2
 saved_charmap : var #2
     static saved_charmap    + #0 , #3099
     static saved_charmap    + #1 , #4
-
-heart_charmap: var #2
-    static heart_charmap    + #0 , #2429
-    static heart_charmap    + #1 , #1
 
 yellow_charmap : var #2
     static yellow_charmap   + #0 , #2825
@@ -492,6 +442,9 @@ truck_charmap : var #14
 turtle_charmap : var #6
     static turtle_charmap   + #0 , #3192
     static turtle_charmap   + #1 , #4
+
+heart_charmap: var #1
+    static heart_charmap, #2350
 
 log_charmap : var #1
     static log_charmap, #322
@@ -661,8 +614,8 @@ takeInput:
     ; a0 = 0, if no key was pressed, otherwise the ASCII value of key pressed
 
     call saveRegisters
-    load r3, #1000 ; Base delay, implies a microsecond at 1 MHz
-    loadn r4, #255 ; Default value returned by inchar when no key press is detected
+    loadn r3, #1000 ; Base delay, implies a microsecond at 1 MHz
+    loadn r4, #255  ; Default value returned by inchar when no key press is detected
     store a0, r0
 
     delay_A:
@@ -1052,7 +1005,7 @@ drawCharmap:
             load r2, a1
             inc r2
             load r5, a3
-            call rowLoop
+            jmp rowLoop
     rowEnd:
         call restoreRegisters
         rts
@@ -1117,16 +1070,15 @@ drawHUD:
     store a4, r0
     call printString
 
-    load r3, HEART
+    load r3, heart_charmap
     store a1, r3
     load r3, a0
     add r1, r1, r3
     store a2, r1
-    load r2, MAXLIVES
+    load r2, lives
     store a4, r2
     call printChar
 
-    ; NOTE: draw timer
     call restoreRegisters
     rts
 
@@ -1139,63 +1091,93 @@ drawBackground:
     store a3, r1
     store a5, r0
     load r1, FILL     ; Character to print
-    load r2, WIDTH    ; Screen's width
-    loadn r3, #2      ; Vertical length of the ponds, river margin and the sidewalk
-    loadn r4, #10      ; Vertical length of the river and the road
-    store a1, r3
+    loadn r2, #2      ; Vertical length of the ponds, river margin and the sidewalk
+    store a1, r2
     store a2, r0
     call screenOffset
-    load r5, a0       ; Cursor position on the screen
+    load r3, a0       ; Cursor position on the screen
+    breakp
 
     ; Draw ponds
-    loadn r6, #ponds
-    store a1, r6
+    load r4, grass
+    add r4, r1, r4
+    store a1, r4
+    store a2, r3
     store a4, r2
-    mov r6, r3 ; Vector needs to be printed twice
-    pondLoop:
-        store a2, r5
-        call printVector
-        add r5, r5, r2
-        dec r6
-        jnz pondLoop
+    call printChar
+    load r4, a0
+    add r3, r3, r4
 
+    loadn r4, #4
+    store a4, r4
+    loadn r4, #19
+    pondLoop:
+        mod r5, r4, r2
+        jz selectGrass
+            load r5, blue
+            jmp colorSelected
+        selectGrass:
+            load r5, grass
+        colorSelected:
+            add r5, r1, r5
+            store a1, r5
+            store a2, r3
+            call printChar
+            load r5, a0
+            add r3, r3, r5
+
+            dec r4
+            jz pondLoop
+
+    load r4, grass
+    add r4, r1, r4
+    store a1, r4
+    store a2, r3
+    store a4, r2
+    call printChar
+    load r4, a0
+    add r3, r3, r4
+
+    load r4, WIDTH
+    loadn r5, #10 ; Vertical length of the river and the road
     ; Draw river
     load r6, blue
     add r6, r1, r6
     store a1, r6
-    store a2, r5
-    mul r6, r2, r4
+    store a2, r3
+    mul r6, r4, r5
     store a4, r6
     call printChar
-    add r5, r5, r6
+    load r6, a0
+    add r3, r3, r6
 
     ; Draw grass
     load r6, grass
     add r6, r1, r6
     store a1, r6
     store a2, r5
-    mul r6, r2, r3
+    mul r6, r2, r4
     store a4, r6
     call printChar
-    add r5, r5, r6
+    load r6, a0
+    add r3, r3, r6
 
     ; Draw asphalt
     store a1, r0
-    store a2, r5
-    mul r6, r2, r4
-    store a4, r6
-    breakp
+    store a2, r3
+    mul r5, r4, r5
+    store a4, r5
     call printChar
-    breakp
-    add r5, r5, r6
+    load r5, a0
+    add r3, r3, r5
 
     ; Draw sidewalk
-    load r6, gray
-    add r6, r1, r6
-    store a1, r6
-    store a2, r5
-    mul r6, r2, r3
-    store a4, r6
+    load r5, gray
+    add r5, r1, r5
+    store a1, r5
+    store a2, r3
+    mul r2, r2, r4
+    store a4, r2
     call printChar
 
     call restoreRegisters
@@ -1261,7 +1243,7 @@ drawGameOver:
     jeq GameOverEnd
 
     ; Interval to display disclaimer before transitioning to the next screen
-    load r2, #1000
+    loadn r2, #1000
     store a1, r2
     store a2, r1
     call takeInput
@@ -1327,9 +1309,6 @@ titleScreen:
         rts
 
 gameScreen:
-    ; PERF: Pq usa essas informacoes como parametros se ja sao globais?
-    ; Ja tem variaveis para elas, tao so travando registrador
-
     ; Function to execute the game itself.
     ; Arguments:
     ; a1 = Hiscore
@@ -1343,11 +1322,12 @@ gameScreen:
     store a1, r2
     call drawHUD
     call drawBackground
+    ; TODO: Create and call function drawLanes using the drawCharmap as an auxiliary function
 
     load r4, lives
     gameLoop:
-        ;TODO: precisa por a partes das lanes, movimento do sapo implementado
-       ; TODO: Augusto and Felipe, insert calls to game functions here
+        ; TODO: precisa por a partes das lanes, movimento do sapo implementado
+        ; TODO: Augusto and Felipe, insert calls to game functions here
 
 
         ;Input
@@ -1387,7 +1367,7 @@ gameScreen:
             call fn_subLives
             load r7, a0
             cmp r7, r0
-            jne game_over
+            jne gameOver
             store a1, r2
         call drawHUD
             loadn r7, #1060
@@ -1408,7 +1388,7 @@ gameScreen:
             ;Update saved
             load r7, saved
             inc r7
-            store, saved, r7
+            store saved, r7
 
             store a1, r2
             call drawHUD
@@ -1660,13 +1640,13 @@ initStats:
     ; Returns: Nothing
 
     call saveRegisters
-    store level, R0
-    store score, R0
-    store saved, R0
-    store elapsed, R0
-    load r1, #7
+    store level, r0
+    store score, r0
+    store saved, r0
+    ; store elapsed, r0
+    loadn r1, #7
     store lives, r1
-    load r1, #1000
+    loadn r1, #1000
     store oneUp, r1
     call restoreRegisters
     rts
