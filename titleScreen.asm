@@ -5,7 +5,6 @@ jmp main
 ; TODO: Simplify the charmap so that sprites can be loaded and printed by a function using solely a couple of variables as arguments. After that, remove the hardcoded color palette as well.
 
 ; Memory segment to store arguments to be passed to functions. a0 carries the return of any given function
-
 a0 : var #1
 a1 : var #1
 a2 : var #1
@@ -16,7 +15,6 @@ a6 : var #1
 a7 : var #1
 
 ; Constants
-
 WIDTH : var #1
     static WIDTH, #40
 
@@ -35,18 +33,9 @@ ENTER: var #1
 FRAMERATE : var #1
     static FRAMERATE, #300    ; Multiplier for the framerate interval
 
-; Color offsets. Remember, white = 0
-
-brown  : var #1
-    static brown  , #256
+; Some color offsets. Remember, white = 0
 green  : var #1
     static green  , #512
-musk   : var #1
-    static musk   , #768
-teal   : var #1
-    static teal   , #1536
-gray   : var #1
-    static gray   , #1792
 red    : var #1
     static red    , #2304
 grass  : var #1
@@ -55,8 +44,6 @@ yellow : var #1
     static yellow , #2816
 blue   : var #1
     static blue   , #3072
-pink   : var #1
-    static pink   , #3328
 
 ; Title screen's variables
 demake       : string "- THE DEMAKE -"
@@ -348,7 +335,6 @@ background : var #1200
 foreground : var #1200
 
 ; Data segment to store in game status information
-
 distance : var #1
 elapsed  : var #1
 hiscore  : var #1
@@ -361,56 +347,10 @@ score    : var #1
 
 
 ; HUD variables
-lowerBoundary : var #1
-    static lowerBoundary, #28
-
-upperBoundary : var #1
-    static upperBoundary, #1
-
 scoreLabel : string "SCORE "
 oneUpLabel : string "1-UP "
 livesLabel : string "LIVES "
 timeLabel  : string " TIME"
-life : var #3
-    static life + #0, #66
-    static life + #1, #' '
-    static life + #2, #0
-
-; Data relating to the frog
-frog_pos : var #1
-    static frog_pos, #1060 ;About [19 x][28 y], bottom middle
-
-frog_charmap : var #6
-    static frog_charmap     + #0, #769
-    static frog_charmap     + #1, #770
-    static frog_charmap     + #2, #0
-    static frog_charmap     + #3, #801
-    static frog_charmap     + #4, #802
-    static frog_charmap     + #5, #0
-
-roadkill_charmap : var #6
-    static roadkill_charmap + #0, #106
-    static roadkill_charmap + #1, #107
-    static roadkill_charmap + #2, #0
-    static roadkill_charmap + #3, #120
-    static roadkill_charmap + #4, #121
-    static roadkill_charmap + #5, #0
-
-drowned_charmap : var #6
-    static drowned_charmap  + #0, #108
-    static drowned_charmap  + #1, #109
-    static drowned_charmap  + #2, #0
-    static drowned_charmap  + #3, #122
-    static drowned_charmap  + #4, #123
-    static drowned_charmap  + #5, #0
-
-saved_charmap : var #6
-    static saved_charmap    + #0, #3176
-    static saved_charmap    + #1, #3177
-    static saved_charmap    + #2, #0
-    static saved_charmap    + #3, #3190
-    static saved_charmap    + #4, #3191
-    static saved_charmap    + #5, #0
 
 ; Lanes of obstacles in the frog's path, comprised of 7 words:
 ; 0: y position of the top left corner of the obstacle charmap
@@ -503,75 +443,55 @@ lanes : var #10
     static lanes + #8, #lane_8
     static lanes + #9, #lane_9
 
+; Data relating to the frog
+frog_pos : var #1
+    static frog_pos, #1060 ; About [19 x][28 y], bottom middle
+
 ; Charmaps
 
+frog_charmap : var #2
+    static frog_charmap     + #0 , #769
+    static frog_charmap     + #1 , #4
+
+roadkill_charmap : var #2
+    static roadkill_charmap + #0 , #90
+    static roadkill_charmap + #1 , #4
+
+drowned_charmap : var #2
+    static drowned_charmap  + #0 , #3196
+    static drowned_charmap  + #1 , #4
+
+saved_charmap : var #2
+    static saved_charmap    + #0 , #3099
+    static saved_charmap    + #1 , #4
+
 heart_charmap: var #2
-    static heart_charmap + #0, #2429
-    static heart_charmap + #1, #1
+    static heart_charmap    + #0 , #2429
+    static heart_charmap    + #1 , #1
 
-yellow_charmap : var #8
-    static yellow_charmap  + #0   , #2836
-    static yellow_charmap  + #1   , #2837
-    static yellow_charmap  + #2   , #2838
-    static yellow_charmap  + #3   , #0
-    static yellow_charmap  + #4   , #2878
-    static yellow_charmap  + #5   , #2879
-    static yellow_charmap  + #6   , #2916
-    static yellow_charmap  + #7   , #0
+yellow_charmap : var #2
+    static yellow_charmap   + #0 , #2825
+    static yellow_charmap   + #1 , #6
 
-tractor_charmap : var #8
-    static tractor_charmap + #0   , #1559
-    static tractor_charmap + #1   , #1560
-    static tractor_charmap + #2   , #1561
-    static tractor_charmap + #3   , #0
-    static tractor_charmap + #4   , #1600
-    static tractor_charmap + #5   , #1626
-    static tractor_charmap + #6   , #1626
-    static tractor_charmap + #7   , #0
+tractor_charmap : var #2
+    static tractor_charmap  + #0 , #1551
+    static tractor_charmap  + #1 , #6
 
-pink_charmap : var #8
-    static pink_charmap    + #0   , #3345
-    static pink_charmap    + #1   , #3350
-    static pink_charmap    + #2   , #3351
-    static pink_charmap    + #3   , #0
-    static pink_charmap    + #4   , #3387
-    static pink_charmap    + #5   , #3388
-    static pink_charmap    + #6   , #3389
-    static pink_charmap    + #7   , #0
+pink_charmap : var #2
+    static pink_charmap     + #0 , #3349
+    static pink_charmap     + #1 , #6
 
 red_charmap : var #8
-    static red_charmap     + #0   , #2330
-    static red_charmap     + #1   , #2331
-    static red_charmap     + #2   , #2332
-    static red_charmap     + #3   , #0
-    static red_charmap     + #4   , #2396
-    static red_charmap     + #5   , #2397
-    static red_charmap     + #6   , #2398
-    static red_charmap     + #7   , #0
+    static red_charmap      + #0 , #2362
+    static red_charmap      + #1 , #6
 
 truck_charmap : var #14
-    static truck_charmap   + #0   , #2077
-    static truck_charmap   + #1   , #2078
-    static truck_charmap   + #2   , #2079
-    static truck_charmap   + #3   , #2147
-    static truck_charmap   + #4   , #2147
-    static truck_charmap   + #5   , #2079
-    static truck_charmap   + #6   , #0
-    static truck_charmap   + #7   , #2143
-    static truck_charmap   + #8   , #2144
-    static truck_charmap   + #9   , #2145
-    static truck_charmap   + #10  , #2146
-    static truck_charmap   + #11  , #2146
-    static truck_charmap   + #12  , #2145
-    static truck_charmap   + #13  , #0
+    static truck_charmap    + #0 , #2081
+    static truck_charmap    + #1 , #8
 
 turtle_charmap : var #6
-    static turtle_charmap  + #0   , #3173
-    static turtle_charmap  + #1   , #3174
-    static turtle_charmap  + #2   , #0
-    static turtle_charmap  + #3   , #3184
-    static turtle_charmap  + #4   , #3185
-    static turtle_charmap  + #5   , #0
+    static turtle_charmap   + #0 , #3192
+    static turtle_charmap   + #1 , #4
 
 log_charmap : var #1
     static log_charmap, #322
@@ -1102,7 +1022,6 @@ drawCharmap:
     inc r5
     loadi r1, r1   ; Charmap's initial character
     loadi r5, r5   ; Charmap's total length
-
     loadn r6, #2   ; Row counter
     div r7, r5, r6 ; Second row length
     store a3, r7   ; Store to memory
@@ -1129,7 +1048,7 @@ drawCharmap:
         columnEnd:
             dec r6
             jz rowEnd
-            mv r3, r2
+            mov r3, r2
             load r2, a1
             inc r2
             load r5, a3
@@ -1761,9 +1680,10 @@ fn_subLives:
     call saveRegisters
     loadn r1, #lanes
     loadi r1, r1
-    load r2, lowerBoundary
+    load r2, HEIGHT
+    loadn r3, #4
+    sub r2, r2, r3
     loadn r3, #2
-
 
     ; Setup Yellow
     sub r3, r3, r4
