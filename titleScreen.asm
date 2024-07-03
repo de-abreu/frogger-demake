@@ -309,50 +309,59 @@ timeLabel  : string " TIME"
 
 ; Lanes of obstacles in the frog's path, comprised of 7 words:
 ; 0: y position of the top left corner of the obstacle charmap
-; 1: x position of the top left corner of the obstacle charmap
+; 1: x position of the top left corner of the obstacle charmap, multiplied by 10
 ; 2: quantity of copies of the object to be displayed
 ; 3: spacing between such copies
 ; 4: speed at which the object traverses the screen
 ; 5: direction the object is moving towards: 0 for left, otherwise right
 ; 6: pointer to the obstacle charmap
 
+; Road
 lane_0 : var #7
     static lane_0 + #0, #24
+    static lane_0 + #1, #160
     static lane_0 + #2, #3
     static lane_0 + #3, #16
-    static lane_0 + #4, #50
+    static lane_0 + #4, #5
     static lane_0 + #5, #0
     static lane_0 + #6, #yellow_charmap
 lane_1 : var #7
     static lane_1 + #0, #22
+    static lane_1 + #1, #220
     static lane_1 + #2, #3
     static lane_1 + #3, #16
-    static lane_1 + #4, #100
+    static lane_1 + #4, #3
     static lane_1 + #5, #1
     static lane_1 + #6, #tractor_charmap
 lane_2 : var #7
     static lane_2 + #0, #20
+    static lane_2 + #1, #150
     static lane_2 + #2, #3
     static lane_2 + #3, #16
-    static lane_2 + #4, #30
+    static lane_2 + #4, #3
     static lane_2 + #5, #0
     static lane_2 + #6, #pink_charmap
 lane_3 : var #7
     static lane_3 + #0, #18
+    static lane_3 + #1, #0
     static lane_3 + #2, #1
-    static lane_3 + #3, #43
-    static lane_3 + #4, #7
+    static lane_3 + #3, #40
+    static lane_3 + #4, #20
     static lane_3 + #5, #1
     static lane_3 + #6, #red_charmap
 lane_4 : var #7
     static lane_4 + #0, #16
-    static lane_4 + #2, #2
-    static lane_4 + #3, #18
-    static lane_4 + #4, #3
+    static lane_4 + #1, #2
+    static lane_4 + #2, #18
+    static lane_4 + #3, #3
+    static lane_4 + #4, #0
     static lane_4 + #5, #0
     static lane_4 + #6, #truck_charmap
+
+; River
 lane_5 : var #7
     static lane_5 + #0, #12
+    static lane_5 + #1, #50
     static lane_5 + #2, #5
     static lane_5 + #3, #8
     static lane_5 + #4, #100
@@ -360,6 +369,7 @@ lane_5 : var #7
     static lane_5 + #6, #turtle_charmap
 lane_6 : var #7
     static lane_6 + #0, #10
+    static lane_6 + #1, #6
     static lane_6 + #2, #3
     static lane_6 + #3, #15
     static lane_6 + #4, #50
@@ -367,20 +377,23 @@ lane_6 : var #7
     static lane_6 + #6, #log_charmap
 lane_7 : var #7
     static lane_7 + #0, #8
+    static lane_7 + #1, #16
     static lane_7 + #2, #2
     static lane_7 + #3, #22
-    static lane_7 + #4, #100
+    static lane_7 + #4, #10
     static lane_7 + #5, #1
     static lane_7 + #6, #log_charmap
 lane_8 : var #7
     static lane_8 + #0, #6
+    static lane_8 + #1, #200
     static lane_8 + #2, #6
     static lane_8 + #3, #8
-    static lane_8 + #4, #100
+    static lane_8 + #4, #10
     static lane_8 + #5, #0
     static lane_8 + #6, #turtle_charmap
 lane_9 : var #7
     static lane_9 + #0, #4
+    static lane_9 + #1, #80
     static lane_9 + #2, #4
     static lane_9 + #3, #20
     static lane_9 + #4, #20
@@ -404,8 +417,8 @@ frog_pos : var #1
 ; Charmaps
 
 frog_charmap : var #2
-    static frog_charmap     + #0 , #769
-    static frog_charmap     + #1 , #4
+    static frog_charmap     + #0 , #769 ; Initial position
+    static frog_charmap     + #1 , #4   ; Charmap length
 
 roadkill_charmap : var #2
     static roadkill_charmap + #0 , #90
@@ -1326,6 +1339,7 @@ gameScreen:
 
     load r4, lives
     gameLoop:
+        call drawLanes
         ; TODO: precisa por a partes das lanes, movimento do sapo implementado
         ; TODO: Augusto and Felipe, insert calls to game functions here
 
