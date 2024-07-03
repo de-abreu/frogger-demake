@@ -307,7 +307,7 @@ oneUpLabel : string "1-UP "
 livesLabel : string "LIVES "
 timeLabel  : string " TIME"
 
-; Lanes of obstacles in the frog's path, comprised of 7 words:
+; Lanes of obstacles in the frog's path, comprised of 9 words:
 ; 0: y position of the top left corner of the obstacle charmap
 ; 1: x position of the top left corner of the obstacle charmap, multiplied by 10
 ; 2: quantity of copies of the object to be displayed
@@ -315,67 +315,77 @@ timeLabel  : string " TIME"
 ; 4: speed at which the object traverses the screen
 ; 5: direction the object is moving towards: 0 for left, otherwise right
 ; 6: pointer to the obstacle charmap
+; 7: counter for when to move
+; 8: how much the counter advances
 
-; Road
-lane_0 : var #7
+lane_0 : var #9
     static lane_0 + #0, #24
-    static lane_0 + #1, #160
+    static lane_0 + #1, #37
     static lane_0 + #2, #3
-    static lane_0 + #3, #16
-    static lane_0 + #4, #5
+    static lane_0 + #3, #10
+    static lane_0 + #4, #1
     static lane_0 + #5, #0
     static lane_0 + #6, #yellow_charmap
-lane_1 : var #7
+    static lane_0 + #7, #0
+    static lane_0 + #8, #1
+lane_1 : var #9
     static lane_1 + #0, #22
-    static lane_1 + #1, #220
+    static lane_1 + #1, #0
     static lane_1 + #2, #3
     static lane_1 + #3, #16
-    static lane_1 + #4, #3
+    static lane_1 + #4, #1
     static lane_1 + #5, #1
     static lane_1 + #6, #tractor_charmap
-lane_2 : var #7
+    static lane_1 + #7, #0
+    static lane_1 + #8, #1
+lane_2 : var #9
     static lane_2 + #0, #20
-    static lane_2 + #1, #150
+    static lane_2 + #1, #37
     static lane_2 + #2, #3
     static lane_2 + #3, #16
-    static lane_2 + #4, #3
+    static lane_2 + #4, #1
     static lane_2 + #5, #0
     static lane_2 + #6, #pink_charmap
-lane_3 : var #7
-    static lane_3 + #0, #18
-    static lane_3 + #1, #0
-    static lane_3 + #2, #1
+    static lane_2 + #7, #0
+    static lane_2 + #8, #4
     static lane_3 + #3, #40
     static lane_3 + #4, #20
+    static lane_3 + #3, #43
+    static lane_3 + #4, #2
     static lane_3 + #5, #1
     static lane_3 + #6, #red_charmap
-lane_4 : var #7
+    static lane_3 + #7, #0
+    static lane_3 + #8, #10
+lane_4 : var #9
     static lane_4 + #0, #16
-    static lane_4 + #1, #2
-    static lane_4 + #2, #18
-    static lane_4 + #3, #3
-    static lane_4 + #4, #0
+    static lane_4 + #1, #37
+    static lane_4 + #2, #2
+    static lane_4 + #3, #18
+    static lane_4 + #4, #3
     static lane_4 + #5, #0
     static lane_4 + #6, #truck_charmap
-
-; River
-lane_5 : var #7
+    static lane_4 + #7, #0
+    static lane_4 + #8, #0
+lane_5 : var #9
     static lane_5 + #0, #12
-    static lane_5 + #1, #50
+    static lane_5 + #1, #38
     static lane_5 + #2, #5
     static lane_5 + #3, #8
     static lane_5 + #4, #100
     static lane_5 + #5, #0
     static lane_5 + #6, #turtle_charmap
-lane_6 : var #7
+    static lane_5 + #7, #0
+    static lane_5 + #8, #0
+lane_6 : var #9
     static lane_6 + #0, #10
-    static lane_6 + #1, #6
+    static lane_6 + #1, #0
     static lane_6 + #2, #3
     static lane_6 + #3, #15
     static lane_6 + #4, #50
     static lane_6 + #5, #1
     static lane_6 + #6, #log_charmap
-lane_7 : var #7
+    static lane_6 + #7, #0
+lane_7 : var #9
     static lane_7 + #0, #8
     static lane_7 + #1, #16
     static lane_7 + #2, #2
@@ -383,7 +393,7 @@ lane_7 : var #7
     static lane_7 + #4, #10
     static lane_7 + #5, #1
     static lane_7 + #6, #log_charmap
-lane_8 : var #7
+lane_8 : var #9
     static lane_8 + #0, #6
     static lane_8 + #1, #200
     static lane_8 + #2, #6
@@ -391,7 +401,7 @@ lane_8 : var #7
     static lane_8 + #4, #10
     static lane_8 + #5, #0
     static lane_8 + #6, #turtle_charmap
-lane_9 : var #7
+lane_9 : var #9
     static lane_9 + #0, #4
     static lane_9 + #1, #80
     static lane_9 + #2, #4
@@ -459,8 +469,13 @@ turtle_charmap : var #6
 heart_charmap: var #1
     static heart_charmap, #2350
 
-log_charmap : var #1
+log_charmap : var #6
     static log_charmap, #322
+    static log_charmap + #1, #322
+    static log_charmap + #2, #0
+    static log_charmap + #3, #322
+    static log_charmap + #4, #322
+    static log_charmap + #5, #0
 
 gameOverLabel: string " GAME OVER "
 
@@ -974,6 +989,127 @@ printInstructions:
         rts
 
 ; NOTE: Drawing functions
+
+printEnemy:
+    ; a1 = charmap
+    ; a2 = print position y
+    ; a3 = print position x
+    call saveRegisters
+    loadn r5, #0
+    push r3
+    printEnemyLoop1:
+      add r6, r1, r5
+      loadi r6, r6
+      cmp r6, r0
+      jeq printEnemypt2
+      store a1, r2
+      store a2, r3
+      call screenOffset
+      load r4, a0
+      loadn r7, #foreground
+      add r7, r7, r4
+      outchar r6, r4
+      storei r7, r6
+      inc r3
+      loadn r7, #40
+      cmp r3, r7
+      jne printEnNormPos1
+      loadn r3, #0
+      printEnNormPos1:
+      inc r5
+      jmp printEnemyLoop1
+    printEnemypt2:
+      inc r2
+      pop r3
+      inc r5
+      printEnemyLoop2:
+        add r6, r1, r5
+        loadi r6,r6
+        cmp r6, r0
+        jeq printEnemyEnd
+        store a1, r2
+        store a2, r3
+        call screenOffset
+        load r4, a0
+        loadn r7, #foreground
+        add r7, r7, r4
+        outchar r6, r4
+        storei r7, r6
+        inc r3
+        loadn r7, #40
+        cmp r3, r7
+        jne printEnNormPos2
+        loadn r3, #0
+        printEnNormPos2:
+        inc r5
+        jmp printEnemyLoop2
+    printEnemyEnd:
+    call restoreRegisters
+    rts
+
+
+eraseEnemy:
+    ; a1 = charmap
+    ; a2 = print position y
+    ; a3 = print position x
+    call saveRegisters
+    loadn r5, #0
+    push r3
+    eraseEnemyLoop1:
+      add r6, r1, r5
+      loadi r6, r6
+      cmp r6, r0
+      jeq eraseEnemypt2
+      store a1, r2
+      store a2, r3
+      call screenOffset
+      load r4, a0
+      loadn r7, #foreground
+      add r7, r7, r4
+      loadn r6, #background
+      add r6, r6, r4
+      loadi r6, r6
+      outchar r6, r4
+      storei r7, r6
+      inc r3
+      loadn r7, #40
+      cmp r3, r7
+      jne eraseEnNormPos1
+      loadn r3, #0
+      eraseEnNormPos1:
+      inc r5
+      jmp eraseEnemyLoop1
+    eraseEnemypt2:
+      inc r2
+      pop r3
+      inc r5
+      eraseEnemyLoop2:
+        add r6, r1, r5
+        loadi r6,r6
+        cmp r6, r0
+        jeq eraseEnemyEnd
+        store a1, r2
+        store a2, r3
+        call screenOffset
+        load r4, a0
+        loadn r7, #foreground
+        add r7, r7, r4
+        storei r7, r0
+        loadn r6, #background
+        add r6, r6, r4
+        loadi r6, r6
+        outchar r6, r4
+        inc r3
+        loadn r7, #40
+        cmp r3, r7
+        jne eraseEnNormPos2
+        loadn r3, #0
+        eraseEnNormPos2:
+        inc r5
+        jmp eraseEnemyLoop2
+    eraseEnemyEnd:
+    call restoreRegisters
+    rts
 
 drawCharmap:
     ; Function to draw game object's charmaps. Wraps around the edges of the screen
@@ -1644,6 +1780,224 @@ fn_drawFrog:
     inc r2
     loadi r3, r2
     outchar r3, r1 ;Bottom right
+    call restoreRegisters
+    rts
+
+fn_moveEnemies:
+  call saveRegisters
+  mov r1, r0
+  moveEnLaneLoop:
+    loadn r7, #2
+    cmp r1, r7
+    jeq moveEnEnd
+    loadn r2, #lanes
+    add r2, r2, r1
+    loadi r2, r2
+    loadn r4, #7
+    add r4, r2, r4
+    loadi r3, r4
+    loadn r5, #8
+    add r5, r2, r5
+    loadi r5, r5
+    add r5, r5, r3
+    loadn r3, #5000
+    cmp r5, r3
+    jeg actualMoveEn
+    ;no movement
+      storei r4, r5
+      inc r1
+      jmp moveEnLaneLoop
+    actualMoveEn:
+      storei r4, r0
+      store a1, r1
+      call fn_deleteEnemies
+      loadn r3, #5
+      add r3, r2, r3
+      loadi r3, r3
+      cmp r3, r0
+      jne MoveEnInc
+      ;moving to the left
+        loadn r3, #4
+        add r3, r2, r3
+        loadi r3, r3
+        loadn r5, #1
+        add r5, r2, r5
+        loadi r6, r5
+        cmp r3, r6
+        jel MoveEnDecNorm
+        ;wrap-around
+          sub r6, r3, r6
+          loadn r3, #40
+          sub r6, r3, r6
+          jmp actualMoveEn_resume
+        ;no wrap-around
+        MoveEnDecNorm:
+          sub r6, r6, r3
+          jmp actualMoveEn_resume
+
+
+      ;moving to the right
+      MoveEnInc:
+        loadn r3, #4
+        add r3, r2, r3
+        loadi r3, r3
+        loadn r5, #1
+        add r5, r2, r5
+        loadi r6, r5
+        add r7, r6, r3
+        loadn r4, #40
+        cmp r7, r4
+        jle MoveEnIncNorm
+        sub r7, r7, r4
+        MoveEnIncNorm:
+        mov r6, r7
+        jmp actualMoveEn_resume
+
+
+    actualMoveEn_resume:
+    storei r5, r6
+    store a1, r1
+    call fn_drawEnemies
+    inc r1
+    jmp moveEnLaneLoop
+
+  moveEnEnd:
+  call restoreRegisters
+  rts
+
+
+
+
+
+
+
+fn_drawEnemies:
+  ;a1 = lane number
+  call saveRegisters
+  loadn r3, #lanes
+  add r3, r3, r1
+  loadi r3, r3
+  loadn r4, #2
+  add r4, r3, r4
+  loadi r4, r4
+  loadi r5, r3
+  loadn r1, #1
+  add r1, r1, r3
+  loadi r1, r1
+  loadn r6, #0
+  countloop:
+    push r6
+    store a2, r5
+    store a3, r1
+    loadn r7, #6
+    add r7, r7, r3
+    loadi r7, r7
+    store a1, r7
+    call printEnemy
+    loadn r6, #5
+    add r6, r6, r3
+    loadi r6, r6
+    cmp r6, r0
+    jne countPosInc
+    loadn r6, #3
+    add r6, r6, r3
+    loadi r6, r6
+    cmp r6, r1
+    jel countnormaldec
+      sub r1, r6, r1
+      loadn r7, #40
+      sub r1, r7, r1
+      jmp countloop_resume
+      countnormaldec:
+      sub r1, r1, r6
+      jmp countloop_resume
+
+      countPosInc:
+      loadn r6, #3
+      add r6, r6, r3
+      loadi r6, r6
+      add r2, r6, r1
+      loadn r7, #40
+      cmp r2, r7
+      jle countNormalInc
+      sub r2, r2, r7
+      countNormalInc:
+      mov r1, r2
+
+
+      countloop_resume:
+      pop r6
+      inc r6
+      cmp r6, r4
+      jne countloop
+
+    call restoreRegisters
+    rts
+
+
+fn_deleteEnemies:
+  ;a1 = lane number
+  call saveRegisters
+  loadn r3, #lanes
+  add r3, r3, r1
+  loadi r3, r3
+  loadn r4, #2
+  add r4, r3, r4
+  loadi r4, r4
+  loadi r5, r3
+  loadn r1, #1
+  add r1, r1, r3
+  loadi r1, r1
+  loadn r6, #0
+  countloopDel:
+    push r6
+    store a2, r5
+    store a3, r1
+    loadn r7, #6
+    add r7, r7, r3
+    loadi r7, r7
+    store a1, r7
+    call eraseEnemy
+    loadn r6, #5
+    add r6, r6, r3
+    loadi r6, r6
+    cmp r6, r0
+    jne countPosIncDel
+    loadn r6, #3
+    add r6, r6, r3
+    loadi r6, r6
+    cmp r6, r1
+    jel countnormaldecDel
+      sub r1, r6, r1
+      loadn r7, #40
+      sub r1, r7, r1
+      jmp countloop_resumeDel
+      countnormaldecDel:
+      sub r1, r1, r6
+      jmp countloop_resumeDel
+
+      countPosIncDel:
+      loadn r6, #3
+      add r6, r6, r3
+      loadi r6, r6
+      add r2, r6, r1
+      loadn r7, #40
+      cmp r2, r7
+      jle countNormalIncDel
+      sub r2, r2, r7
+
+
+
+      countNormalIncDel:
+      mov r1, r2
+
+
+      countloop_resumeDel:
+      pop r6
+      inc r6
+      cmp r6, r4
+      jne countloopDel
+
     call restoreRegisters
     rts
 
