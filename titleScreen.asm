@@ -995,12 +995,15 @@ printEnemy:
     ; a2 = print position y
     ; a3 = print position x
     call saveRegisters
-    loadn r5, #0
+    loadn r5, #1
+    add r5, r5, r1
+    loadi r5, r5
+    shiftr0 r5, #1
+    push r5
+    loadi r1, r1
     push r3
     printEnemyLoop1:
-      add r6, r1, r5
-      loadi r6, r6
-      cmp r6, r0
+      cmp r5, r0
       jeq printEnemypt2
       store a1, r2
       store a2, r3
@@ -1008,24 +1011,23 @@ printEnemy:
       load r4, a0
       loadn r7, #foreground
       add r7, r7, r4
-      outchar r6, r4
-      storei r7, r6
+      outchar r1, r4
+      storei r7, r1
       inc r3
       loadn r7, #40
       cmp r3, r7
       jne printEnNormPos1
       loadn r3, #0
       printEnNormPos1:
-      inc r5
+      inc r1
+      dec r5
       jmp printEnemyLoop1
     printEnemypt2:
       inc r2
       pop r3
-      inc r5
+      pop r5
       printEnemyLoop2:
-        add r6, r1, r5
-        loadi r6,r6
-        cmp r6, r0
+        cmp r5, r0
         jeq printEnemyEnd
         store a1, r2
         store a2, r3
@@ -1033,15 +1035,16 @@ printEnemy:
         load r4, a0
         loadn r7, #foreground
         add r7, r7, r4
-        outchar r6, r4
-        storei r7, r6
+        outchar r1, r4
+        storei r7, r1
         inc r3
         loadn r7, #40
         cmp r3, r7
         jne printEnNormPos2
         loadn r3, #0
         printEnNormPos2:
-        inc r5
+        inc r1
+        dec r5
         jmp printEnemyLoop2
     printEnemyEnd:
     call restoreRegisters
@@ -1053,12 +1056,14 @@ eraseEnemy:
     ; a2 = print position y
     ; a3 = print position x
     call saveRegisters
-    loadn r5, #0
+    loadn r5, #1
+    add r5, r1, r5
+    loadi r5, r5
+    shiftr0 r5, #1
+    push r5
     push r3
     eraseEnemyLoop1:
-      add r6, r1, r5
-      loadi r6, r6
-      cmp r6, r0
+      cmp r5, r0
       jeq eraseEnemypt2
       store a1, r2
       store a2, r3
@@ -1077,16 +1082,14 @@ eraseEnemy:
       jne eraseEnNormPos1
       loadn r3, #0
       eraseEnNormPos1:
-      inc r5
+      dec r5
       jmp eraseEnemyLoop1
     eraseEnemypt2:
       inc r2
       pop r3
-      inc r5
+      pop r5
       eraseEnemyLoop2:
-        add r6, r1, r5
-        loadi r6,r6
-        cmp r6, r0
+        cmp r5, r0
         jeq eraseEnemyEnd
         store a1, r2
         store a2, r3
@@ -1105,11 +1108,12 @@ eraseEnemy:
         jne eraseEnNormPos2
         loadn r3, #0
         eraseEnNormPos2:
-        inc r5
+        dec r5
         jmp eraseEnemyLoop2
     eraseEnemyEnd:
     call restoreRegisters
     rts
+
 
 drawCharmap:
     ; Function to draw game object's charmaps. Wraps around the edges of the screen
