@@ -1503,7 +1503,16 @@ gameScreen:
         jeq case_Dead
 
         ;Draws
-        call fn_drawFrog
+        load r7, #frog_charmap
+        store a1, r7
+        load r6, frog_pos
+        load r5, #40
+        div r7, r6, r5              
+        store a2, r7
+        mod r7, r6, r5
+        store a3, r7
+        store a4, r0
+        call drawCharmap
 
         ;Checks victory
         call fn_checkWin
@@ -1761,31 +1770,31 @@ fn_checkWin:
     rts
 
 
-fn_drawFrog:
-    ;Draws the frog on the screen at its position
-    ;Args : None
-    ;Returns : None
-    call saveRegisters
-    load r1, frog_pos
-    loadn r2, #frog_charmap
-    loadi r3, r2
-    outchar r3, r1 ;Top left
-    inc r1
-    inc r2
-    loadi r3, r2
-    outchar r3, r1 ;Top Right
-    loadn r4, #39
-    add r1, r1, r4
-    inc r2
-    inc r2
-    loadi r3, r2
-    outchar r3, r1 ;Bottom left
-    inc r1
-    inc r2
-    loadi r3, r2
-    outchar r3, r1 ;Bottom right
-    call restoreRegisters
-    rts
+; fn_drawFrog:
+;     ;Draws the frog on the screen at its position
+;     ;Args : None
+;     ;Returns : None
+;     call saveRegisters
+;     load r1, frog_pos
+;     loadn r2, #frog_charmap
+;     loadi r3, r2
+;     outchar r3, r1 ;Top left
+;     inc r1
+;     inc r2
+;     loadi r3, r2
+;     outchar r3, r1 ;Top Right
+;     loadn r4, #39
+;     add r1, r1, r4
+;     inc r2
+;     inc r2
+;     loadi r3, r2
+;     outchar r3, r1 ;Bottom left
+;     inc r1
+;     inc r2
+;     loadi r3, r2
+;     outchar r3, r1 ;Bottom right
+;     call restoreRegisters
+;     rts
 
 fn_moveEnemies:
   call saveRegisters
