@@ -347,68 +347,79 @@ lane_2 : var #9
     static lane_2 + #5, #0
     static lane_2 + #6, #pink_charmap
     static lane_2 + #7, #0
-    static lane_2 + #8, #4
+    static lane_2 + #8, #2
+lane_3 : var #9
+    static lane_3 + #0, #18
+    static lane_3 + #1, #0
+    static lane_3 + #2, #1
     static lane_3 + #3, #40
-    static lane_3 + #4, #20
-    static lane_3 + #3, #43
     static lane_3 + #4, #2
     static lane_3 + #5, #1
     static lane_3 + #6, #red_charmap
     static lane_3 + #7, #0
-    static lane_3 + #8, #10
+    static lane_3 + #8, #2
 lane_4 : var #9
     static lane_4 + #0, #16
     static lane_4 + #1, #37
     static lane_4 + #2, #2
     static lane_4 + #3, #18
-    static lane_4 + #4, #3
+    static lane_4 + #4, #2
     static lane_4 + #5, #0
     static lane_4 + #6, #truck_charmap
     static lane_4 + #7, #0
-    static lane_4 + #8, #0
+    static lane_4 + #8, #1
 lane_5 : var #9
     static lane_5 + #0, #12
     static lane_5 + #1, #38
     static lane_5 + #2, #5
-    static lane_5 + #3, #8
-    static lane_5 + #4, #100
+    static lane_5 + #3, #7
+    static lane_5 + #4, #1
     static lane_5 + #5, #0
     static lane_5 + #6, #turtle_charmap
     static lane_5 + #7, #0
-    static lane_5 + #8, #0
+    static lane_5 + #8, #1
 lane_6 : var #9
     static lane_6 + #0, #10
     static lane_6 + #1, #0
-    static lane_6 + #2, #3
-    static lane_6 + #3, #15
-    static lane_6 + #4, #50
+    static lane_6 + #2, #8
+    static lane_6 + #3, #1
+    static lane_6 + #4, #2
     static lane_6 + #5, #1
     static lane_6 + #6, #log_charmap
     static lane_6 + #7, #0
+    static lane_6 + #7, #0
+    static lane_6 + #8, #1
 lane_7 : var #9
     static lane_7 + #0, #8
     static lane_7 + #1, #16
-    static lane_7 + #2, #2
-    static lane_7 + #3, #22
-    static lane_7 + #4, #10
-    static lane_7 + #5, #1
+    static lane_7 + #2, #10
+    static lane_7 + #3, #1
+    static lane_7 + #4, #1
+    static lane_7 + #5, #0
     static lane_7 + #6, #log_charmap
+    static lane_7 + #7, #0
+    static lane_7 + #8, #1
+    
 lane_8 : var #9
     static lane_8 + #0, #6
     static lane_8 + #1, #200
     static lane_8 + #2, #6
-    static lane_8 + #3, #8
-    static lane_8 + #4, #10
+    static lane_8 + #3, #6
+    static lane_8 + #4, #1
     static lane_8 + #5, #0
     static lane_8 + #6, #turtle_charmap
+    static lane_8 + #7, #0
+    static lane_8 + #8, #1
 lane_9 : var #9
     static lane_9 + #0, #4
     static lane_9 + #1, #80
     static lane_9 + #2, #4
-    static lane_9 + #3, #20
-    static lane_9 + #4, #20
+    static lane_9 + #3, #1
+    static lane_9 + #4, #2
     static lane_9 + #5, #1
     static lane_9 + #6, #log_charmap
+    static lane_9 + #7, #0
+    static lane_9 + #8, #1
 lanes : var #10
     static lanes + #0, #lane_0
     static lanes + #1, #lane_1
@@ -454,15 +465,15 @@ pink_charmap : var #2
     static pink_charmap     + #0 , #3349
     static pink_charmap     + #1 , #6
 
-red_charmap : var #8
+red_charmap : var #2
     static red_charmap      + #0 , #2362
     static red_charmap      + #1 , #6
 
-truck_charmap : var #14
+truck_charmap : var #2
     static truck_charmap    + #0 , #2081
-    static truck_charmap    + #1 , #8
+    static truck_charmap    + #1 , #12
 
-turtle_charmap : var #6
+turtle_charmap : var #2
     static turtle_charmap   + #0 , #3192
     static turtle_charmap   + #1 , #4
 
@@ -470,12 +481,9 @@ heart_charmap: var #1
     static heart_charmap, #2350
 
 log_charmap : var #6
-    static log_charmap, #322
-    static log_charmap + #1, #322
-    static log_charmap + #2, #0
-    static log_charmap + #3, #322
-    static log_charmap + #4, #322
-    static log_charmap + #5, #0
+static log_charmap   + #0 , #322
+static log_charmap   + #1 , #2
+
 
 gameOverLabel: string " GAME OVER "
 
@@ -1479,7 +1487,7 @@ gameScreen:
 
     load r4, lives
     gameLoop:
-        call drawLanes
+        ;call drawLanes
         ; TODO: precisa por a partes das lanes, movimento do sapo implementado
         ; TODO: Augusto and Felipe, insert calls to game functions here
 
@@ -1503,10 +1511,10 @@ gameScreen:
         jeq case_Dead
 
         ;Draws
-        load r7, #frog_charmap
+        loadn r7, #frog_charmap
         store a1, r7
         load r6, frog_pos
-        load r5, #40
+        loadn r5, #40
         div r7, r6, r5              
         store a2, r7
         mod r7, r6, r5
@@ -1535,8 +1543,7 @@ gameScreen:
         call drawHUD
             loadn r7, #1060
             store frog_pos, r7
-            call fn_drawFrog
-
+            ;call fn_drawFrog
             jmp gameLoop
 
 
@@ -1800,7 +1807,7 @@ fn_moveEnemies:
   call saveRegisters
   mov r1, r0
   moveEnLaneLoop:
-    loadn r7, #2
+    loadn r7, #10
     cmp r1, r7
     jeq moveEnEnd
     loadn r2, #lanes
@@ -1813,7 +1820,7 @@ fn_moveEnemies:
     add r5, r2, r5
     loadi r5, r5
     add r5, r5, r3
-    loadn r3, #5000
+    loadn r3, #4
     cmp r5, r3
     jeg actualMoveEn
     ;no movement
