@@ -1240,6 +1240,25 @@ updateLives:
     call restoreRegisters
     rts
 
+updateScore:
+    ;Updates score on the HUD
+    ;No args, no return
+    call saveRegisters
+
+    load r1, score
+    store a1, r1
+    loadn r1, #39  
+    store a2, r1
+    loadn r1 ,#background
+    store a3, r1
+    load r1, red
+    store a4, r1
+    call printInt
+
+    call restoreRegisters
+    rts
+    
+
 
 drawBackground:
     ; Draw the game's background
@@ -1561,7 +1580,7 @@ gameScreen:
             store saved, r7
 
             call fn_eraseFrog
-
+            call updateScore
             loadn r7, #1060
             store frog_pos, r7
 
