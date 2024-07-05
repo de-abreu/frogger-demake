@@ -327,7 +327,7 @@ lane_0 : var #9
     static lane_0 + #5, #0
     static lane_0 + #6, #yellow_charmap
     static lane_0 + #7, #0
-    static lane_0 + #8, #1
+    static lane_0 + #8, #2
 lane_1 : var #9
     static lane_1 + #0, #22
     static lane_1 + #1, #0
@@ -337,7 +337,7 @@ lane_1 : var #9
     static lane_1 + #5, #1
     static lane_1 + #6, #tractor_charmap
     static lane_1 + #7, #0
-    static lane_1 + #8, #1
+    static lane_1 + #8, #2
 lane_2 : var #9
     static lane_2 + #0, #20
     static lane_2 + #1, #37
@@ -347,7 +347,7 @@ lane_2 : var #9
     static lane_2 + #5, #0
     static lane_2 + #6, #pink_charmap
     static lane_2 + #7, #0
-    static lane_2 + #8, #2
+    static lane_2 + #8, #4
 lane_3 : var #9
     static lane_3 + #0, #18
     static lane_3 + #1, #0
@@ -357,7 +357,7 @@ lane_3 : var #9
     static lane_3 + #5, #1
     static lane_3 + #6, #red_charmap
     static lane_3 + #7, #0
-    static lane_3 + #8, #2
+    static lane_3 + #8, #4
 lane_4 : var #9
     static lane_4 + #0, #16
     static lane_4 + #1, #37
@@ -367,7 +367,7 @@ lane_4 : var #9
     static lane_4 + #5, #0
     static lane_4 + #6, #truck_charmap
     static lane_4 + #7, #0
-    static lane_4 + #8, #1
+    static lane_4 + #8, #2
 lane_5 : var #9
     static lane_5 + #0, #12
     static lane_5 + #1, #38
@@ -377,7 +377,7 @@ lane_5 : var #9
     static lane_5 + #5, #0
     static lane_5 + #6, #turtle_charmap
     static lane_5 + #7, #0
-    static lane_5 + #8, #1
+    static lane_5 + #8, #2
 lane_6 : var #9
     static lane_6 + #0, #10
     static lane_6 + #1, #0
@@ -388,7 +388,7 @@ lane_6 : var #9
     static lane_6 + #6, #log_charmap
     static lane_6 + #7, #0
     static lane_6 + #7, #0
-    static lane_6 + #8, #1
+    static lane_6 + #8, #2
 lane_7 : var #9
     static lane_7 + #0, #8
     static lane_7 + #1, #16
@@ -398,7 +398,7 @@ lane_7 : var #9
     static lane_7 + #5, #0
     static lane_7 + #6, #log_charmap
     static lane_7 + #7, #0
-    static lane_7 + #8, #1
+    static lane_7 + #8, #2
     
 lane_8 : var #9
     static lane_8 + #0, #6
@@ -409,7 +409,7 @@ lane_8 : var #9
     static lane_8 + #5, #0
     static lane_8 + #6, #turtle_charmap
     static lane_8 + #7, #0
-    static lane_8 + #8, #1
+    static lane_8 + #8, #2
 lane_9 : var #9
     static lane_9 + #0, #4
     static lane_9 + #1, #80
@@ -419,7 +419,7 @@ lane_9 : var #9
     static lane_9 + #5, #1
     static lane_9 + #6, #log_charmap
     static lane_9 + #7, #0
-    static lane_9 + #8, #1
+    static lane_9 + #8, #2
 lanes : var #10
     static lanes + #0, #lane_0
     static lanes + #1, #lane_1
@@ -1535,6 +1535,9 @@ gameScreen:
         ;Movement
         store a1, r7
         call fn_moveFrog
+        
+        
+        call fn_moveEnemies
 
         ;Checks collision after frog move
         call fn_checkDeath
@@ -1543,16 +1546,16 @@ gameScreen:
         jeq case_Dead
 
         ;Draws
-        loadn r7, #frog_charmap
-        store a1, r7
-        load r6, frog_pos
-        loadn r5, #40
-        div r7, r6, r5              
-        store a2, r7
-        mod r7, r6, r5
-        store a3, r7
-        store a4, r0
-        call drawCharmap
+        ;loadn r7, #frog_charmap
+        ;store a1, r7
+        ;load r6, frog_pos
+        ;loadn r5, #40
+        ;div r7, r6, r5              
+        ;store a2, r7
+        ;mod r7, r6, r5
+        ;store a3, r7
+        ;store a4, r0
+        call fn_drawFrog
 
         ;Checks victory
         call fn_checkWin
@@ -1802,31 +1805,27 @@ fn_checkWin:
     rts
 
 
-; fn_drawFrog:
-;     ;Draws the frog on the screen at its position
-;     ;Args : None
-;     ;Returns : None
-;     call saveRegisters
-;     load r1, frog_pos
-;     loadn r2, #frog_charmap
-;     loadi r3, r2
-;     outchar r3, r1 ;Top left
-;     inc r1
-;     inc r2
-;     loadi r3, r2
-;     outchar r3, r1 ;Top Right
-;     loadn r4, #39
-;     add r1, r1, r4
-;     inc r2
-;     inc r2
-;     loadi r3, r2
-;     outchar r3, r1 ;Bottom left
-;     inc r1
-;     inc r2
-;     loadi r3, r2
-;     outchar r3, r1 ;Bottom right
-;     call restoreRegisters
-;     rts
+ fn_drawFrog:
+     ;Draws the frog on the screen at its position
+     ;Args : None
+     ;Returns : None
+     call saveRegisters
+     load r1, frog_pos
+     loadn r2, #frog_charmap
+     loadi r2, r2
+     outchar r2, r1 ;Top left
+     inc r1
+     inc r2
+     outchar r2, r1 ;Top Right
+     loadn r4, #39
+     add r1, r1, r4
+     inc r2
+     outchar r2, r1 ;Bottom left
+     inc r1
+     inc r2
+     outchar r2, r1 ;Bottom right
+     call restoreRegisters
+     rts
 
 fn_moveEnemies:
   call saveRegisters
