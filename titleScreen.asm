@@ -1260,6 +1260,43 @@ updateScore:
     
 
 
+updateHiscoreHUD:
+    ;Updates the hiscore on the HUD
+    ;No args, no return
+    call saveRegisters
+
+    load r1, hiscore
+    store a1, r1
+    loadn r1, #25
+    store a2, r1
+    loadn r1 ,#background
+    store a3, r1
+    load r1, red
+    store a4, r1
+    call printInt
+    call restoreRegisters
+    rts
+
+
+
+updateHiscoreValue:
+    ;Updates the hiscore value if the current score is greater
+    ;No args; no return
+    call saveRegisters
+
+    load r1, hiscore
+    load r2, score
+    cmp r2, r1
+    jgr newHi
+    call restoreRegisters
+    rts
+
+    newHi:
+        store hiscore, r2
+        call updateHiscoreHUD
+        call restoreRegisters
+        rts
+
 drawBackground:
     ; Draw the game's background
     ; Arguments:
@@ -1527,7 +1564,7 @@ gameScreen:
         call fn_checkDeath
         load r7, a0
         cmp r7, r0
-        jeq case_Dead
+        jeq case_Dead    
 
         ;Draws
         ;loadn r7, #frog_charmap
@@ -1583,7 +1620,7 @@ gameScreen:
             call updateScore
             loadn r7, #1060
             store frog_pos, r7
-
+            call updateHiscoreValue
             store a1, r2
 
 
@@ -1703,6 +1740,7 @@ fn_moveFrog:
     case_A:
         load r1, frog_pos
         dec r1
+        dec r1
         store a1, r1
         call fn_checkBorders
         load r2, a0
@@ -1734,6 +1772,7 @@ fn_moveFrog:
         rts
     case_D:
         load r1, frog_pos
+        inc r1
         inc r1
         store a1, r1
         call fn_checkBorders
