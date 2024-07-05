@@ -19,9 +19,6 @@ WIDTH : var #1
 HEIGHT : var #1
     static HEIGHT, #30
 
-LANES : var #1
-    static LANES, #10
-
 FILL : var #1
     static FILL, #'B'
 
@@ -314,92 +311,100 @@ timeLabel  : string " TIME"
 ; 3: spacing between such copies
 ; 4: speed at which the object traverses the screen
 ; 5: pointer to the obstacle charmap
+; 6: direction of movement. 0 for left, otherwise right
 
 ; Road
-lane_0 : var #6
+lane_0 : var #7
     static lane_0 + #0, #24
     static lane_0 + #1, #160
     static lane_0 + #2, #3
     static lane_0 + #3, #16
     static lane_0 + #4, #5
     static lane_0 + #5, #yellow_charmap
-lane_1 : var #6
+    static lane_0 + #0, #0
+lane_1 : var #7
     static lane_1 + #0, #22
     static lane_1 + #1, #220
     static lane_1 + #2, #3
     static lane_1 + #3, #16
     static lane_1 + #4, #3
     static lane_1 + #5, #tractor_charmap
-lane_2 : var #6
+    static lane_0 + #6, #1
+lane_2 : var #7
     static lane_2 + #0, #20
     static lane_2 + #1, #150
     static lane_2 + #2, #3
     static lane_2 + #3, #16
     static lane_2 + #4, #3
     static lane_2 + #5, #pink_charmap
-lane_3 : var #6
+    static lane_2 + #6, #0
+lane_3 : var #7
     static lane_3 + #0, #18
     static lane_3 + #1, #0
     static lane_3 + #2, #1
     static lane_3 + #3, #40
     static lane_3 + #4, #20
-    static lane_3 + #6, #red_charmap
-lane_4 : var #6
+    static lane_3 + #5, #red_charmap
+    static lane_3 + #6, #1
+lane_4 : var #7
     static lane_4 + #0, #16
     static lane_4 + #1, #2
     static lane_4 + #2, #18
     static lane_4 + #3, #3
     static lane_4 + #4, #0
     static lane_4 + #5, #truck_charmap
+    static lane_4 + #6, #0
 
 ; River
-lane_5 : var #6
+lane_5 : var #7
     static lane_5 + #0, #12
     static lane_5 + #1, #50
     static lane_5 + #2, #5
     static lane_5 + #3, #8
     static lane_5 + #4, #100
-    static lane_5 + #5, #0
-    static lane_5 + #6, #turtle_charmap
-lane_6 : var #6
+    static lane_5 + #5, #turtle_charmap
+    static lane_5 + #6, #0
+lane_6 : var #7
     static lane_6 + #0, #10
     static lane_6 + #1, #6
     static lane_6 + #2, #3
     static lane_6 + #3, #15
     static lane_6 + #4, #50
     static lane_6 + #5, #log_charmap
-lane_7 : var #6
+    static lane_6 + #6, #1
+lane_7 : var #7
     static lane_7 + #0, #8
     static lane_7 + #1, #16
     static lane_7 + #2, #2
     static lane_7 + #3, #22
     static lane_7 + #4, #10
     static lane_7 + #5, #log_charmap
-lane_8 : var #6
+    static lane_7 + #6, #1
+lane_8 : var #7
     static lane_8 + #0, #6
     static lane_8 + #1, #200
     static lane_8 + #2, #6
     static lane_8 + #3, #8
     static lane_8 + #4, #10
     static lane_8 + #5, #turtle_charmap
-lane_9 : var #6
+    static lane_8 + #6, #0
+lane_9 : var #7
     static lane_9 + #0, #4
     static lane_9 + #1, #80
     static lane_9 + #2, #4
     static lane_9 + #3, #20
     static lane_9 + #4, #20
     static lane_9 + #5, #log_charmap
-lanes : var #10
-    static lanes + #0, #lane_0
-    static lanes + #1, #lane_1
-    static lanes + #2, #lane_2
-    static lanes + #3, #lane_3
-    static lanes + #4, #lane_4
-    static lanes + #5, #lane_5
-    static lanes + #6, #lane_6
-    static lanes + #7, #lane_7
-    static lanes + #8, #lane_8
-    static lanes + #9, #lane_9
+    static lane_9 + #6, #1
+lanes : var #3
+    static lanes + #0, #lane_0 ; Initial lane
+    static lanes + #1, #7      ; Offset between the lanes' memory addresses
+    static lanes + #2, #10     ; Quantity of lanes
+
+lane_buffer : var #80          ; Temporary storage space to update the mapping
+                               ; of a given lane's content
+lane_buffer_size : var #1
+    static lane_buffer_size, #80
 
 ; Data relating to the frog
 frog_pos : var #1
@@ -434,32 +439,77 @@ pink_charmap : var #2
     static pink_charmap     + #0 , #3349
     static pink_charmap     + #1 , #6
 
-red_charmap : var #8
+red_charmap : var #2
     static red_charmap      + #0 , #2362
     static red_charmap      + #1 , #6
 
-truck_charmap : var #14
+truck_charmap : var #2
     static truck_charmap    + #0 , #2081
     static truck_charmap    + #1 , #8
 
-turtle_charmap : var #6
+turtle_charmap : var #2
     static turtle_charmap   + #0 , #3192
     static turtle_charmap   + #1 , #4
 
 heart_charmap: var #1
     static heart_charmap, #2350
 
-log_charmap : var #6
+log_charmap : var #2
     static log_charmap, #322
-    static log_charmap + #1, #322
-    static log_charmap + #2, #0
-    static log_charmap + #3, #322
-    static log_charmap + #4, #322
-    static log_charmap + #5, #0
 
 gameOverLabel: string " GAME OVER "
 
 ; NOTE: Code segment
+
+; NOTE: Mathematical functions
+
+screenOffset:
+    ; Gives the offset that, given the screen's dimensions, corresponds to a given column and row. Values beyond the screen's HEIGHT and WIDTH get wrapped around.
+    ; Arguments:
+    ; a1 = row
+    ; a2 = column
+    ; Returns:
+    ; a0 = offset
+
+    call saveRegisters
+    load r3, HEIGHT
+    load r4, WIDTH
+    mod r1, r1, r3
+    mul r1, r1, r4
+    mod r2, r2, r4
+    add r1, r1, r2
+    store a0, r1
+    call restoreRegisters
+    rts
+
+
+modularSubtract:
+    ; Given operands a, b and m, where m > a and m > b;
+    ; if a < b return m - (b - a), otherwise a - b
+    ; Arguments:
+    ; a1 = a
+    ; a2 = b
+    ; a3 = m
+    ; Returns:
+    ; a0 = result of modularSubtract operation
+
+    call saveRegisters
+
+    cmp r1, r2
+    jle caseLower
+
+    ; Case greater or equal
+    sub r1, r1, r2
+    jmp msEnd
+
+    caseLower:
+        sub r1, r2, r1
+        sub r1, r3, r1
+    msEnd:
+        store a0, r1
+        call restoreRegisters
+        rts
+
 
 ; NOTE: Functions to initialize and free memory or game objects
 
@@ -487,6 +537,7 @@ saveRegisters:
     loadn r0, #0
     rts     ; Pop and return.
 
+
 restoreRegisters:
     ; Restore registers' context from stack
     ; Arguments: None
@@ -504,14 +555,33 @@ restoreRegisters:
     loadn r0, #0
     rts
 
-initTitleScreen:
-    ; Prints the background of the title screen.
-    ; a1 = Pointer to background map where to store printed characters
+
+initStats:
+    ; Sets up the initial values of this game's status
+    ; Arguments: None
     ; Returns: Nothing
 
     call saveRegisters
+    store level, r0
+    store score, r0
+    store saved, r0
+    ; store elapsed, r0
+    loadn r1, #7
+    store lives, r1
+    loadn r1, #1000
+    store oneUp, r1
+    call restoreRegisters
+    rts
 
-    ; Wipe Map
+
+initMap:
+    call saveRegisters
+    ; Fills a map with zeroes.
+    ; Arguments:
+    ; a1 = pointer to the map
+    ; Returns: Nothing
+
+    call saveRegisters
     store a1, r0
     store a2, r0
     store a3, r1
@@ -521,6 +591,17 @@ initTitleScreen:
     store a4, r1
     store a5, r0
     call printChar
+    call restoreRegisters
+    rts
+
+
+initTitleScreen:
+    ; Prints the background of the title screen.
+    ; a1 = Pointer to background map where to store printed characters
+    ; Returns: Nothing
+
+    call saveRegisters
+    call initMap
 
     ; Print Highscore indicator
     loadn r1, #hiscoreLabel
@@ -613,58 +694,7 @@ initTitleScreen:
     rts
 
 
-takeInput:
-    ; A function that delays the game's execution for a given period to take an input from the player. If the input is one that was expected, the delay is canceled.
-    ; Arguments:
-    ; a1 = Delay multiplier
-    ; a2 = Expected input
-    ; Returns:
-    ; a0 = 0, if no key was pressed, otherwise the ASCII value of key pressed
-
-    call saveRegisters
-    loadn r3, #1000 ; Base delay, implies a microsecond at 1 MHz
-    loadn r4, #255  ; Default value returned by inchar when no key press is detected
-    store a0, r0
-
-    delay_A:
-        mov r5, r1
-        delay_B:
-            inchar r6
-            cmp r4, r6
-            jeq delayContinue
-            store a0, r6
-            cmp r2, r6
-            jeq delayEnd
-    delayContinue:
-        dec r5
-        jnz delay_B
-        dec r3
-        jnz delay_A
-    delayEnd:
-    call restoreRegisters
-    rts
-
 ; NOTE: Functions for printing on screen
-
-screenOffset:
-    ; Gives the offset that, given the screen's dimensions, corresponds to a given column and row. Values beyond the screen's HEIGHT and WIDTH get wrapped around.
-    ; Arguments:
-    ; a1 = row
-    ; a2 = column
-    ; Returns:
-    ; a0 = offset
-
-    call saveRegisters
-    load r3, HEIGHT
-    load r4, WIDTH
-    mod r1, r1, r3
-    mul r1, r1, r4
-    mod r2, r2, r4
-    add r1, r1, r2
-    store a0, r1
-    call restoreRegisters
-    rts
-
 
 printChar:
     ; Prints a character, one or more times.
@@ -755,7 +785,7 @@ printInt:
 
 
 printVector:
-    ; Prints the contents of a vector as characters on the screen.
+    ; Prints the contents of a vector as characters on the screen. If character in the vector is the same found in the screen's map, no printing occurs
     ; Arguments:
     ; a1 = Pointer to the start of the vector
     ; a2 = Index of the position at the screen where to start printing
@@ -771,7 +801,12 @@ printVector:
         cmp r3, r4
         jeq pvEnd
         loadi r5, r1
+        loadi r6, r3
+        cmp r5, r6
+        jeq pvContinue
         outchar r5, r2
+        storei r3, r5
+    pvContinue:
         inc r1
         inc r2
         inc r3
@@ -970,6 +1005,108 @@ printInstructions:
 
 ; NOTE: Drawing functions
 
+drawLane:
+    ; Function to draw a vehicles into a map
+    ; a1 = pointer to lane
+    ; a2 = map pointer
+    ; a3 = consecutive copies.
+    ;      1 indicates that each batch, separated by a spacing, contains a single obstacle.
+
+    call saveRegisters
+    store a4, r2       ; map pointer
+
+    loadn r2, #6
+    add r2, r1, r2
+    store a1, r2       ; charmap to be printed
+
+    loadn r2, #2
+    add r2, r1, r2
+    loadi r2, r2       ; batches of copies
+
+    loadn r4, #3
+    add r4, r1, r4
+    loadi r4, r4       ; spacing between batches of copies
+
+    loadn r5, #1
+    add r5, r1, r5
+    loadi r5, r5       ; original x position
+
+    batchLoop:
+        mov r1, r3     ; copy counter
+        mov r6, r2
+        dec r6         ; batch spacing multiplier
+        mul r6, r4, r6 ; multiply offset
+        add r6, r5, r6 ; add to original's x position, this is the batches' x
+        consecutiveLoop:
+            store a3, r6
+            call drawCharmap
+            load r7, a0
+            add r6, r6, r7
+            dec r1
+            jnz consecutiveLoop
+        dec r2
+        jnz batchLoop
+
+    call restoreRegisters
+    rts
+
+drawLog:
+    ; Function to draw logs on the river
+    ; a1 = pointer to lane containing the description of logs
+    ; a2 = map pointer
+    ; a3 = log length
+
+    call saveRegisters
+    store a3, r2
+
+    loadn r2, #2
+    add r2, r1, r2
+    loadi r2, r2 ; quantities of logs
+
+    loadn r2, #2
+    add r2, r1, r2
+    loadi r2, r2 ; quantities of logs
+
+
+
+
+
+    call restoreRegisters
+    rts
+
+drawLanes:
+    ; Function to draw the contents of a vector of lanes into a map
+    ; a1 = pointer to vector of lanes
+    ; a2 = map pointer
+
+    mov r2, r1
+    inc r2
+    loadi r1, r1 ; initial lane pointer
+    loadi r2, r2 ; sizeof lane
+    loadn r3, #5 ; number of lanes on the road
+    store a3, r0
+
+    drawRoad:
+        store a1, r1
+        call drawLane
+        add r1, r2
+        dec r3
+        jnz drawRoad
+
+
+    ; Draw pair of turtles
+    store a1, r1
+    loadn r3, #2
+    store a3, r3
+    call drawLane
+    add r1, r2
+
+    ; draw a short log
+    store a1, r1
+    loadn r3, #8
+    call drawLog
+    add r1, r2
+
 printEnemy:
     ; a1 = charmap
     ; a2 = print position y
@@ -1092,22 +1229,26 @@ eraseEnemy:
     rts
 
 drawCharmap:
-    ; Function to draw game object's charmaps. Wraps around the edges of the screen
+    ; Function to draw game object's charmaps. Wraps around the edges of the screen.
+    ; Arguments:
     ; a1 = Pointer to charmap data structure
     ; a2 = Vertical position where to print the top left corner of the charmap
     ; a3 = Horizontal position where to print the top left corner of the charmap
     ; a4 = Pointer to map where to store the charmap,
     ;      If set to 0 the charmap won't be saved to a map
+    ; Returns:
+    ; a0 = the horizontal length of the printed charmap
 
     call saveRegisters
     mov r5, r1
-    inc r5
+    inc r5         ; Pointer to charmap's length variable
     loadi r1, r1   ; Charmap's initial character
     loadi r5, r5   ; Charmap's total length
     loadn r6, #2   ; Row counter
     div r7, r5, r6 ; Second row length
     store a3, r7   ; Store to memory
     sub r5, r5, r7 ; First (current) row length
+    store a0, r5
 
     rowLoop:
         store a1, r2
@@ -1384,8 +1525,131 @@ drawGameOver:
 
 ; NOTE: Game functions
 
-moveLeft:
+takeInput:
+    ; A function that delays the game's execution for a given period to take an input from the player. If the input is one that was expected, the delay is canceled.
+    ; Arguments:
+    ; a1 = Delay multiplier
+    ; a2 = Expected input
+    ; Returns:
+    ; a0 = 0, if no key was pressed, otherwise the ASCII value of key pressed
 
+    call saveRegisters
+    loadn r3, #1000 ; Base delay, implies a microsecond at 1 MHz
+    loadn r4, #255  ; Default value returned by inchar when no key press is detected
+    store a0, r0
+
+    delay_A:
+        mov r5, r1
+        delay_B:
+            inchar r6
+            cmp r4, r6
+            jeq delayContinue
+            store a0, r6
+            cmp r2, r6
+            jeq delayEnd
+    delayContinue:
+        dec r5
+        jnz delay_B
+        dec r3
+        jnz delay_A
+    delayEnd:
+    call restoreRegisters
+    rts
+
+
+shiftLane:
+    ; Fills the lane buffer with the shifted contents of a lane
+    ; Arguments:
+    ; a1 = lane pointer
+    ; a2 = map pointer
+    ; a3 = offset
+    ; a4 = direction
+    ; Returns: Nothing
+
+    call saveRegisters
+    loadi r1, r1                 ; y
+    loadn r5, #lane_buffer
+    load r6, WIDTH
+    mov r7, r0
+    loadn r0, #2                 ; I broke my own rule
+
+    shiftRow:
+        cmp r4, r0
+        jeq shiftLeft
+            sub r3, r6, r3
+        shiftLeft:
+            store a1, r1
+
+        shiftColumn:
+            store a2, r3
+            call screenOffset
+            load r1, a0
+            add r1, r2, r1       ; memory position where to draw character from
+            loadi r1, r1         ; load character
+            storei r5, r1        ; save to lane buffer
+            inc r3
+            mod r3, r3, r6       ; Increment prev x
+            inc r5               ; Increment lane buffer pointer
+            inc r7
+            mod r7, r7, r6       ; Increment x
+            jnz shiftColumn
+
+        load r3, a3              ; restore offset
+        inc r1                   ; increase row
+        dec r0
+        jnz shiftRow
+
+    call restoreRegisters
+    rts
+
+updateLane:
+    ; Updates a lane' position parameter, moving an obstacle across the screen and updating the map where it's printing information is stored accordingly
+    ; Arguments:
+    ; a1 = lane pointer
+    ; a2 = map pointer
+    ; Returns: Nothing
+
+    call saveRegisters
+    loadn r3, #1   ; x position offset
+    add r3, r1, r3 ; x position memory address
+    loadi r4, r3   ; load x position value
+
+    loadn r5, #4   ; speed offset
+    add r5, r1, r5 ; speed m.a.
+    loadi r5, r5   ; speed
+
+    loadn r6, #6   ; direction offset
+    add r6, r1, r6 ; direction m.a.
+    loadi r6, r6   ; direction
+    cmp r6, r0
+
+    add r5, r4, r5
+    storei r3, r5  ; update position
+    loadn r6, #10
+    div r4, r4, r6
+    div r5, r5, r6
+    sub r1, r5, r4 ; position offset in screen units
+    cmp r4, r5
+    jeq ulEnd
+
+    store a3, r4
+    store a4, r6
+    call shiftLane
+
+    loadi r1, r1
+    load r3, WIDTH
+    mul r1, r1, r3
+    store a2, r1
+    loadn r1, #lane_buffer
+    store a1, r1
+    store a3, r2
+    load r1, lane_buffer_size
+    store a4, r1
+    call printVector ; Draw updated lane
+
+    ulEnd:
+        call restoreRegisters
+        rts
 
 titleScreen:
     ; Prints the title screen, displaying game instructions.
@@ -1456,9 +1720,11 @@ gameScreen:
     call drawBackground
     ; TODO: Create and call function drawLanes using the drawCharmap as an auxiliary function
 
+    breakp
+
     load r4, lives
     gameLoop:
-        call drawLanes
+        ; call drawLanes
         ; TODO: precisa por a partes das lanes, movimento do sapo implementado
         ; TODO: Augusto and Felipe, insert calls to game functions here
 
@@ -1984,26 +2250,6 @@ fn_deleteEnemies:
     call restoreRegisters
     rts
 
-
-initStats:
-    ; Sets up the initial values of this game's status
-    ; Arguments: None
-    ; Returns: Nothing
-
-    call saveRegisters
-    store level, r0
-    store score, r0
-    store saved, r0
-    ; store elapsed, r0
-    loadn r1, #7
-    store lives, r1
-    loadn r1, #1000
-    store oneUp, r1
-    call restoreRegisters
-    rts
-
-
-
 fn_subLives:
     ;Removes one live
     ;Returns 0 if there are still lives
@@ -2054,12 +2300,12 @@ fn_subLives:
     inc r2
 
 main:
-    loadn r0, #0 ; Set r0 to 0, this register should hold this value always
     load r1, hiscore
     loadn r2, #background
     loadn r3, #foreground
     mainLoop:
 
+        breakp
         store a1, r1
         store a2, r2
         call titleScreen
