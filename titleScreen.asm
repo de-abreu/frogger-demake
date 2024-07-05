@@ -589,6 +589,24 @@ initMap:
     call restoreRegisters
     rts
 
+wipeScreen:
+    ; Clears the screen.
+    ; Arguments: None
+    ; Returns: Nothing
+
+    call saveRegisters
+    load r1, WIDTH
+    load r2, HEIGHT
+    mul r1, r1, r2 ; Total length of the map
+    wipeLoop:
+        dec r1
+        outchar r0, r1
+        cmp r0, r1
+        jeq wipeEnd
+        jmp wipeLoop
+    wipeEnd:
+        call restoreRegisters
+        rts
 
 initTitleScreen:
     ; Prints the background of the title screen.
@@ -598,6 +616,7 @@ initTitleScreen:
     call saveRegisters
     call initMap
     store a3, r1
+    store a5, r0
 
     ; Print Highscore indicator
     loadn r1, #hiscoreLabel
@@ -1247,7 +1266,7 @@ updateScore:
 
     load r1, score
     store a1, r1
-    loadn r1, #39  
+    loadn r1, #39
     store a2, r1
     loadn r1 ,#background
     store a3, r1
@@ -1257,7 +1276,7 @@ updateScore:
 
     call restoreRegisters
     rts
-    
+
 
 
 updateHiscoreHUD:
@@ -1564,7 +1583,7 @@ gameScreen:
         call fn_checkDeath
         load r7, a0
         cmp r7, r0
-        jeq case_Dead    
+        jeq case_Dead
 
         ;Draws
         ;loadn r7, #frog_charmap
@@ -2144,4 +2163,5 @@ main:
         store a3, r3
         call gameScreen
         load r1, a0
+        call wipeScreen
         jmp mainLoop
