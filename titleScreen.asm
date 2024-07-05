@@ -1809,7 +1809,7 @@ fn_eraseFrog:
     loadn r4, #39
     add r1, r1, r4
     add r2, r2, r4
-    loadi r3, r1
+    loadi r3, r2
     outchar r3, r1 ;Bottom left
     inc r1
     inc r2
