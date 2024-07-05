@@ -538,7 +538,16 @@ initMap:
     ; a1 = pointer to the map
     ; Returns: Nothing
 
+    
     call saveRegisters
+    loadn r2, #1200
+    zeroLoop:
+        storei r1, r0
+        inc r1
+        dec r2
+        cmp r2, r0
+        jne zeroLoop    
+    
     store a3, r1
     store a1, r0
     store a2, r0
@@ -1549,7 +1558,7 @@ gameScreen:
         call fn_checkWin
         load r7, a0
         cmp r7, r0
-        jne case_Reached
+        jeq case_Reached
 
         ;TODO: Mover inimigos aqui
 
@@ -1582,6 +1591,11 @@ gameScreen:
             load r7, saved
             inc r7
             store saved, r7
+
+            call fn_eraseFrog
+
+            loadn r7, #1060
+            store frog_pos, r7
 
             store a1, r2
             call drawHUD
@@ -1644,9 +1658,10 @@ fn_checkBorders:
     mod r4, r1, r3 ;Cehcks if is the last column
     cmp r4, r5
     jeq case_invalidMove
-    loadn r5, #1
+    loadn r5, #0
     cmp r4, r5   ;First column
     jeq case_invalidMove
+    loadn r5, #160
     case_validMove:
     loadn r1, #1
     store a0, r1
