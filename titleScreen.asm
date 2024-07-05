@@ -1643,7 +1643,6 @@ fn_moveFrog:
         loadn r1, #1
         loadn r3, #0
         store frog_dir, r3
-        store a0, r1
         call restoreRegisters
         rts
     case_A:
@@ -1659,7 +1658,6 @@ fn_moveFrog:
         loadn r1, #1
         loadn r3, #95
         store frog_dir, r3
-        store a0, r1
         call restoreRegisters
         rts
     case_S:
@@ -1676,7 +1674,6 @@ fn_moveFrog:
         loadn r1, #1
         loadn r3, #111
         store frog_dir, r3
-        store a0, r1
         call restoreRegisters
         rts
     case_D:
@@ -1692,12 +1689,10 @@ fn_moveFrog:
         loadn r1, #1
         loadn r3, #103
         store frog_dir, r3
-        store a0, r1
         call restoreRegisters
         rts
     case_noMove:
         loadn r1, #1
-        store a0, r1
         call restoreRegisters
         rts
 
@@ -1709,6 +1704,7 @@ fn_eraseFrog:
     call saveRegisters
     load r1, frog_pos
     loadn r2, #background
+    add r2, r2, r1
     loadi r3, r2
     outchar r3, r1 ;Top left
     inc r1
