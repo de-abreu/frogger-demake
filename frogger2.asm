@@ -261,17 +261,15 @@ title : var #200
   static title + #198 , #3138
   static title + #199 , #3138
 
-pond : var #10
+pond : var #8
     static pond + #0, #2626
     static pond + #1, #2626
     static pond + #2, #3138
     static pond + #3, #3138
     static pond + #4, #3138
     static pond + #5, #3138
-    static pond + #6, #3138
-    static pond + #7, #3138
-    static pond + #8, #2626
-    static pond + #9, #2626
+    static pond + #6, #2626
+    static pond + #7, #2626
 pond_length : var #1
     static pond_length, #8
 
@@ -588,7 +586,6 @@ printChar:
         store a0, r0
 
     ppEnd:
-        breakp
         call restoreRegisters
         rts
 
@@ -857,7 +854,7 @@ drawBackground:
     loadn r2, #10        ; Vertical length of the river and the road
     load r3, WIDTH
 
-                         ; Draw ponds
+    ; Draw ponds
     loadn r4, #pond
     store a1, r4
     load r4, pond_length
@@ -883,8 +880,7 @@ drawBackground:
     store a2, r5
     store a4, r2
     call printChar
-    load r6, a0
-    add r5, r5, r6
+    add r5, r5, r2
 
     ; Draw grass
     load r6, grass
@@ -893,16 +889,14 @@ drawBackground:
     store a2, r5
     store a4, r1
     call printChar
-    load r6, a0
-    add r5, r5, r6
+    add r5, r5, r1
 
     ; Draw asphalt
     store a1, r0
     store a2, r5
     store a4, r2
     call printChar
-    load r6, a0
-    add r3, r3, r6
+    add r5, r5, r2
 
     ; Draw sidewalk
     load r6, gray
@@ -1159,6 +1153,8 @@ gameScreen:
     call initStats
     store a1, r2
     call drawHUD
+    breakp
+    store a1, r2
     call drawBackground
 
     gameLoop:
@@ -1172,7 +1168,7 @@ gameScreen:
 main:
     load r1, hiscore
     loadn r2, #background
-    loadn r2, #foreground
+    loadn r3, #foreground
     mainLoop:
 
         store a1, r1
