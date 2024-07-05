@@ -19,6 +19,9 @@ WIDTH : var #1
 HEIGHT : var #1
     static HEIGHT, #30
 
+LANES : var #1
+    static LANES, #10
+
 FILL : var #1
     static FILL, #'B'
 
@@ -26,7 +29,7 @@ ENTER: var #1
     static ENTER, #13
 
 FRAMERATE : var #1
-    static FRAMERATE, #300    ; Multiplier for the framerate interval
+    static FRAMERATE, #150    ; Multiplier for the framerate interval
 
 ; Some color offsets. Remember, white = 0
 gray   : var #1
@@ -261,6 +264,18 @@ title : var #200
   static title + #198 , #3138
   static title + #199 , #3138
 
+pond : var #8
+    static pond + #0, #2626
+    static pond + #1, #2626
+    static pond + #2, #3138
+    static pond + #3, #3138
+    static pond + #4, #3138
+    static pond + #5, #3138
+    static pond + #6, #2626
+    static pond + #7, #2626
+pond_length : var #1
+    static pond_length, #8
+
 ; How to play
 how_to_play0  : string "HOW TO PLAY"
 how_to_play1  : string "W - "
@@ -304,115 +319,143 @@ oneUpLabel : string "1-UP "
 livesLabel : string "LIVES "
 timeLabel  : string " TIME"
 
-; Lanes of obstacles in the frog's path, comprised of the words:
+; Lanes of obstacles in the frog's path, comprised of 9 words:
 ; 0: y position of the top left corner of the obstacle charmap
 ; 1: x position of the top left corner of the obstacle charmap, multiplied by 10
 ; 2: quantity of copies of the object to be displayed
 ; 3: spacing between such copies
 ; 4: speed at which the object traverses the screen
-; 5: pointer to the obstacle charmap
-; 6: direction of movement. 0 for left, otherwise right
+; 5: direction the object is moving towards: 0 for left, otherwise right
+; 6: pointer to the obstacle charmap
+; 7: counter for when to move
+; 8: how much the counter advances
 
 ; Road
-lane_0 : var #7
+lane_0 : var #9
     static lane_0 + #0, #24
-    static lane_0 + #1, #160
+    static lane_0 + #1, #37
     static lane_0 + #2, #3
-    static lane_0 + #3, #16
-    static lane_0 + #4, #5
-    static lane_0 + #5, #yellow_charmap
-    static lane_0 + #0, #0
-lane_1 : var #7
+    static lane_0 + #3, #10
+    static lane_0 + #4, #1
+    static lane_0 + #5, #0
+    static lane_0 + #6, #yellow_charmap
+    static lane_0 + #7, #0
+    static lane_0 + #8, #2
+lane_1 : var #9
     static lane_1 + #0, #22
-    static lane_1 + #1, #220
+    static lane_1 + #1, #0
     static lane_1 + #2, #3
     static lane_1 + #3, #16
-    static lane_1 + #4, #3
-    static lane_1 + #5, #tractor_charmap
-    static lane_0 + #6, #1
-lane_2 : var #7
+    static lane_1 + #4, #1
+    static lane_1 + #5, #1
+    static lane_1 + #6, #tractor_charmap
+    static lane_1 + #7, #0
+    static lane_1 + #8, #2
+lane_2 : var #9
     static lane_2 + #0, #20
-    static lane_2 + #1, #150
+    static lane_2 + #1, #37
     static lane_2 + #2, #3
     static lane_2 + #3, #16
-    static lane_2 + #4, #3
-    static lane_2 + #5, #pink_charmap
-    static lane_2 + #6, #0
-lane_3 : var #7
+    static lane_2 + #4, #1
+    static lane_2 + #5, #0
+    static lane_2 + #6, #pink_charmap
+    static lane_2 + #7, #0
+    static lane_2 + #8, #4
+lane_3 : var #9
     static lane_3 + #0, #18
     static lane_3 + #1, #0
     static lane_3 + #2, #1
     static lane_3 + #3, #40
-    static lane_3 + #4, #20
-    static lane_3 + #5, #red_charmap
-    static lane_3 + #6, #1
-lane_4 : var #7
+    static lane_3 + #4, #2
+    static lane_3 + #5, #1
+    static lane_3 + #6, #red_charmap
+    static lane_3 + #7, #0
+    static lane_3 + #8, #4
+lane_4 : var #9
     static lane_4 + #0, #16
-    static lane_4 + #1, #2
-    static lane_4 + #2, #18
-    static lane_4 + #3, #3
-    static lane_4 + #4, #0
-    static lane_4 + #5, #truck_charmap
-    static lane_4 + #6, #0
+    static lane_4 + #1, #37
+    static lane_4 + #2, #2
+    static lane_4 + #3, #18
+    static lane_4 + #4, #2
+    static lane_4 + #5, #0
+    static lane_4 + #6, #truck_charmap
+    static lane_4 + #7, #0
+    static lane_4 + #8, #2
 
 ; River
-lane_5 : var #7
+lane_5 : var #9
     static lane_5 + #0, #12
-    static lane_5 + #1, #50
+    static lane_5 + #1, #38
     static lane_5 + #2, #5
-    static lane_5 + #3, #8
-    static lane_5 + #4, #100
-    static lane_5 + #5, #turtle_charmap
-    static lane_5 + #6, #0
-lane_6 : var #7
+    static lane_5 + #3, #7
+    static lane_5 + #4, #1
+    static lane_5 + #5, #0
+    static lane_5 + #6, #turtle_charmap
+    static lane_5 + #7, #0
+    static lane_5 + #8, #2
+lane_6 : var #9
     static lane_6 + #0, #10
-    static lane_6 + #1, #6
-    static lane_6 + #2, #3
-    static lane_6 + #3, #15
-    static lane_6 + #4, #50
-    static lane_6 + #5, #log_charmap
-    static lane_6 + #6, #1
-lane_7 : var #7
+    static lane_6 + #1, #0
+    static lane_6 + #2, #8
+    static lane_6 + #3, #1
+    static lane_6 + #4, #2
+    static lane_6 + #5, #1
+    static lane_6 + #6, #log_charmap
+    static lane_6 + #7, #0
+    static lane_6 + #7, #0
+    static lane_6 + #8, #2
+lane_7 : var #9
     static lane_7 + #0, #8
     static lane_7 + #1, #16
-    static lane_7 + #2, #2
-    static lane_7 + #3, #22
-    static lane_7 + #4, #10
-    static lane_7 + #5, #log_charmap
-    static lane_7 + #6, #1
-lane_8 : var #7
+    static lane_7 + #2, #10
+    static lane_7 + #3, #1
+    static lane_7 + #4, #1
+    static lane_7 + #5, #0
+    static lane_7 + #6, #log_charmap
+    static lane_7 + #7, #0
+    static lane_7 + #8, #2
+
+lane_8 : var #9
     static lane_8 + #0, #6
     static lane_8 + #1, #200
     static lane_8 + #2, #6
-    static lane_8 + #3, #8
-    static lane_8 + #4, #10
-    static lane_8 + #5, #turtle_charmap
-    static lane_8 + #6, #0
-lane_9 : var #7
+    static lane_8 + #3, #6
+    static lane_8 + #4, #1
+    static lane_8 + #5, #0
+    static lane_8 + #6, #turtle_charmap
+    static lane_8 + #7, #0
+    static lane_8 + #8, #2
+lane_9 : var #9
     static lane_9 + #0, #4
     static lane_9 + #1, #80
     static lane_9 + #2, #4
-    static lane_9 + #3, #20
-    static lane_9 + #4, #20
-    static lane_9 + #5, #log_charmap
-    static lane_9 + #6, #1
-lanes : var #3
-    static lanes + #0, #lane_0 ; Initial lane
-    static lanes + #1, #7      ; Offset between the lanes' memory addresses
-    static lanes + #2, #10     ; Quantity of lanes
-
-lane_buffer : var #80          ; Temporary storage space to update the mapping
-                               ; of a given lane's content
-lane_buffer_size : var #1
-    static lane_buffer_size, #80
+    static lane_9 + #3, #1
+    static lane_9 + #4, #2
+    static lane_9 + #5, #1
+    static lane_9 + #6, #log_charmap
+    static lane_9 + #7, #0
+    static lane_9 + #8, #2
+lanes : var #10
+    static lanes + #0, #lane_0
+    static lanes + #1, #lane_1
+    static lanes + #2, #lane_2
+    static lanes + #3, #lane_3
+    static lanes + #4, #lane_4
+    static lanes + #5, #lane_5
+    static lanes + #6, #lane_6
+    static lanes + #7, #lane_7
+    static lanes + #8, #lane_8
+    static lanes + #9, #lane_9
 
 ; Data relating to the frog
 frog_pos : var #1
-
+    static frog_pos, #1060
+frog_dir : var #1
+    static frog_dir, #0
 ; Charmaps
 
 frog_charmap : var #2
-    static frog_charmap     + #0 , #769 ; Initial position
+    static frog_charmap     + #0 , #773 ; Initial position
     static frog_charmap     + #1 , #4   ; Charmap length
 
 roadkill_charmap : var #2
@@ -445,7 +488,7 @@ red_charmap : var #2
 
 truck_charmap : var #2
     static truck_charmap    + #0 , #2081
-    static truck_charmap    + #1 , #8
+    static truck_charmap    + #1 , #12
 
 turtle_charmap : var #2
     static turtle_charmap   + #0 , #3192
@@ -454,8 +497,10 @@ turtle_charmap : var #2
 heart_charmap: var #1
     static heart_charmap, #2350
 
-log_charmap : var #2
-    static log_charmap, #322
+log_charmap : var #6
+static log_charmap   + #0 , #322
+static log_charmap   + #1 , #2
+
 
 gameOverLabel: string " GAME OVER "
 
@@ -481,35 +526,6 @@ screenOffset:
     store a0, r1
     call restoreRegisters
     rts
-
-
-modularSubtract:
-    ; Given operands a, b and m, where m > a and m > b;
-    ; if a < b return m - (b - a), otherwise a - b
-    ; Arguments:
-    ; a1 = a
-    ; a2 = b
-    ; a3 = m
-    ; Returns:
-    ; a0 = result of modularSubtract operation
-
-    call saveRegisters
-
-    cmp r1, r2
-    jle caseLower
-
-    ; Case greater or equal
-    sub r1, r1, r2
-    jmp msEnd
-
-    caseLower:
-        sub r1, r2, r1
-        sub r1, r3, r1
-    msEnd:
-        store a0, r1
-        call restoreRegisters
-        rts
-
 
 ; NOTE: Functions to initialize and free memory or game objects
 
@@ -537,7 +553,6 @@ saveRegisters:
     loadn r0, #0
     rts     ; Pop and return.
 
-
 restoreRegisters:
     ; Restore registers' context from stack
     ; Arguments: None
@@ -555,45 +570,43 @@ restoreRegisters:
     loadn r0, #0
     rts
 
-
-initStats:
-    ; Sets up the initial values of this game's status
-    ; Arguments: None
-    ; Returns: Nothing
-
-    call saveRegisters
-    store level, r0
-    store score, r0
-    store saved, r0
-    ; store elapsed, r0
-    loadn r1, #7
-    store lives, r1
-    loadn r1, #1000
-    store oneUp, r1
-    call restoreRegisters
-    rts
-
-
 initMap:
-    call saveRegisters
     ; Fills a map with zeroes.
     ; Arguments:
     ; a1 = pointer to the map
     ; Returns: Nothing
 
     call saveRegisters
-    store a1, r0
-    store a2, r0
-    store a3, r1
-    load r1, WIDTH
-    load r2, HEIGHT
-    mul r1, r1, r2
-    store a4, r1
-    store a5, r0
-    call printChar
+    load r2, WIDTH
+    load r3, HEIGHT
+    mul r2, r2, r3 ; Total length of the map
+    add r2, r1, r2 ; Memory address to stop setting to zero
+    imLoop:
+        storei r1, r0
+        inc r1
+        cmp r1, r2
+        jne imLoop
     call restoreRegisters
     rts
 
+wipeScreen:
+    ; Clears the screen.
+    ; Arguments: None
+    ; Returns: Nothing
+
+    call saveRegisters
+    load r1, WIDTH
+    load r2, HEIGHT
+    mul r1, r1, r2 ; Total length of the map
+    wipeLoop:
+        dec r1
+        outchar r0, r1
+        cmp r0, r1
+        jeq wipeEnd
+        jmp wipeLoop
+    wipeEnd:
+        call restoreRegisters
+        rts
 
 initTitleScreen:
     ; Prints the background of the title screen.
@@ -602,6 +615,8 @@ initTitleScreen:
 
     call saveRegisters
     call initMap
+    store a3, r1
+    store a5, r0
 
     ; Print Highscore indicator
     loadn r1, #hiscoreLabel
@@ -693,6 +708,22 @@ initTitleScreen:
     call restoreRegisters
     rts
 
+initStats:
+    ; Sets up the initial values of this game's status
+    ; Arguments: None
+    ; Returns: Nothing
+
+    call saveRegisters
+    store level, r0
+    store score, r0
+    store saved, r0
+    ; store elapsed, r0
+    loadn r1, #7
+    store lives, r1
+    loadn r1, #1000
+    store oneUp, r1
+    call restoreRegisters
+    rts
 
 ; NOTE: Functions for printing on screen
 
@@ -785,7 +816,7 @@ printInt:
 
 
 printVector:
-    ; Prints the contents of a vector as characters on the screen. If character in the vector is the same found in the screen's map, no printing occurs
+    ; Prints the contents of a vector as characters on the screen.
     ; Arguments:
     ; a1 = Pointer to the start of the vector
     ; a2 = Index of the position at the screen where to start printing
@@ -801,12 +832,7 @@ printVector:
         cmp r3, r4
         jeq pvEnd
         loadi r5, r1
-        loadi r6, r3
-        cmp r5, r6
-        jeq pvContinue
         outchar r5, r2
-        storei r3, r5
-    pvContinue:
         inc r1
         inc r2
         inc r3
@@ -1005,119 +1031,20 @@ printInstructions:
 
 ; NOTE: Drawing functions
 
-drawLane:
-    ; Function to draw a vehicles into a map
-    ; a1 = pointer to lane
-    ; a2 = map pointer
-    ; a3 = consecutive copies.
-    ;      1 indicates that each batch, separated by a spacing, contains a single obstacle.
-
-    call saveRegisters
-    store a4, r2       ; map pointer
-
-    loadn r2, #6
-    add r2, r1, r2
-    store a1, r2       ; charmap to be printed
-
-    loadn r2, #2
-    add r2, r1, r2
-    loadi r2, r2       ; batches of copies
-
-    loadn r4, #3
-    add r4, r1, r4
-    loadi r4, r4       ; spacing between batches of copies
-
-    loadn r5, #1
-    add r5, r1, r5
-    loadi r5, r5       ; original x position
-
-    batchLoop:
-        mov r1, r3     ; copy counter
-        mov r6, r2
-        dec r6         ; batch spacing multiplier
-        mul r6, r4, r6 ; multiply offset
-        add r6, r5, r6 ; add to original's x position, this is the batches' x
-        consecutiveLoop:
-            store a3, r6
-            call drawCharmap
-            load r7, a0
-            add r6, r6, r7
-            dec r1
-            jnz consecutiveLoop
-        dec r2
-        jnz batchLoop
-
-    call restoreRegisters
-    rts
-
-drawLog:
-    ; Function to draw logs on the river
-    ; a1 = pointer to lane containing the description of logs
-    ; a2 = map pointer
-    ; a3 = log length
-
-    call saveRegisters
-    store a3, r2
-
-    loadn r2, #2
-    add r2, r1, r2
-    loadi r2, r2 ; quantities of logs
-
-    loadn r2, #2
-    add r2, r1, r2
-    loadi r2, r2 ; quantities of logs
-
-
-
-
-
-    call restoreRegisters
-    rts
-
-drawLanes:
-    ; Function to draw the contents of a vector of lanes into a map
-    ; a1 = pointer to vector of lanes
-    ; a2 = map pointer
-
-    mov r2, r1
-    inc r2
-    loadi r1, r1 ; initial lane pointer
-    loadi r2, r2 ; sizeof lane
-    loadn r3, #5 ; number of lanes on the road
-    store a3, r0
-
-    drawRoad:
-        store a1, r1
-        call drawLane
-        add r1, r2
-        dec r3
-        jnz drawRoad
-
-
-    ; Draw pair of turtles
-    store a1, r1
-    loadn r3, #2
-    store a3, r3
-    call drawLane
-    add r1, r2
-
-    ; draw a short log
-    store a1, r1
-    loadn r3, #8
-    call drawLog
-    add r1, r2
-
 printEnemy:
     ; a1 = charmap
     ; a2 = print position y
     ; a3 = print position x
     call saveRegisters
-    loadn r5, #0
+    loadn r5, #1
+    add r5, r5, r1
+    loadi r5, r5
+    shiftr0 r5, #1
+    push r5
+    loadi r1, r1
     push r3
     printEnemyLoop1:
-      add r6, r1, r5
-      loadi r6, r6
-      cmp r6, r0
+      cmp r5, r0
       jeq printEnemypt2
       store a1, r2
       store a2, r3
@@ -1125,24 +1052,23 @@ printEnemy:
       load r4, a0
       loadn r7, #foreground
       add r7, r7, r4
-      outchar r6, r4
-      storei r7, r6
+      outchar r1, r4
+      storei r7, r1
       inc r3
       loadn r7, #40
       cmp r3, r7
       jne printEnNormPos1
       loadn r3, #0
       printEnNormPos1:
-      inc r5
+      inc r1
+      dec r5
       jmp printEnemyLoop1
     printEnemypt2:
       inc r2
       pop r3
-      inc r5
+      pop r5
       printEnemyLoop2:
-        add r6, r1, r5
-        loadi r6,r6
-        cmp r6, r0
+        cmp r5, r0
         jeq printEnemyEnd
         store a1, r2
         store a2, r3
@@ -1150,15 +1076,16 @@ printEnemy:
         load r4, a0
         loadn r7, #foreground
         add r7, r7, r4
-        outchar r6, r4
-        storei r7, r6
+        outchar r1, r4
+        storei r7, r1
         inc r3
         loadn r7, #40
         cmp r3, r7
         jne printEnNormPos2
         loadn r3, #0
         printEnNormPos2:
-        inc r5
+        inc r1
+        dec r5
         jmp printEnemyLoop2
     printEnemyEnd:
     call restoreRegisters
@@ -1170,12 +1097,14 @@ eraseEnemy:
     ; a2 = print position y
     ; a3 = print position x
     call saveRegisters
-    loadn r5, #0
+    loadn r5, #1
+    add r5, r1, r5
+    loadi r5, r5
+    shiftr0 r5, #1
+    push r5
     push r3
     eraseEnemyLoop1:
-      add r6, r1, r5
-      loadi r6, r6
-      cmp r6, r0
+      cmp r5, r0
       jeq eraseEnemypt2
       store a1, r2
       store a2, r3
@@ -1187,23 +1116,21 @@ eraseEnemy:
       add r6, r6, r4
       loadi r6, r6
       outchar r6, r4
-      storei r7, r6
+      storei r7, r0
       inc r3
       loadn r7, #40
       cmp r3, r7
       jne eraseEnNormPos1
       loadn r3, #0
       eraseEnNormPos1:
-      inc r5
+      dec r5
       jmp eraseEnemyLoop1
     eraseEnemypt2:
       inc r2
       pop r3
-      inc r5
+      pop r5
       eraseEnemyLoop2:
-        add r6, r1, r5
-        loadi r6,r6
-        cmp r6, r0
+        cmp r5, r0
         jeq eraseEnemyEnd
         store a1, r2
         store a2, r3
@@ -1222,63 +1149,12 @@ eraseEnemy:
         jne eraseEnNormPos2
         loadn r3, #0
         eraseEnNormPos2:
-        inc r5
+        dec r5
         jmp eraseEnemyLoop2
     eraseEnemyEnd:
     call restoreRegisters
     rts
 
-drawCharmap:
-    ; Function to draw game object's charmaps. Wraps around the edges of the screen.
-    ; Arguments:
-    ; a1 = Pointer to charmap data structure
-    ; a2 = Vertical position where to print the top left corner of the charmap
-    ; a3 = Horizontal position where to print the top left corner of the charmap
-    ; a4 = Pointer to map where to store the charmap,
-    ;      If set to 0 the charmap won't be saved to a map
-    ; Returns:
-    ; a0 = the horizontal length of the printed charmap
-
-    call saveRegisters
-    mov r5, r1
-    inc r5         ; Pointer to charmap's length variable
-    loadi r1, r1   ; Charmap's initial character
-    loadi r5, r5   ; Charmap's total length
-    loadn r6, #2   ; Row counter
-    div r7, r5, r6 ; Second row length
-    store a3, r7   ; Store to memory
-    sub r5, r5, r7 ; First (current) row length
-    store a0, r5
-
-    rowLoop:
-        store a1, r2
-        mov r2, r3
-        columnLoop:
-            dec r5
-            jz columnEnd
-            store a2, r3
-            call screenOffset
-            load r7, a0
-            outchar r1, r7
-            cmp r3, r0
-            jeq columnContinue
-            storei r4, r1
-            inc r4
-        columnContinue:
-            inc r1
-            inc r3
-            jmp columnLoop
-        columnEnd:
-            dec r6
-            jz rowEnd
-            mov r3, r2
-            load r2, a1
-            inc r2
-            load r5, a3
-            jmp rowLoop
-    rowEnd:
-        call restoreRegisters
-        rts
 
 drawHUD:
     ; Function to draw HUD elements
@@ -1352,6 +1228,94 @@ drawHUD:
     call restoreRegisters
     rts
 
+updateLives:
+    ;updates the lives on the HUD
+    ;No args, no return
+
+    ;Clears
+    call saveRegisters
+    store a1, r0
+    loadn r1, #1166
+    store a2, r1
+    loadn r1, #background
+    store a3, r1
+    loadn r1, #7
+    store a4, r1
+    call printChar
+
+    ;Prints new lives
+    load r1, heart_charmap
+    store a1, r1
+    loadn r1, #1166
+    store a2, r1
+    loadn r1, #background
+    store a3, r1
+    load r1, lives
+    store a4, r1
+    call printChar
+
+
+
+    call restoreRegisters
+    rts
+
+updateScore:
+    ;Updates score on the HUD
+    ;No args, no return
+    call saveRegisters
+
+    load r1, score
+    store a1, r1
+    loadn r1, #39
+    store a2, r1
+    loadn r1 ,#background
+    store a3, r1
+    load r1, red
+    store a4, r1
+    call printInt
+
+    call restoreRegisters
+    rts
+
+
+
+updateHiscoreHUD:
+    ;Updates the hiscore on the HUD
+    ;No args, no return
+    call saveRegisters
+
+    load r1, hiscore
+    store a1, r1
+    loadn r1, #25
+    store a2, r1
+    loadn r1 ,#background
+    store a3, r1
+    load r1, red
+    store a4, r1
+    call printInt
+    call restoreRegisters
+    rts
+
+
+
+updateHiscoreValue:
+    ;Updates the hiscore value if the current score is greater
+    ;No args; no return
+    call saveRegisters
+
+    load r1, hiscore
+    load r2, score
+    cmp r2, r1
+    jgr newHi
+    call restoreRegisters
+    rts
+
+    newHi:
+        store hiscore, r2
+        call updateHiscoreHUD
+        call restoreRegisters
+        rts
+
 drawBackground:
     ; Draw the game's background
     ; Arguments:
@@ -1359,99 +1323,65 @@ drawBackground:
 
     call saveRegisters
     store a3, r1
-    store a5, r0
-    load r1, FILL     ; Character to print
-    loadn r2, #2      ; Vertical length of the ponds, river margin and the sidewalk
-    store a1, r2
-    store a2, r0
-    call screenOffset
-    load r3, a0       ; Cursor position on the screen
-    breakp
+    loadn r1, #2         ; Vertical length of the margin and sidewalk
+    loadn r2, #10        ; Vertical length of the river and the road
+    load r3, WIDTH
 
     ; Draw ponds
-    load r4, grass
-    add r4, r1, r4
+    loadn r4, #pond
     store a1, r4
-    store a2, r3
-    store a4, r2
-    call printChar
-    load r4, a0
-    add r3, r3, r4
-
-    loadn r4, #4
+    load r4, pond_length
     store a4, r4
-    loadn r4, #19
-    pondLoop:
-        mod r5, r4, r2
-        jz selectGrass
-            load r5, blue
-            jmp colorSelected
-        selectGrass:
-            load r5, grass
-        colorSelected:
-            add r5, r1, r5
-            store a1, r5
-            store a2, r3
-            call printChar
-            load r5, a0
-            add r3, r3, r5
+    mul r5, r1, r3       ; initial index
+    mov r6, r2           ; Loop counter
 
-            dec r4
-            jz pondLoop
+    drawPonds:
+        store a2, r5
+        call printVector
+        add r5, r4, r5
+        dec r6
+        jnz drawPonds
 
-    load r4, grass
-    add r4, r1, r4
-    store a1, r4
-    store a2, r3
-    store a4, r2
-    call printChar
-    load r4, a0
-    add r3, r3, r4
+    mul r1, r1, r3
+    mul r2, r2, r3
+    load r4, FILL
 
-    load r4, WIDTH
-    loadn r5, #10 ; Vertical length of the river and the road
     ; Draw river
     load r6, blue
-    add r6, r1, r6
+    add r6, r4, r6
     store a1, r6
-    store a2, r3
-    mul r6, r4, r5
-    store a4, r6
+    store a2, r5
+    store a4, r2
     call printChar
-    load r6, a0
-    add r3, r3, r6
+    add r5, r5, r2
 
     ; Draw grass
     load r6, grass
-    add r6, r1, r6
+    add r6, r4, r6
     store a1, r6
     store a2, r5
-    mul r6, r2, r4
-    store a4, r6
+    store a4, r1
     call printChar
-    load r6, a0
-    add r3, r3, r6
+    add r5, r5, r1
 
     ; Draw asphalt
     store a1, r0
-    store a2, r3
-    mul r5, r4, r5
-    store a4, r5
+    store a2, r5
+    store a4, r2
     call printChar
-    load r5, a0
-    add r3, r3, r5
+    add r5, r5, r2
 
     ; Draw sidewalk
-    load r5, gray
-    add r5, r1, r5
-    store a1, r5
-    store a2, r3
-    mul r2, r2, r4
-    store a4, r2
+    load r6, gray
+    add r6, r4, r6
+    store a1, r6
+    store a2, r5
+    store a4, r1
     call printChar
 
     call restoreRegisters
     rts
+
 
 drawGameOver:
     ; Draws a "Game Over" disclaimer that lingers for some time (unless interrupted) before returning the player to the Title Screen
@@ -1557,100 +1487,6 @@ takeInput:
     rts
 
 
-shiftLane:
-    ; Fills the lane buffer with the shifted contents of a lane
-    ; Arguments:
-    ; a1 = lane pointer
-    ; a2 = map pointer
-    ; a3 = offset
-    ; a4 = direction
-    ; Returns: Nothing
-
-    call saveRegisters
-    loadi r1, r1                 ; y
-    loadn r5, #lane_buffer
-    load r6, WIDTH
-    mov r7, r0
-    loadn r0, #2                 ; I broke my own rule
-
-    shiftRow:
-        cmp r4, r0
-        jeq shiftLeft
-            sub r3, r6, r3
-        shiftLeft:
-            store a1, r1
-
-        shiftColumn:
-            store a2, r3
-            call screenOffset
-            load r1, a0
-            add r1, r2, r1       ; memory position where to draw character from
-            loadi r1, r1         ; load character
-            storei r5, r1        ; save to lane buffer
-            inc r3
-            mod r3, r3, r6       ; Increment prev x
-            inc r5               ; Increment lane buffer pointer
-            inc r7
-            mod r7, r7, r6       ; Increment x
-            jnz shiftColumn
-
-        load r3, a3              ; restore offset
-        inc r1                   ; increase row
-        dec r0
-        jnz shiftRow
-
-    call restoreRegisters
-    rts
-
-updateLane:
-    ; Updates a lane' position parameter, moving an obstacle across the screen and updating the map where it's printing information is stored accordingly
-    ; Arguments:
-    ; a1 = lane pointer
-    ; a2 = map pointer
-    ; Returns: Nothing
-
-    call saveRegisters
-    loadn r3, #1   ; x position offset
-    add r3, r1, r3 ; x position memory address
-    loadi r4, r3   ; load x position value
-
-    loadn r5, #4   ; speed offset
-    add r5, r1, r5 ; speed m.a.
-    loadi r5, r5   ; speed
-
-    loadn r6, #6   ; direction offset
-    add r6, r1, r6 ; direction m.a.
-    loadi r6, r6   ; direction
-    cmp r6, r0
-
-    add r5, r4, r5
-    storei r3, r5  ; update position
-    loadn r6, #10
-    div r4, r4, r6
-    div r5, r5, r6
-    sub r1, r5, r4 ; position offset in screen units
-    cmp r4, r5
-    jeq ulEnd
-
-    store a3, r4
-    store a4, r6
-    call shiftLane
-
-    loadi r1, r1
-    load r3, WIDTH
-    mul r1, r1, r3
-    store a2, r1
-    loadn r1, #lane_buffer
-    store a1, r1
-    store a3, r2
-    load r1, lane_buffer_size
-    store a4, r1
-    call printVector ; Draw updated lane
-
-    ulEnd:
-        call restoreRegisters
-        rts
-
 titleScreen:
     ; Prints the title screen, displaying game instructions.
     ; Arguments:
@@ -1669,6 +1505,7 @@ titleScreen:
     load r1, red
     store a4, r1
     call printInt         ; Print Highscore
+    call updateHiscoreHUD
 
     mov r1, r0            ; variable to toggle between instructions to be displayed
     load r2, ENTER        ; variable to compare if ENTER was pressed
@@ -1679,11 +1516,11 @@ titleScreen:
         cmp r1, r0        ; Either print instructions for scoring or playing
         jeq selectPlay    ; Selection logic
         loadn r5, #how_to_score0
-        loadn r6, #2      ; Column offset
+        loadn r6, #2      ; Text box horizontal padding
         jmp instructionSelected
         selectPlay:
             loadn r5, #how_to_play0
-            loadn r6, #13 ; Column offset
+            loadn r6, #13 ; Text box horizontal padding
         instructionSelected:
             store a1, r5
             store a2, r4
@@ -1715,22 +1552,24 @@ gameScreen:
 
     call saveRegisters
     call initStats
+
     store a1, r2
     call drawHUD
-    call drawBackground
-    ; TODO: Create and call function drawLanes using the drawCharmap as an auxiliary function
 
-    breakp
+    store a1, r2
+    call drawBackground
+    
+    call updateHiscoreHUD
+    
 
     load r4, lives
     gameLoop:
-        ; call drawLanes
+        ;call drawLanes
         ; TODO: precisa por a partes das lanes, movimento do sapo implementado
         ; TODO: Augusto and Felipe, insert calls to game functions here
 
-
         ;Input
-        loadn r7, #200
+        load r7, FRAMERATE
         store a1 ,R7
         loadn r7, #1
         store a2, r7
@@ -1741,6 +1580,9 @@ gameScreen:
         store a1, r7
         call fn_moveFrog
 
+
+        call fn_moveEnemies
+
         ;Checks collision after frog move
         call fn_checkDeath
         load r7, a0
@@ -1748,13 +1590,22 @@ gameScreen:
         jeq case_Dead
 
         ;Draws
+        ;loadn r7, #frog_charmap
+        ;store a1, r7
+        ;load r6, frog_pos
+        ;loadn r5, #40
+        ;div r7, r6, r5
+        ;store a2, r7
+        ;mod r7, r6, r5
+        ;store a3, r7
+        ;store a4, r0
         call fn_drawFrog
 
         ;Checks victory
         call fn_checkWin
         load r7, a0
         cmp r7, r0
-        jne case_Reached
+        jeq case_Reached
 
         ;TODO: Mover inimigos aqui
 
@@ -1768,11 +1619,10 @@ gameScreen:
             cmp r7, r0
             jne gameOver
             store a1, r2
-        call drawHUD
+            call updateLives
             loadn r7, #1060
             store frog_pos, r7
-            call fn_drawFrog
-
+            ;call fn_drawFrog
             jmp gameLoop
 
 
@@ -1789,8 +1639,13 @@ gameScreen:
             inc r7
             store saved, r7
 
+            call fn_eraseFrog
+            call updateScore
+            loadn r7, #1060
+            store frog_pos, r7
+            call updateHiscoreValue
             store a1, r2
-            call drawHUD
+
 
             jmp gameLoop
 
@@ -1799,6 +1654,7 @@ gameScreen:
         store a1, r2
         call drawGameOver
         store a0, r1
+        call restoreRegisters
         rts
 
 fn_checkDeath:
@@ -1842,30 +1698,18 @@ fn_checkBorders:
     ;Args : a1 = new position
     ;Returns: a0 = 0 if not valid, 1 if valid
     call saveRegisters
-    load r2, frog_pos
     loadn r3, #1078 ; Compares to max position of the map
-    cmp r3, r2
+    cmp r3, r1
     jle case_invalidMove ;Out of map
     loadn r3, #40
-    loadn r5, #38
-    mod r4, r2, r3 ;Cehcks if is the last column
+    loadn r5, #39
+    mod r4, r1, r3 ;Cehcks if is the last column
     cmp r4, r5
     jeq case_invalidMove
-    loadn r5, #1
-    cmp r4, r5 ;First column
+    loadn r5, #0
+    cmp r4, r5   ;First column
     jeq case_invalidMove
-    ; div r4, r1, r3
-    ; div r5, r2, r3
-    ; cmp r4, r5 ;Checks if two positions arent on different lines (stepped over the edge)
-    ; jeq case_validMove
-    ; sub r4, r2, r1
-    ; loadn r5, #1
-    ; cmp r4, r5
-    ; jne case_validMove
-    ; sub r4, r1, r2
-    ; cmp r4, r5
-    ; jne case_validMove
-    ; jne case_invalidMove
+    loadn r5, #160
     case_validMove:
     loadn r1, #1
     store a0, r1
@@ -1879,20 +1723,22 @@ fn_checkBorders:
 
 
 fn_moveFrog:
-    ;receives the input from the user and tries to move the frog
-    ;Args : a1 = input
-    ;Returns None
+    ; Receives input from the user and tries to moves the frog accordingly
+    ; Args : a1 = input
+    ; Returns: Nothing
     call saveRegisters
-    loadn r2, #87; W
+
+    ; Switch case to match movement direction
+    loadn r2, #'w'; W
     cmp r2, r1
     jeq case_W
-    loadn r2, #65; A
+    loadn r2, #'a'; A
     cmp r2, r1
     jeq case_A
-    loadn r2, #83; S
+    loadn r2, #'s'; S
     cmp r2, r1
     jeq case_S
-    loadn r2, #68; D
+    loadn r2, #'d'; D
     cmp r2, r1
     jeq case_D
     call restoreRegisters
@@ -1900,6 +1746,7 @@ fn_moveFrog:
     case_W:
         load r1, frog_pos
         loadn r2, #40
+        sub r1, r1, r2
         sub r1, r1, r2
         store a1, r1
         call fn_checkBorders
@@ -1909,11 +1756,13 @@ fn_moveFrog:
         call fn_eraseFrog
         store frog_pos, r1
         loadn r1, #1
-        store a0, r1
+        loadn r3, #0
+        store frog_dir, r3
         call restoreRegisters
         rts
     case_A:
         load r1, frog_pos
+        dec r1
         dec r1
         store a1, r1
         call fn_checkBorders
@@ -1923,12 +1772,14 @@ fn_moveFrog:
         call fn_eraseFrog
         store frog_pos, r1
         loadn r1, #1
-        store a0, r1
+        loadn r3, #95
+        store frog_dir, r3
         call restoreRegisters
         rts
     case_S:
         load r1, frog_pos
         loadn r2, #40
+        add r1, r1, r2
         add r1, r1, r2
         store a1, r1
         call fn_checkBorders
@@ -1938,11 +1789,13 @@ fn_moveFrog:
         call fn_eraseFrog
         store frog_pos, r1
         loadn r1, #1
-        store a0, r1
+        loadn r3, #111
+        store frog_dir, r3
         call restoreRegisters
         rts
     case_D:
         load r1, frog_pos
+        inc r1
         inc r1
         store a1, r1
         call fn_checkBorders
@@ -1952,12 +1805,12 @@ fn_moveFrog:
         call fn_eraseFrog
         store frog_pos, r1
         loadn r1, #1
-        store a0, r1
+        loadn r3, #103
+        store frog_dir, r3
         call restoreRegisters
         rts
     case_noMove:
         loadn r1, #1
-        store a0, r1
         call restoreRegisters
         rts
 
@@ -1969,6 +1822,7 @@ fn_eraseFrog:
     call saveRegisters
     load r1, frog_pos
     loadn r2, #background
+    add r2, r2, r1
     loadi r3, r2
     outchar r3, r1 ;Top left
     inc r1
@@ -1978,7 +1832,7 @@ fn_eraseFrog:
     loadn r4, #39
     add r1, r1, r4
     add r2, r2, r4
-    loadi r3, r1
+    loadi r3, r2
     outchar r3, r1 ;Bottom left
     inc r1
     inc r2
@@ -2006,37 +1860,35 @@ fn_checkWin:
     rts
 
 
-fn_drawFrog:
-    ;Draws the frog on the screen at its position
-    ;Args : None
-    ;Returns : None
-    call saveRegisters
-    load r1, frog_pos
-    loadn r2, #frog_charmap
-    loadi r3, r2
-    outchar r3, r1 ;Top left
-    inc r1
-    inc r2
-    loadi r3, r2
-    outchar r3, r1 ;Top Right
-    loadn r4, #39
-    add r1, r1, r4
-    inc r2
-    inc r2
-    loadi r3, r2
-    outchar r3, r1 ;Bottom left
-    inc r1
-    inc r2
-    loadi r3, r2
-    outchar r3, r1 ;Bottom right
-    call restoreRegisters
-    rts
+ fn_drawFrog:
+     ;Draws the frog on the screen at its position
+     ;Args : None
+     ;Returns : None
+     call saveRegisters
+     load r1, frog_pos
+     loadn r2, #frog_charmap
+     loadi r2, r2
+     load r3, frog_dir
+     add r2, r2, r3
+     outchar r2, r1 ;Top left
+     inc r1
+     inc r2
+     outchar r2, r1 ;Top Right
+     loadn r4, #39
+     add r1, r1, r4
+     inc r2
+     outchar r2, r1 ;Bottom left
+     inc r1
+     inc r2
+     outchar r2, r1 ;Bottom right
+     call restoreRegisters
+     rts
 
 fn_moveEnemies:
   call saveRegisters
   mov r1, r0
   moveEnLaneLoop:
-    loadn r7, #2
+    loadn r7, #10
     cmp r1, r7
     jeq moveEnEnd
     loadn r2, #lanes
@@ -2049,7 +1901,7 @@ fn_moveEnemies:
     add r5, r2, r5
     loadi r5, r5
     add r5, r5, r3
-    loadn r3, #5000
+    loadn r3, #4
     cmp r5, r3
     jeg actualMoveEn
     ;no movement
@@ -2250,7 +2102,7 @@ fn_deleteEnemies:
     call restoreRegisters
     rts
 
-fn_subLives:
+    fn_subLives:
     ;Removes one live
     ;Returns 0 if there are still lives
     ;Returns 1 if game over
@@ -2266,9 +2118,11 @@ fn_subLives:
     rts
     slDead:
         loadn r1, #1
-        store a1, r1
+        store a0, r1
         call restoreRegisters
         rts
+
+
 
 
 
@@ -2305,14 +2159,13 @@ main:
     loadn r3, #foreground
     mainLoop:
 
-        breakp
         store a1, r1
         store a2, r2
         call titleScreen
-
         store a1, r1
         store a2, r2
         store a3, r3
         call gameScreen
         load r1, a0
+        call wipeScreen
         jmp mainLoop
