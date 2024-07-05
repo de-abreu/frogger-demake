@@ -11,3 +11,7 @@ simulador_Linux/*
 !charmap.mif
 test.asm
 Makefile
+Assembler_Source
+Assembler_Source/*
+Simulator_Source/*
+Simulator_Source
