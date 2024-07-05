@@ -435,10 +435,12 @@ lanes : var #10
 ; Data relating to the frog
 frog_pos : var #1
     static frog_pos, #1060
+frog_dir : var #1
+    static frog_dir, #0
 ; Charmaps
 
 frog_charmap : var #2
-    static frog_charmap     + #0 , #769 ; Initial position
+    static frog_charmap     + #0 , #773 ; Initial position
     static frog_charmap     + #1 , #4   ; Charmap length
 
 roadkill_charmap : var #2
@@ -1708,6 +1710,8 @@ fn_moveFrog:
         call fn_eraseFrog
         store frog_pos, r1
         loadn r1, #1
+        loadn r3, #0
+        store frog_dir, r3
         store a0, r1
         call restoreRegisters
         rts
@@ -1722,6 +1726,8 @@ fn_moveFrog:
         call fn_eraseFrog
         store frog_pos, r1
         loadn r1, #1
+        loadn r3, #95
+        store frog_dir, r3
         store a0, r1
         call restoreRegisters
         rts
@@ -1737,6 +1743,8 @@ fn_moveFrog:
         call fn_eraseFrog
         store frog_pos, r1
         loadn r1, #1
+        loadn r3, #111
+        store frog_dir, r3
         store a0, r1
         call restoreRegisters
         rts
@@ -1751,6 +1759,8 @@ fn_moveFrog:
         call fn_eraseFrog
         store frog_pos, r1
         loadn r1, #1
+        loadn r3, #103
+        store frog_dir, r3
         store a0, r1
         call restoreRegisters
         rts
@@ -1813,6 +1823,8 @@ fn_checkWin:
      load r1, frog_pos
      loadn r2, #frog_charmap
      loadi r2, r2
+     load r3, frog_dir
+     add r2, r2, r3
      outchar r2, r1 ;Top left
      inc r1
      inc r2
