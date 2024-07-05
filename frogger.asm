@@ -2009,6 +2009,23 @@ fn_subLives:
     ;Returns 0 if there are still lives
     ;Returns 1 if game over
     call saveRegisters
+    load r1, lives
+    dec r1
+    store lives, r1
+    cmp r1, r0
+    jeq slDead
+    loadn r1, #0
+    store a1, r1
+    call restoreRegisters
+    rts
+    slDead:
+        loadn r1, #1
+        store a1, r1
+        call restoreRegisters
+        rts
+    
+    
+    
     loadn r1, #lanes
     loadi r1, r1
     load r2, HEIGHT

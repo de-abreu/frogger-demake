@@ -434,7 +434,7 @@ lanes : var #10
 
 ; Data relating to the frog
 frog_pos : var #1
-
+    static frog_pos, #1060
 ; Charmaps
 
 frog_charmap : var #2
@@ -531,6 +531,26 @@ restoreRegisters:
     push r0
     loadn r0, #0
     rts
+
+initMap:
+    ; Fills a map with zeroes.
+    ; Arguments:
+    ; a1 = pointer to the map
+    ; Returns: Nothing
+
+    call saveRegisters
+    store a3, r1
+    store a1, r0
+    store a2, r0
+    load r1, WIDTH
+    load r2, HEIGHT
+    mul r1, r1, r2
+    store a4, r1
+    store a5, r0
+    call printChar
+    call restoreRegisters
+    rts
+
 
 initTitleScreen:
     ; Prints the background of the title screen.
@@ -1133,6 +1153,7 @@ drawCharmap:
 
     call saveRegisters
     mov r5, r1
+    ; breakp
     inc r5
     loadi r1, r1   ; Charmap's initial character
     loadi r5, r5   ; Charmap's total length
@@ -1482,15 +1503,17 @@ gameScreen:
     call initStats
     store a1, r2
     call drawHUD
-    call drawBackground
+    ;call drawBackground
     ; TODO: Create and call function drawLanes using the drawCharmap as an auxiliary function
 
     load r4, lives
+    loadn  r7, #background
+    store a1, r7
+    call initMap
     gameLoop:
         ;call drawLanes
         ; TODO: precisa por a partes das lanes, movimento do sapo implementado
         ; TODO: Augusto and Felipe, insert calls to game functions here
-
 
         ;Input
         loadn r7, #200
@@ -1613,30 +1636,17 @@ fn_checkBorders:
     ;Args : a1 = new position
     ;Returns: a0 = 0 if not valid, 1 if valid
     call saveRegisters
-    load r2, frog_pos
     loadn r3, #1078 ; Compares to max position of the map
-    cmp r3, r2
+    cmp r3, r1
     jle case_invalidMove ;Out of map
     loadn r3, #40
-    loadn r5, #38
-    mod r4, r2, r3 ;Cehcks if is the last column
+    loadn r5, #39
+    mod r4, r1, r3 ;Cehcks if is the last column
     cmp r4, r5
     jeq case_invalidMove
     loadn r5, #1
-    cmp r4, r5 ;First column
+    cmp r4, r5   ;First column
     jeq case_invalidMove
-    ; div r4, r1, r3
-    ; div r5, r2, r3
-    ; cmp r4, r5 ;Checks if two positions arent on different lines (stepped over the edge)
-    ; jeq case_validMove
-    ; sub r4, r2, r1
-    ; loadn r5, #1
-    ; cmp r4, r5
-    ; jne case_validMove
-    ; sub r4, r1, r2
-    ; cmp r4, r5
-    ; jne case_validMove
-    ; jne case_invalidMove
     case_validMove:
     loadn r1, #1
     store a0, r1
@@ -2041,11 +2051,30 @@ initStats:
 
 
 
-fn_subLives:
+    fn_subLives:
     ;Removes one live
     ;Returns 0 if there are still lives
     ;Returns 1 if game over
     call saveRegisters
+    load r1, lives
+    dec r1
+    store lives, r1
+    cmp r1, r0
+    jeq slDead
+    loadn r1, #0
+    store a1, r1
+    call restoreRegisters
+    rts
+    slDead:
+        loadn r1, #1
+        store a1, r1
+        call restoreRegisters
+        rts
+    
+    
+    
+    
+    
     loadn r1, #lanes
     loadi r1, r1
     load r2, HEIGHT
@@ -2074,15 +2103,15 @@ fn_subLives:
     inc r2
 
 main:
-    loadn r0, #0 ; Set r0 to 0, this register should hold this value always
+   ; loadn r0, #0 ; Set r0 to 0, this register should hold this value always
     load r1, hiscore
     loadn r2, #background
     loadn r3, #foreground
     mainLoop:
 
-        store a1, r1
-        store a2, r2
-        call titleScreen
+        ; store a1, r1
+        ; store a2, r2
+        ; call titleScreen
 
         store a1, r1
         store a2, r2
