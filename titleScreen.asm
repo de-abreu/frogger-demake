@@ -29,7 +29,7 @@ ENTER: var #1
     static ENTER, #13
 
 FRAMERATE : var #1
-    static FRAMERATE, #300    ; Multiplier for the framerate interval
+    static FRAMERATE, #150    ; Multiplier for the framerate interval
 
 ; Some color offsets. Remember, white = 0
 gray   : var #1
@@ -577,15 +577,15 @@ initMap:
     ; Returns: Nothing
 
     call saveRegisters
-    store a3, r1
-    store a1, r0
-    store a2, r0
-    load r1, WIDTH
-    load r2, HEIGHT
-    mul r1, r1, r2
-    store a4, r1
-    store a5, r0
-    call printChar
+    load r2, WIDTH
+    load r3, HEIGHT
+    mul r2, r2, r3 ; Total length of the map
+    add r2, r1, r2 ; Memory address to stop setting to zero
+    imLoop:
+        storei r1, r0
+        inc r1
+        cmp r1, r2
+        jne imLoop
     call restoreRegisters
     rts
 
@@ -1440,11 +1440,11 @@ titleScreen:
         cmp r1, r0        ; Either print instructions for scoring or playing
         jeq selectPlay    ; Selection logic
         loadn r5, #how_to_score0
-        loadn r6, #2      ; Column offset
+        loadn r6, #2      ; Text box horizontal padding
         jmp instructionSelected
         selectPlay:
             loadn r5, #how_to_play0
-            loadn r6, #13 ; Column offset
+            loadn r6, #13 ; Text box horizontal padding
         instructionSelected:
             store a1, r5
             store a2, r4
@@ -1490,7 +1490,7 @@ gameScreen:
         ; TODO: Augusto and Felipe, insert calls to game functions here
 
         ;Input
-        loadn r7, #200
+        load r7, FRAMERATE
         store a1 ,R7
         loadn r7, #1
         store a2, r7
@@ -1643,10 +1643,12 @@ fn_checkBorders:
 
 
 fn_moveFrog:
-    ;receives the input from the user and tries to move the frog
-    ;Args : a1 = input
-    ;Returns None
+    ; Receives input from the user and tries to moves the frog accordingly
+    ; Args : a1 = input
+    ; Returns: Nothing
     call saveRegisters
+
+    ; Switch case to match movement direction
     loadn r2, #'w'; W
     cmp r2, r1
     jeq case_W
