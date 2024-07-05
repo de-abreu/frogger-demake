@@ -1505,6 +1505,7 @@ titleScreen:
     load r1, red
     store a4, r1
     call printInt         ; Print Highscore
+    call updateHiscoreHUD
 
     mov r1, r0            ; variable to toggle between instructions to be displayed
     load r2, ENTER        ; variable to compare if ENTER was pressed
@@ -1557,6 +1558,9 @@ gameScreen:
 
     store a1, r2
     call drawBackground
+    
+    call updateHiscoreHUD
+    
 
     load r4, lives
     gameLoop:
