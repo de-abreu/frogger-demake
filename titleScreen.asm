@@ -1594,6 +1594,7 @@ gameScreen:
         store a1, r2
         call drawGameOver
         store a0, r1
+        call restoreRegisters
         rts
 
 fn_checkDeath:
@@ -1686,6 +1687,7 @@ fn_moveFrog:
         load r1, frog_pos
         loadn r2, #40
         sub r1, r1, r2
+        sub r1, r1, r2
         store a1, r1
         call fn_checkBorders
         load r2, a0
@@ -1716,6 +1718,7 @@ fn_moveFrog:
     case_S:
         load r1, frog_pos
         loadn r2, #40
+        add r1, r1, r2
         add r1, r1, r2
         store a1, r1
         call fn_checkBorders
@@ -2053,7 +2056,7 @@ fn_deleteEnemies:
     rts
     slDead:
         loadn r1, #1
-        store a1, r1
+        store a0, r1
         call restoreRegisters
         rts
 
