@@ -7,8 +7,6 @@ simuladorGO
 simuladorGO/*
 simulador_Linux
 simulador_Linux/*
-*.mif
-!charmap.mif
 test.asm
 Makefile
 Assembler_Source
