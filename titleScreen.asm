@@ -1615,16 +1615,16 @@ fn_moveFrog:
     ;Args : a1 = input
     ;Returns None
     call saveRegisters
-    loadn r2, #87; W
+    loadn r2, #'w'; W
     cmp r2, r1
     jeq case_W
-    loadn r2, #65; A
+    loadn r2, #'a'; A
     cmp r2, r1
     jeq case_A
-    loadn r2, #83; S
+    loadn r2, #'s'; S
     cmp r2, r1
     jeq case_S
-    loadn r2, #68; D
+    loadn r2, #'d'; D
     cmp r2, r1
     jeq case_D
     call restoreRegisters
