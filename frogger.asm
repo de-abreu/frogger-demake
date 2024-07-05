@@ -2269,9 +2269,9 @@ fn_subLives:
         store a1, r1
         call restoreRegisters
         rts
-    
-    
-    
+
+
+
     loadn r1, #lanes
     loadi r1, r1
     load r2, HEIGHT

@@ -264,6 +264,18 @@ title : var #200
   static title + #198 , #3138
   static title + #199 , #3138
 
+pond : var #8
+    static pond + #0, #2626
+    static pond + #1, #2626
+    static pond + #2, #3138
+    static pond + #3, #3138
+    static pond + #4, #3138
+    static pond + #5, #3138
+    static pond + #6, #2626
+    static pond + #7, #2626
+pond_length : var #1
+    static pond_length, #8
+
 ; How to play
 how_to_play0  : string "HOW TO PLAY"
 how_to_play1  : string "W - "
@@ -318,6 +330,7 @@ timeLabel  : string " TIME"
 ; 7: counter for when to move
 ; 8: how much the counter advances
 
+; Road
 lane_0 : var #9
     static lane_0 + #0, #24
     static lane_0 + #1, #37
@@ -368,6 +381,8 @@ lane_4 : var #9
     static lane_4 + #6, #truck_charmap
     static lane_4 + #7, #0
     static lane_4 + #8, #2
+
+; River
 lane_5 : var #9
     static lane_5 + #0, #12
     static lane_5 + #1, #38
@@ -399,7 +414,7 @@ lane_7 : var #9
     static lane_7 + #6, #log_charmap
     static lane_7 + #7, #0
     static lane_7 + #8, #2
-    
+
 lane_8 : var #9
     static lane_8 + #0, #6
     static lane_8 + #1, #200
@@ -491,6 +506,27 @@ gameOverLabel: string " GAME OVER "
 
 ; NOTE: Code segment
 
+; NOTE: Mathematical functions
+
+screenOffset:
+    ; Gives the offset that, given the screen's dimensions, corresponds to a given column and row. Values beyond the screen's HEIGHT and WIDTH get wrapped around.
+    ; Arguments:
+    ; a1 = row
+    ; a2 = column
+    ; Returns:
+    ; a0 = offset
+
+    call saveRegisters
+    load r3, HEIGHT
+    load r4, WIDTH
+    mod r1, r1, r3
+    mul r1, r1, r4
+    mod r2, r2, r4
+    add r1, r1, r2
+    store a0, r1
+    call restoreRegisters
+    rts
+
 ; NOTE: Functions to initialize and free memory or game objects
 
 saveRegisters:
@@ -540,16 +576,7 @@ initMap:
     ; a1 = pointer to the map
     ; Returns: Nothing
 
-    
     call saveRegisters
-    loadn r2, #1200
-    zeroLoop:
-        storei r1, r0
-        inc r1
-        dec r2
-        cmp r2, r0
-        jne zeroLoop    
-    
     store a3, r1
     store a1, r0
     store a2, r0
@@ -569,17 +596,8 @@ initTitleScreen:
     ; Returns: Nothing
 
     call saveRegisters
-
-    ; Wipe Map
-    store a1, r0
-    store a2, r0
+    call initMap
     store a3, r1
-    load r1, WIDTH
-    load r2, HEIGHT
-    mul r1, r1, r2
-    store a4, r1
-    store a5, r0
-    call printChar
 
     ; Print Highscore indicator
     loadn r1, #hiscoreLabel
@@ -671,59 +689,24 @@ initTitleScreen:
     call restoreRegisters
     rts
 
-
-takeInput:
-    ; A function that delays the game's execution for a given period to take an input from the player. If the input is one that was expected, the delay is canceled.
-    ; Arguments:
-    ; a1 = Delay multiplier
-    ; a2 = Expected input
-    ; Returns:
-    ; a0 = 0, if no key was pressed, otherwise the ASCII value of key pressed
+initStats:
+    ; Sets up the initial values of this game's status
+    ; Arguments: None
+    ; Returns: Nothing
 
     call saveRegisters
-    loadn r3, #1000 ; Base delay, implies a microsecond at 1 MHz
-    loadn r4, #255  ; Default value returned by inchar when no key press is detected
-    store a0, r0
-
-    delay_A:
-        mov r5, r1
-        delay_B:
-            inchar r6
-            cmp r4, r6
-            jeq delayContinue
-            store a0, r6
-            cmp r2, r6
-            jeq delayEnd
-    delayContinue:
-        dec r5
-        jnz delay_B
-        dec r3
-        jnz delay_A
-    delayEnd:
+    store level, r0
+    store score, r0
+    store saved, r0
+    ; store elapsed, r0
+    loadn r1, #7
+    store lives, r1
+    loadn r1, #1000
+    store oneUp, r1
     call restoreRegisters
     rts
 
 ; NOTE: Functions for printing on screen
-
-screenOffset:
-    ; Gives the offset that, given the screen's dimensions, corresponds to a given column and row. Values beyond the screen's HEIGHT and WIDTH get wrapped around.
-    ; Arguments:
-    ; a1 = row
-    ; a2 = column
-    ; Returns:
-    ; a0 = offset
-
-    call saveRegisters
-    load r3, HEIGHT
-    load r4, WIDTH
-    mod r1, r1, r3
-    mul r1, r1, r4
-    mod r2, r2, r4
-    add r1, r1, r2
-    store a0, r1
-    call restoreRegisters
-    rts
-
 
 printChar:
     ; Prints a character, one or more times.
@@ -1154,55 +1137,6 @@ eraseEnemy:
     rts
 
 
-drawCharmap:
-    ; Function to draw game object's charmaps. Wraps around the edges of the screen
-    ; a1 = Pointer to charmap data structure
-    ; a2 = Vertical position where to print the top left corner of the charmap
-    ; a3 = Horizontal position where to print the top left corner of the charmap
-    ; a4 = Pointer to map where to store the charmap,
-    ;      If set to 0 the charmap won't be saved to a map
-
-    call saveRegisters
-    mov r5, r1
-    ; breakp
-    inc r5
-    loadi r1, r1   ; Charmap's initial character
-    loadi r5, r5   ; Charmap's total length
-    loadn r6, #2   ; Row counter
-    div r7, r5, r6 ; Second row length
-    store a3, r7   ; Store to memory
-    sub r5, r5, r7 ; First (current) row length
-
-    rowLoop:
-        store a1, r2
-        mov r2, r3
-        columnLoop:
-            dec r5
-            jz columnEnd
-            store a2, r3
-            call screenOffset
-            load r7, a0
-            outchar r1, r7
-            cmp r3, r0
-            jeq columnContinue
-            storei r4, r1
-            inc r4
-        columnContinue:
-            inc r1
-            inc r3
-            jmp columnLoop
-        columnEnd:
-            dec r6
-            jz rowEnd
-            mov r3, r2
-            load r2, a1
-            inc r2
-            load r5, a3
-            jmp rowLoop
-    rowEnd:
-        call restoreRegisters
-        rts
-
 drawHUD:
     ; Function to draw HUD elements
     ; Arguments:
@@ -1282,99 +1216,65 @@ drawBackground:
 
     call saveRegisters
     store a3, r1
-    store a5, r0
-    load r1, FILL     ; Character to print
-    loadn r2, #2      ; Vertical length of the ponds, river margin and the sidewalk
-    store a1, r2
-    store a2, r0
-    call screenOffset
-    load r3, a0       ; Cursor position on the screen
-    breakp
+    loadn r1, #2         ; Vertical length of the margin and sidewalk
+    loadn r2, #10        ; Vertical length of the river and the road
+    load r3, WIDTH
 
     ; Draw ponds
-    load r4, grass
-    add r4, r1, r4
+    loadn r4, #pond
     store a1, r4
-    store a2, r3
-    store a4, r2
-    call printChar
-    load r4, a0
-    add r3, r3, r4
-
-    loadn r4, #4
+    load r4, pond_length
     store a4, r4
-    loadn r4, #19
-    pondLoop:
-        mod r5, r4, r2
-        jz selectGrass
-            load r5, blue
-            jmp colorSelected
-        selectGrass:
-            load r5, grass
-        colorSelected:
-            add r5, r1, r5
-            store a1, r5
-            store a2, r3
-            call printChar
-            load r5, a0
-            add r3, r3, r5
+    mul r5, r1, r3       ; initial index
+    mov r6, r2           ; Loop counter
 
-            dec r4
-            jz pondLoop
+    drawPonds:
+        store a2, r5
+        call printVector
+        add r5, r4, r5
+        dec r6
+        jnz drawPonds
 
-    load r4, grass
-    add r4, r1, r4
-    store a1, r4
-    store a2, r3
-    store a4, r2
-    call printChar
-    load r4, a0
-    add r3, r3, r4
+    mul r1, r1, r3
+    mul r2, r2, r3
+    load r4, FILL
 
-    load r4, WIDTH
-    loadn r5, #10 ; Vertical length of the river and the road
     ; Draw river
     load r6, blue
-    add r6, r1, r6
+    add r6, r4, r6
     store a1, r6
-    store a2, r3
-    mul r6, r4, r5
-    store a4, r6
+    store a2, r5
+    store a4, r2
     call printChar
-    load r6, a0
-    add r3, r3, r6
+    add r5, r5, r2
 
     ; Draw grass
     load r6, grass
-    add r6, r1, r6
+    add r6, r4, r6
     store a1, r6
     store a2, r5
-    mul r6, r2, r4
-    store a4, r6
+    store a4, r1
     call printChar
-    load r6, a0
-    add r3, r3, r6
+    add r5, r5, r1
 
     ; Draw asphalt
     store a1, r0
-    store a2, r3
-    mul r5, r4, r5
-    store a4, r5
+    store a2, r5
+    store a4, r2
     call printChar
-    load r5, a0
-    add r3, r3, r5
+    add r5, r5, r2
 
     ; Draw sidewalk
-    load r5, gray
-    add r5, r1, r5
-    store a1, r5
-    store a2, r3
-    mul r2, r2, r4
-    store a4, r2
+    load r6, gray
+    add r6, r4, r6
+    store a1, r6
+    store a2, r5
+    store a4, r1
     call printChar
 
     call restoreRegisters
     rts
+
 
 drawGameOver:
     ; Draws a "Game Over" disclaimer that lingers for some time (unless interrupted) before returning the player to the Title Screen
@@ -1448,6 +1348,38 @@ drawGameOver:
 
 ; NOTE: Game functions
 
+takeInput:
+    ; A function that delays the game's execution for a given period to take an input from the player. If the input is one that was expected, the delay is canceled.
+    ; Arguments:
+    ; a1 = Delay multiplier
+    ; a2 = Expected input
+    ; Returns:
+    ; a0 = 0, if no key was pressed, otherwise the ASCII value of key pressed
+
+    call saveRegisters
+    loadn r3, #1000 ; Base delay, implies a microsecond at 1 MHz
+    loadn r4, #255  ; Default value returned by inchar when no key press is detected
+    store a0, r0
+
+    delay_A:
+        mov r5, r1
+        delay_B:
+            inchar r6
+            cmp r4, r6
+            jeq delayContinue
+            store a0, r6
+            cmp r2, r6
+            jeq delayEnd
+    delayContinue:
+        dec r5
+        jnz delay_B
+        dec r3
+        jnz delay_A
+    delayEnd:
+    call restoreRegisters
+    rts
+
+
 titleScreen:
     ; Prints the title screen, displaying game instructions.
     ; Arguments:
@@ -1512,15 +1444,14 @@ gameScreen:
 
     call saveRegisters
     call initStats
+
     store a1, r2
     call drawHUD
-    ;call drawBackground
-    ; TODO: Create and call function drawLanes using the drawCharmap as an auxiliary function
+
+    store a1, r2
+    call drawBackground
 
     load r4, lives
-    loadn  r7, #background
-    store a1, r7
-    call initMap
     gameLoop:
         ;call drawLanes
         ; TODO: precisa por a partes das lanes, movimento do sapo implementado
@@ -1537,8 +1468,8 @@ gameScreen:
         ;Movement
         store a1, r7
         call fn_moveFrog
-        
-        
+
+
         call fn_moveEnemies
 
         ;Checks collision after frog move
@@ -1552,7 +1483,7 @@ gameScreen:
         ;store a1, r7
         ;load r6, frog_pos
         ;loadn r5, #40
-        ;div r7, r6, r5              
+        ;div r7, r6, r5
         ;store a2, r7
         ;mod r7, r6, r5
         ;store a3, r7
@@ -2057,26 +1988,6 @@ fn_deleteEnemies:
     call restoreRegisters
     rts
 
-
-initStats:
-    ; Sets up the initial values of this game's status
-    ; Arguments: None
-    ; Returns: Nothing
-
-    call saveRegisters
-    store level, r0
-    store score, r0
-    store saved, r0
-    ; store elapsed, r0
-    loadn r1, #7
-    store lives, r1
-    loadn r1, #1000
-    store oneUp, r1
-    call restoreRegisters
-    rts
-
-
-
     fn_subLives:
     ;Removes one live
     ;Returns 0 if there are still lives
@@ -2096,11 +2007,11 @@ initStats:
         store a1, r1
         call restoreRegisters
         rts
-    
-    
-    
-    
-    
+
+
+
+
+
     loadn r1, #lanes
     loadi r1, r1
     load r2, HEIGHT
@@ -2129,16 +2040,14 @@ initStats:
     inc r2
 
 main:
-   ; loadn r0, #0 ; Set r0 to 0, this register should hold this value always
     load r1, hiscore
     loadn r2, #background
     loadn r3, #foreground
     mainLoop:
 
-        ; store a1, r1
-        ; store a2, r2
-        ; call titleScreen
-
+        store a1, r1
+        store a2, r2
+        call titleScreen
         store a1, r1
         store a2, r2
         store a3, r3
