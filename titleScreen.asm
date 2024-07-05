@@ -1097,7 +1097,7 @@ eraseEnemy:
       add r6, r6, r4
       loadi r6, r6
       outchar r6, r4
-      storei r7, r6
+      storei r7, r0
       inc r3
       loadn r7, #40
       cmp r3, r7
