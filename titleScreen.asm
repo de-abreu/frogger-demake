@@ -1209,6 +1209,38 @@ drawHUD:
     call restoreRegisters
     rts
 
+updateLives:
+    ;updates the lives on the HUD
+    ;No args, no return
+
+    ;Clears
+    call saveRegisters
+    store a1, r0
+    loadn r1, #1166
+    store a2, r1
+    loadn r1, #background
+    store a3, r1
+    loadn r1, #7
+    store a4, r1
+    call printChar
+
+    ;Prints new lives
+    load r1, heart_charmap
+    store a1, r1
+    loadn r1, #1166
+    store a2, r1
+    loadn r1, #background
+    store a3, r1
+    load r1, lives
+    store a4, r1
+    call printChar
+
+
+
+    call restoreRegisters
+    rts
+
+
 drawBackground:
     ; Draw the game's background
     ; Arguments:
@@ -1508,7 +1540,7 @@ gameScreen:
             cmp r7, r0
             jne gameOver
             store a1, r2
-        call drawHUD
+            call updateLives
             loadn r7, #1060
             store frog_pos, r7
             ;call fn_drawFrog
@@ -1534,7 +1566,7 @@ gameScreen:
             store frog_pos, r7
 
             store a1, r2
-            call drawHUD
+
 
             jmp gameLoop
 
