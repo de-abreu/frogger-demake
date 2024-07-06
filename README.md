@@ -5,6 +5,14 @@
 
 Implementação do jogo [Frogger (KONAMI, 1981)](https://invidious.privacyredirect.com/watch?v=WNrz9_Fe-Us) para o [processador do ICMC](https://github.com/simoesusp/Processador-ICMC), feita conforme exigência para aprovação na matéria de [Prática em Organização e arquitetura de computadores](https://gitlab.com/simoesusp/disciplinas/-/tree/master/SSC0119-Pratica-em-Organizacao-de-Computadores?ref_type=heads).
 
+## Autores
+
+| Nome | nUSP |
+| :--- | :--- |
+| Augusto Cavalcante Barbosa Pereira | 1465131 |
+| Guilherme de Abreu Barreto | 12543033 |
+| Felipe Carneiro Machado | 14569373 |
+
 ## Sumário
 - [Proposta projetual](#proposta_projetual)
 - [Instruções para montagem](instrucoes_para_montagem)
