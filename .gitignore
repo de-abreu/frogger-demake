@@ -1,15 +1,3 @@
 *.o
-ProcessadorICMC2.pdf
-__pycache__/
-server exited unexpectedly
 sim
-simuladorGO
-simuladorGO/*
-simulador_Linux
-simulador_Linux/*
-test.asm
-Makefile
-Assembler_Source
-Assembler_Source/*
-Simulator_Source/*
-Simulator_Source
+montador
